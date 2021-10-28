@@ -1,0 +1,1 @@
+# Allarium-Report-Generator
