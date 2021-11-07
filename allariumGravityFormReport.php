@@ -16,8 +16,10 @@ if ( ! defined ( 'ABSPATH')) exit; // Exit if accessed directly
 
 define( 'AGFR__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 include_once(AGFR__PLUGIN_DIR . "class.agfr.php");
+// include_once( AGFR__PLUGIN_DIR . "meta_box_graph.php" );
 include_once( AGFR__PLUGIN_DIR . "deactivate.php" );
 
 
 // calls the AgfReport class and calls the init function.
 $class_agfr = new AgfReport();
+// add_shortcode( 'agfReportGraph', array( 'AgfReport', 'Agf_report_function' ) );

@@ -5,26 +5,242 @@ include_once "agfr-register-post-type.php"; // register post type function.
 class AgfReport {
     public function __construct() {
         add_action( 'init', array( $this, 'init' ) );
-        add_action( 'load-post.php',     array( $this, 'init_reporting_metabox' ) );
 	}
 
     public  function init() {
-        $this->enqueue_meta_box_script();
         $this->console_log("Initiating AgfReport class.");
         $this->registerReportPostType();
+        $this->console_log("AgfReport Short Code initiated.");        
+        add_shortcode( 'agfGraph', array( $this, 'Agf_short_code_graph_func' ) );
+        add_shortcode( 'agfTable', array( $this, 'Agf_short_code_table_func' ) );
+        add_action( 'add_meta_boxes', array( $this, 'register_reporting_metabox'  ));
+        // Called when user clicks publish or save page.
+        add_action( 'save_post',      array( $this, 'save_reporting_metabox' ), 10, 2 );   
+    }
+
+    // Getting entries based on user Role.
+    public function get_entries_by_user_id($form_id, $user_arr = []){
+        // filter selected_form_entries by user_id
+        // get gravity forms entries
+        $entries = GFAPI::get_entries($form_id); 
+        foreach($user_arr as $user_id){
+            foreach($entries as $entry){
+                if($entry['created_by'] == $user_id){
+                    $selected_form_entries[] = $entry;
+                }
+            }
+        }
+        return $selected_form_entries;
+    }
+
+    public fUnction sort_entries_by_domain($domains = [], $entries = []){
+        // returns only entries that have uses in the selected domains.
+            foreach($entries as $entry){
+                // get user by id in order to check that uses domain.
+                $entry_user_data = get_user_by('id', $entry['created_by']);
+                // getting only domain (ex: @gmail.com) from email.
+                $current_loop_user_domain = explode("@", $entry_user_data->data->user_email)[1];
+                // if current_loop_user_domain is in domain array
+                if(in_array($current_loop_user_domain, $domains)){
+                    $selected_form_entries_by_domain[] = $entry;
+                }
+            }
+        return $selected_form_entries_by_domain;
     }
     
-    public function init_reporting_metabox(){
-        add_action( 'add_meta_boxes', array( $this, 'add_reporting_metabox'  ));
-        // Called when user clicks publish or save page.
-        add_action( 'save_post',      array( $this, 'save_reporting_metabox' ), 10, 2 );
+    public function sort_entries_by_role($roles = [], $entries = []){
+        $selected_form_entries_by_role = [];
+        foreach($entries as $entry){
+            // get user by id
+            $current_loop_user_data = get_user_by('id', $entry['created_by']);
+            // if current_loop_user_data->roles is in roles array
+            if(in_array($current_loop_user_data->roles[0], $roles)){
+                $selected_form_entries_by_role[] = $entry;
+            }
+        }
+        return $selected_form_entries_by_role;
     }
 
-    function enqueue_meta_box_script() {
-        wp_enqueue_script( 'meta_box_script', plugin_dir_url( __FILE__ ) . 'js/meta_box.js', array( 'jquery' ) );
+    public function score_data($entries = []){
+        // This gets only the imputed values from the use from an array of entries.
+            // This is needed because an entry also has meta data along with it.
+            $arry_of_entry_values = array();
+            foreach($entries as $key1 => $entry){
+                foreach($entry as $key2 => $value){
+                    // All keys that are numeric are entry values or section headers. The rest of the keys are form meta data.
+                    // Gravity form section titles have a value of '', therefore they are filtered out.
+                    if(is_numeric($key2) && $value !== ''){
+                        // add only unique key values to array
+                        if(!in_array($key2, $arry_of_entry_values)){
+                            $arry_of_entry_values[$key1]['data'][$key2] = $value;
+                            
+                        }
+                    }   
+                }
+                $arry_of_entry_values[$key1]['entry'] = $entry;
+            }
+        // get every other 4 value. This gets each section. So section 1 with each four questions
+        // will be in one array. This is done so the next step each value can be gotten by index.
+        // example, index[1] will always pertain to data_driven, and index 
+        // [3] always marketing_scale.
+        $chunked_entries = array();
+        foreach($arry_of_entry_values as $key => $value){
+            $chunked_entries[$key]['data'] = array_chunk($value['data'],4);
+            $chunked_entries[$key]['entry'] = $value['entry'];
+
+            // This is adding each value that pertains to one question to its own array.
+            // example, index[1] will always pertain to cdbi, or index[2] to ddd.
+            foreach($chunked_entries[$key]['data'] as $key2 => $chunked_section){
+                $chunked_entries[$key]['data']['cdbi_avg'][] = $chunked_section[0];
+                $chunked_entries[$key]['data']['ddd_avg'][] = $chunked_section[1];
+                $chunked_entries[$key]['data']['me_avg'][] = $chunked_section[2];
+                $chunked_entries[$key]['data']['ms_avg'][] = $chunked_section[3];
+            }
+            $chunked_entries[$key]['data']['cdbi_avg'] = array_sum($chunked_entries[$key]['data']['cdbi_avg'])/count($chunked_entries[$key]['data']['cdbi_avg']);
+            $chunked_entries[$key]['data']['ddd_avg'] = array_sum($chunked_entries[$key]['data']['ddd_avg'])/count($chunked_entries[$key]['data']['ddd_avg']);
+            $chunked_entries[$key]['data']['me_avg'] = array_sum($chunked_entries[$key]['data']['me_avg'])/count($chunked_entries[$key]['data']['me_avg']);
+            $chunked_entries[$key]['data']['ms_avg'] = array_sum($chunked_entries[$key]['data']['ms_avg'])/count($chunked_entries[$key]['data']['ms_avg']);
+        }
+        return $chunked_entries;
     }
 
-    private  function registerReportPostType(){
+    public static function Agf_short_code_table_func( $atts ) {
+        // * ################################# Getting meta data and entries #################################
+        $post_id = $atts['id'];
+        $post = get_post($post_id);        
+        $post_meta = get_post_meta($post_id);
+
+        // Post meta data.
+        $graph_type = get_post_meta( $post_id, 'graph_type', true );
+        $selected_email_domain = get_post_meta( $post_id, 'selected_email_domain', true );
+        $selected_role = get_post_meta( $post_id, 'selected_role', true );
+        // get selected form id from post meta data
+        $selected_form_id = get_post_meta( $post_id, 'selected_form_id', true );
+
+        // get selected form entries
+        $selected_form_entries = GFAPI::get_entries($selected_form_id);
+
+        // ! ################################# End Getting Meta Data #################################
+
+        // ? filtering entries by user role
+            $entries_sorted_by_domain = self::sort_entries_by_domain([$selected_email_domain, "live.com", "gmail.com", "hotmail.com"], $selected_form_entries);
+            // log entries_sorted_by_domain
+            self::console_log($entries_sorted_by_domain);
+            self::console_log("^ entreis sorted by domain ");
+        // ? Filtering entries by user domain.
+            $entries_sorted_by_role = self::sort_entries_by_role([$selected_role], $entries_sorted_by_domain);
+            // log entries_sorted_by_role
+            self::console_log($entries_sorted_by_role);
+            self::console_log("^ entreis sorted by user role ");
+            self::console_log("Selected user Role: " . $selected_role);
+            self::console_log("Selected Email domain: " . $selected_email_domain);
+
+        // ? scoring data
+            $scored_data = self::score_data($entries_sorted_by_role);
+            // log scored_data
+            self::console_log($scored_data);
+            self::console_log("^ scored data ");
+       
+        // ! html table for all users scores
+            $html_table = '<table class="table table-striped table-bordered table-hover" id="dataTables-example">';
+            $html_table .= '<thead>';
+            $html_table .= '<tr>';
+
+            $html_table .= '<th>User ID</th>';
+            $html_table .= '<th>User Email</th>';
+            $html_table .= '<th>User Name</th>';
+            $html_table .= '<th>CDBI</th>';
+            $html_table .= '<th>DDD</th>';
+            $html_table .= '<th>ME</th>';
+            $html_table .= '<th>MS</th>';
+            $html_table .= '<th>Created Date</th>';
+            $html_table .= '</tr>';
+            $html_table .= '<tr>';
+            
+            foreach($scored_data as $key => $value){
+                // get user email by id
+                $user_email = get_userdata($value['entry']['created_by'])->data->user_email;
+                // log user email
+                $user_name = get_userdata($value['entry']['created_by'])->data->user_nicename;
+                $html_table .= '<tr>  
+                <td>'.$value['entry']['created_by'].'</td> 
+                <td>'.$user_email.'</td>
+                <td>'.$user_name.'</td>
+                <td>'.$value['data']['cdbi_avg'].'</td>
+                <td>'.$value['data']['ddd_avg'].'</td>
+                <td>'.$value['data']['me_avg'].'</td>
+                <td>'.$value['data']['ms_avg'].'</td>
+                <td>'.$value['entry']['date_created'].'</td>
+                </tr>';
+            }
+
+            $html_table .= '</tr>';
+            $html_table .= '</thead>';
+            $html_table .= '<tbody>';
+        return $html_table;
+
+        // TODO get average with applied filters. (right now we are getting all entires and averaging them)
+    }
+
+    public static function Agf_short_code_graph_func( $atts ) {
+        $post_id = $atts['id'];
+        $post = get_post($post_id);
+        // get graph_type from post meta data
+        $graph_type = get_post_meta( $post_id, 'graph_type', true );
+        // get selected form id from post meta data
+        $selected_form_id = get_post_meta( $post_id, 'selected_form_id', true );
+        $averaged_data_set = self::get_entry_average_score($selected_form_id);
+
+        $graph_html = '<body width="100px" height="100px">
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js" integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+            <div height="100px" width="100px"><canvas id="myChart" height="40vh" width="80vw"></div>
+            <script>
+            var ctx = document.getElementById("myChart").getContext("2d");
+            var myChart = new Chart(ctx, {
+            type: "'.$graph_type.'",
+            data: {
+            labels: ["Centralized Data and BI Reporting Priority Score", "Data-Driven Decision Making Priority Score", "Marketing Experimentation Priority Score", "Marketing Scale and Growth Priority Score"],
+            datasets: [
+                {
+                    label: "# of Votes",
+                    data: ['.$averaged_data_set['average_centralized_Data'] . ",". $averaged_data_set['average_data_driven'] .",". $averaged_data_set['average_marketing_experimentation']. ",". $averaged_data_set['average_marketing_scale']. '],
+                        backgroundColor: [
+                            "'.$post->graph_color_one.'",
+                            "'. $post->graph_color_two . '",
+                            "'. $post->graph_color_three . '",
+                            "'. $post->graph_color_four . '",
+                        ],
+                        borderColor: [
+                            "'.$post->graph_border_color_one.'",
+                            "'. $post->graph_border_color_two . '",
+                            "'. $post->graph_border_color_three . '",
+                            "'. $post->graph_border_color_four . '",
+                        ],
+                    borderWidth: 1,
+                },
+            ],
+            },
+                options: {
+                    
+                    scales: {
+                        y: {
+                            
+                        beginAtZero: true,
+                        },
+                    },
+                },
+            });
+            </script>
+            </body>';
+
+
+        
+        return $graph_html;
+    }
+
+    private function registerReportPostType(){
         $this->console_log("Initiating post type agfReport");
         // function to register post type
         init_agf_report(); // this is a imported function from agfr-register-post-type.php.
@@ -103,9 +319,21 @@ class AgfReport {
         $averages['average_data_driven'] = round($averages['average_data_driven'],2);
         $averages['average_marketing_experimentation'] = round($averages['average_marketing_experimentation'],2);
         $averages['average_marketing_scale'] = round($averages['average_marketing_scale'],2);
-
-        $this->console_log($averages);
         return $averages;
+    }
+
+    public function get_user_by_role($roles){
+        // get users by role
+        foreach($roles as $role){
+            $users = get_users(array('role' => $role));
+            foreach($users as $user){
+                $user_array[] = $user;
+            }
+        }
+        
+        $this->console_log("All Users");
+        $this->console_log($user_array);
+        return $user_array;
     }
 
     public function add_report($entry, $form) {
@@ -140,30 +368,107 @@ class AgfReport {
         }   
     }
 
-    public function add_reporting_metabox() {
+    public function register_reporting_metabox() {
 		add_meta_box(
 			'reporting-graph', // ID
 			__( 'Reporting Graph', 'text_domain' ), // Title
 			array( $this, 'render_metabox' ), // call back function that renders html for view
-			'agfReport', // the page it is to be called on. Also called screen.
+			['agfReport', 'post', 'page'], // the page it is to be called on. Also called screen.
 			'advanced', // Context?
 			'default'   // Priority
 		);
 	}
 
+    // has to be public
     public function render_metabox( $post ) {
         wp_nonce_field( basename( __FILE__ ), 'reporting_meta_box_nonce' );
-        
+
         // getting all forms to add to select option list.
         $forms = GFAPI::get_forms();
         // getting all needed post meta data.
         $graph_type = get_post_meta($post->ID, 'graph_type', true);
         $selected_form_id = get_post_meta($post->ID, 'selected_form_id', true);
         
+        // get entries for selected form
+        $entries = GFAPI::get_entries($selected_form_id);
+        $this->console_log($entries);
+
         // getting all entries for selected form and averaging them.
         // every time the meta box loads this will rerun to get the latest data.
         $averaged_data_set = $this->get_entry_average_score($selected_form_id);
-        
+
+
+        // ! Graph Color Picker
+            ?>
+            <div class="graph-color-picker">
+                <h3 for="graph-color-picker">Graph Color Picker</h3>
+                        
+                <br />
+                <label for="graph-color-one-picker">Graph Color One Picker HEX</label>
+                <input type="color" id="graph-color-one-picker" name="graph-color-one-picker" value=<?php echo $post->graph_color_one ?> />
+                <input type="color" id="graph-border-color-one-picker" name="graph-border-color-one-picker" value=<?php echo $post->graph_border_color_one ?> />
+                <br/>
+                <label for="graph-color-two-picker">Graph Color Two Picker HEX</label>
+                <input type="color" id="graph-color-two-picker" name="graph-color-two-picker" value=<?php echo $post->graph_color_two ?> />
+                <input type="color" id="graph-border-color-two-picker" name="graph-border-color-two-picker" value=<?php echo $post->graph_border_color_two ?> />
+                <br/>
+                <label for="graph-color-three-picker">Graph Color Three Picker HEX</label>
+                <input type="color" id="graph-color-three-picker" name="graph-color-three-picker" value=<?php echo $post->graph_color_three ?> />
+                <input type="color" id="graph-color-border-three-picker" name="graph-border-color-three-picker" value=<?php echo $post->graph_border_color_three ?> />
+                <br/>
+                <label for="graph-color-four-picker">Graph Color Four Picker HEX</label>
+                <input type="color" id="graph-color-four-picker" name="graph-color-four-picker" value=<?php echo $post->graph_color_four ?> />
+                <input type="color" id="graph-border-color-four-picker" name="graph-border-color-four-picker" value=<?php echo $post->graph_border_color_four ?> />
+            </div>
+
+            <br/>
+            <?php
+        // ! Dropdown for user domain names
+            // make array of each users email 
+            $user_emails = array();
+            $users = get_users();
+            foreach($users as $user){
+                // select user email after @ and 
+                // Only add email if it is not already in the array in upper case
+                $user_email = substr($user->data->user_email, strpos($user->data->user_email, "@")+1);
+                if(!in_array(strtoupper($user_email), $user_emails)){
+                    $user_emails[] = strtoupper($user_email);
+                }
+            }
+            $this->console_log("list of user domains");
+            $this->console_log($user_emails);
+
+            echo '<select id="email-domain-select" class="email-domain-select" name="email-domain-select">';
+            foreach($user_emails as $email_domain) {
+                // Making the selected filtered by email_domain be the selected option.
+                if($email_domain == $post->selected_email_domain){
+                    echo '<option name="email-domain-select-option" selected value="'.strtolower($email_domain).'">'.strtolower($email_domain).'</option>';
+                }else{
+                    echo '<option name="email-domain-select-option" value="'.strtolower($email_domain) .'">'.strtolower($email_domain) .'</option>';
+                }
+            }
+            echo '</select>';
+            echo '<button type="submit" >Filter</button>';
+
+        // ! Sort by user roles (INCOMPLETE)
+            // make array of all wordpress roels
+            $roles = array();
+            $roles = array_keys(get_editable_roles());
+
+            //? Makknig select for all roles.
+            //? I think this may just need to take all entries and sort them by role.
+                echo '<select id="role-select" class="role-select" name="role-select">';
+                echo '<option name="role-select-option" value="all_users">All Users</option>';
+            foreach($roles as $role){
+                // Making the selected filtered by role be the selected option.
+                if($role == $post->selected_role){
+                    echo '<option name="role-select-option" selected value="'.$role.'">'.$role.'</option>';
+                }else{
+                    echo '<option name="role-select-option" value="'.$role .'">'.$role .'</option>';
+                }
+            }
+            echo '</select>';
+            echo '<button type="submit" >Filter</button>';
         // ! Gravity form dropdown list.
             echo '<select id="form-select" class="form-select" name="form-select">';
                 foreach($forms as $form) {
@@ -229,12 +534,7 @@ class AgfReport {
                 echo '</tr>';
             echo '</table>';
 
-        // ! Sub title htlm.
-            echo '<p>
-                <br />
-                <input class="widefat" type="text" name="sub-title-input" id="sub-title-input" value="'; echo esc_attr( get_post_meta( $post->ID, 'sub_title', true ) );
-                echo '" size="30" />
-            </p>';
+
 
         // ! Chart HTML 
             echo '<body width="100px" height="100px">
@@ -252,20 +552,16 @@ class AgfReport {
                         label: "# of Votes",
                         data: ['.$averaged_data_set['average_centralized_Data'] . ",". $averaged_data_set['average_data_driven'] .",". $averaged_data_set['average_marketing_experimentation']. ",". $averaged_data_set['average_marketing_scale']. '],
                         backgroundColor: [
-                            "rgba(255, 99, 132, 0.2)",
-                            "rgba(54, 162, 235, 0.2)",
-                            "rgba(255, 206, 86, 0.2)",
-                            "rgba(75, 192, 192, 0.2)",
-                            "rgba(153, 102, 255, 0.2)",
-                            "rgba(255, 159, 64, 0.2)",
+                            "'.$post->graph_color_one.'",
+                            "'. $post->graph_color_two . '",
+                            "'. $post->graph_color_three . '",
+                            "'. $post->graph_color_four . '",
                         ],
                         borderColor: [
-                            "rgba(255, 99, 132, 1)",
-                            "rgba(54, 162, 235, 1)",
-                            "rgba(255, 206, 86, 1)",
-                            "rgba(75, 192, 192, 1)",
-                            "rgba(153, 102, 255, 1)",
-                            "rgba(255, 159, 64, 1)",
+                            "'.$post->graph_border_color_one.'",
+                            "'. $post->graph_border_color_two . '",
+                            "'. $post->graph_border_color_three . '",
+                            "'. $post->graph_border_color_four . '",
                         ],
                         borderWidth: 1,
                         },
@@ -283,68 +579,188 @@ class AgfReport {
                     });
                     </script>
                     </body>';
-    }
+    
+                }
 
-    public function save_reporting_metabox( $post_id, $post ) {
+    
+    
+                public function save_reporting_metabox( $post_id, $post ) {
 
         /* Verify the nonce before proceeding. */
-        if ( !isset( $_POST['reporting_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['reporting_meta_box_nonce'], basename( __FILE__ ) ) )
+            if ( !isset( $_POST['reporting_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['reporting_meta_box_nonce'], basename( __FILE__ ) ) )
+                return $post_id;
+
+            /* Get the post type object. */
+            $post_type = get_post_type_object( $post->post_type );
+
+            /* Check if the current user has permission to edit the post. */
+            if ( !current_user_can( $post_type->cap->edit_post, $post_id ) )
             return $post_id;
 
-        /* Get the post type object. */
-        $post_type = get_post_type_object( $post->post_type );
-
-        /* Check if the current user has permission to edit the post. */
-        if ( !current_user_can( $post_type->cap->edit_post, $post_id ) )
-        return $post_id;
-
         // !################### Gravity Form Select Field Save ###################
-        /* Get the posted data and sanitize it for use as an HTML class. */
-        $new_gf_selected_form_value = ( isset( $_POST['form-select'] ) ? sanitize_html_class( $_POST['form-select'] ) : ’ );
-        /* Get the meta value of the custom field key. */
-        $meta_value_select = get_post_meta( $post_id, 'selected_form_id', true );
-        // Updating the selected form value.
-        if($meta_value_select && ’ == $new_gf_selected_form_value ){
-            add_post_meta( $post_id, 'selected_form_id', $new_gf_selected_form_value, true );
-        } /* If the new meta value does not match the old value, update it. */
-        elseif( $new_gf_selected_form_value != $meta_value_select ){
-            update_post_meta( $post_id, 'selected_form_id', $new_gf_selected_form_value );
-        }
-
-
-        // !#################### Sub Title #####################
-        /* Get the posted data and sanitize it for use as an HTML class. */
-        $new_meta_value = ( isset( $_POST['sub-title-input'] ) ? sanitize_html_class( $_POST['sub-title-input'] ) : ’ );
-        /* Get the meta key. */
-        $meta_key = 'sub_title';
-        /* Get the meta value of the custom field key. */
-        $meta_value = get_post_meta( $post_id, $meta_key, true );
-        /* If a new meta value was added and there was no previous value, add it. */
-        if ( $new_meta_value && ’ == $meta_value )
-        add_post_meta( $post_id, $meta_key, $new_meta_value, true );
-        /* If the new meta value does not match the old value, update it. */
-        elseif ( $new_meta_value && $new_meta_value != $meta_value )
-        update_post_meta( $post_id, $meta_key, $new_meta_value );
-        /* If there is no new meta value but an old value exists, delete it. */
-        elseif ( ’ == $new_meta_value && $meta_value )
-        delete_post_meta( $post_id, $meta_key, $meta_value );
+            /* Get the posted data and sanitize it for use as an HTML class. */
+            $new_gf_selected_form_value = ( isset( $_POST['form-select'] ) ? sanitize_html_class( $_POST['form-select'] ) : ’ );
+            /* Get the meta value of the custom field key. */
+            $meta_value_select = get_post_meta( $post_id, 'selected_form_id', true );
+            // Updating the selected form value.
+            if($meta_value_select && ’ == $new_gf_selected_form_value ){
+                add_post_meta( $post_id, 'selected_form_id', $new_gf_selected_form_value, true );
+            } /* If the new meta value does not match the old value, update it. */
+            elseif( $new_gf_selected_form_value != $meta_value_select ){
+                update_post_meta( $post_id, 'selected_form_id', $new_gf_selected_form_value );
+            }
 
 
         // !################### Graph Type ###################
-        /* Get the posted data and sanitize it for use as an HTML class. */
-        $new_graph_type_meta_value = ( isset( $_POST['graph-select'] ) ? sanitize_html_class( $_POST['graph-select'] ) : ’ );
-        /* Get the meta key. */
-        $graph_type_meta_key = 'graph_type';
-        /* Get the meta value of the custom field key. */
-        $graph_type_meta_value = get_post_meta( $post_id, $graph_type_meta_key, true );
-        /* If a new meta value was added and there was no previous value, add it. */
-        if ( $graph_type_meta_value && ’ == $new_graph_type_meta_value ){
-            add_post_meta( $post_id, $graph_type_meta_key, $new_graph_type_meta_value, true );
-        }
-        /* If the new meta value does not match the old value, update it. */
-        elseif ( $new_graph_type_meta_value != $graph_type_meta_value ){
-            update_post_meta( $post_id, $graph_type_meta_key, $new_graph_type_meta_value );
-        }
+            /* Get the posted data and sanitize it for use as an HTML class. */
+            $new_graph_type_meta_value = ( isset( $_POST['graph-select'] ) ? sanitize_html_class( $_POST['graph-select'] ) : ’ );
+            /* Get the meta key. */
+            $graph_type_meta_key = 'graph_type';
+            /* Get the meta value of the custom field key. */
+            $graph_type_meta_value = get_post_meta( $post_id, $graph_type_meta_key, true );
+            /* If a new meta value was added and there was no previous value, add it. */
+            if ( $graph_type_meta_value && ’ == $new_graph_type_meta_value ){
+                add_post_meta( $post_id, $graph_type_meta_key, $new_graph_type_meta_value, true );
+            }
+            /* If the new meta value does not match the old value, update it. */
+            elseif ( $new_graph_type_meta_value != $graph_type_meta_value ){
+                update_post_meta( $post_id, $graph_type_meta_key, $new_graph_type_meta_value );
+            }
+
+        // !################### Selected Role ###################
+            /* Get the posted data and sanitize it for use as an HTML class. */
+            $new_selected_role_meta_value = ( isset( $_POST['role-select'] ) ? sanitize_html_class( $_POST['role-select'] ) : ’ );
+            /* Get the meta key. */
+            $selected_role_meta_key = 'selected_role';
+            /* Get the meta value of the custom field key. */
+            $selected_role_meta_value = get_post_meta( $post_id, $selected_role_meta_key, true );
+            /* If a new meta value was added and there was no previous value, add it. */
+            if ( $selected_role_meta_value && ’ == $new_selected_role_meta_value ){
+                add_post_meta( $post_id, $selected_role_meta_key, $new_selected_role_meta_value, true );
+            }
+            /* If the new meta value does not match the old value, update it. */
+            elseif ( $new_selected_role_meta_value != $selected_role_meta_value ){
+                update_post_meta( $post_id, $selected_role_meta_key, $new_selected_role_meta_value );
+            }
+
+        // !################### Saving Color picker ###################
+            /* Get the posted data and sanitize it for use as an Email. Email is used to allow for # hex value. */
+            $new_color_one_meta_value = ( isset( $_POST['graph-color-one-picker'] ) ? filter_var( $_POST['graph-color-one-picker'], FILTER_SANITIZE_EMAIL ) : ’ );
+            /* Get the meta key. */
+            $color_one_meta_key = 'graph_color_one';
+            /* Get the meta value of the custom field key. */
+            $color_one_meta_value = get_post_meta( $post_id, $color_one_meta_key, true );
+            /* If a new meta value was added and there was no previous value, add it. */
+            if ( $color_one_meta_value && ’ == $new_color_one_meta_value ){
+                add_post_meta( $post_id, $color_one_meta_key, $new_color_one_meta_value, true );
+            }
+            /* If the new meta value does not match the old value, update it. */
+            elseif ( $new_color_one_meta_value != $color_one_meta_value ){
+                update_post_meta( $post_id, $color_one_meta_key, $new_color_one_meta_value );
+            }
+
+            // Color Two
+          $new_color_two_meta_value = ( isset( $_POST['graph-color-two-picker'] ) ? filter_var( $_POST['graph-color-two-picker'], FILTER_SANITIZE_EMAIL ) : ’ );
+            $color_two_meta_key = 'graph_color_two';
+            $color_two_meta_value = get_post_meta( $post_id, $color_two_meta_key, true );
+            if ( $color_two_meta_value && ’ == $new_color_two_meta_value ){
+                add_post_meta( $post_id, $color_two_meta_key, $new_color_two_meta_value, true );
+            }
+            elseif ( $new_color_two_meta_value != $color_two_meta_value ){
+                update_post_meta( $post_id, $color_two_meta_key, $new_color_two_meta_value );
+            }
+
+            // Color Three
+            $new_color_three_meta_value = ( isset( $_POST['graph-color-three-picker'] ) ? filter_var( $_POST['graph-color-three-picker'], FILTER_SANITIZE_EMAIL ) : ’ );
+            $color_three_meta_key = 'graph_color_three';
+            $color_three_meta_value = get_post_meta( $post_id, $color_three_meta_key, true );
+
+            if ( $color_three_meta_value && ’ == $new_color_three_meta_value ){
+                add_post_meta( $post_id, $color_three_meta_key, $new_color_three_meta_value, true );
+            }
+            elseif ( $new_color_three_meta_value != $color_three_meta_value ){
+                update_post_meta( $post_id, $color_three_meta_key, $new_color_three_meta_value );
+            }
+
+            // Color Four
+            $new_color_four_meta_value = ( isset( $_POST['graph-color-four-picker'] ) ? filter_var( $_POST['graph-color-four-picker'], FILTER_SANITIZE_EMAIL ) : ’ );
+            $color_four_meta_key = 'graph_color_four';
+            $color_four_meta_value = get_post_meta( $post_id, $color_four_meta_key, true );
+
+            if ( $color_four_meta_value && ’ == $new_color_four_meta_value ){
+                add_post_meta( $post_id, $color_four_meta_key, $new_color_four_meta_value, true );
+            }
+            elseif ( $new_color_four_meta_value != $color_four_meta_value ){
+                update_post_meta( $post_id, $color_four_meta_key, $new_color_four_meta_value );
+            }
+
+        // !################### Saving Graph Border Color picker ###################
+            /* Get the posted data and sanitize it for use as an Email. Email is used to allow for # hex value. */
+            $new_color_one_meta_value = ( isset( $_POST['graph-border-color-one-picker'] ) ? filter_var( $_POST['graph-border-color-one-picker'], FILTER_SANITIZE_EMAIL ) : ’ );
+            /* Get the meta key. */
+            $color_one_meta_key = 'graph_border_color_one';
+            /* Get the meta value of the custom field key. */
+            $color_one_meta_value = get_post_meta( $post_id, $color_one_meta_key, true );
+            /* If a new meta value was added and there was no previous value, add it. */
+            if ( $color_one_meta_value && ’ == $new_color_one_meta_value ){
+                add_post_meta( $post_id, $color_one_meta_key, $new_color_one_meta_value, true );
+            }
+            /* If the new meta value does not match the old value, update it. */
+            elseif ( $new_color_one_meta_value != $color_one_meta_value ){
+                update_post_meta( $post_id, $color_one_meta_key, $new_color_one_meta_value );
+            }
+
+            // Color Two
+          $new_color_two_meta_value = ( isset( $_POST['graph-border-color-two-picker'] ) ? filter_var( $_POST['graph-border-color-two-picker'], FILTER_SANITIZE_EMAIL ) : ’ );
+            $color_two_meta_key = 'graph_border_color_two';
+            $color_two_meta_value = get_post_meta( $post_id, $color_two_meta_key, true );
+            if ( $color_two_meta_value && ’ == $new_color_two_meta_value ){
+                add_post_meta( $post_id, $color_two_meta_key, $new_color_two_meta_value, true );
+            }
+            elseif ( $new_color_two_meta_value != $color_two_meta_value ){
+                update_post_meta( $post_id, $color_two_meta_key, $new_color_two_meta_value );
+            }
+
+            // Color Three
+            $new_color_three_meta_value = ( isset( $_POST['graph-border-color-three-picker'] ) ? filter_var( $_POST['graph-border-color-three-picker'], FILTER_SANITIZE_EMAIL ) : ’ );
+            $color_three_meta_key = 'graph_border_color_three';
+            $color_three_meta_value = get_post_meta( $post_id, $color_three_meta_key, true );
+
+            if ( $color_three_meta_value && ’ == $new_color_three_meta_value ){
+                add_post_meta( $post_id, $color_three_meta_key, $new_color_three_meta_value, true );
+            }
+            elseif ( $new_color_three_meta_value != $color_three_meta_value ){
+                update_post_meta( $post_id, $color_three_meta_key, $new_color_three_meta_value );
+            }
+
+            // Color Four
+            $new_color_four_meta_value = ( isset( $_POST['graph-border-color-four-picker'] ) ? filter_var( $_POST['graph-border-color-four-picker'], FILTER_SANITIZE_EMAIL ) : ’ );
+            $color_four_meta_key = 'graph_border_color_four';
+            $color_four_meta_value = get_post_meta( $post_id, $color_four_meta_key, true );
+
+            if ( $color_four_meta_value && ’ == $new_color_four_meta_value ){
+                add_post_meta( $post_id, $color_four_meta_key, $new_color_four_meta_value, true );
+            }
+            elseif ( $new_color_four_meta_value != $color_four_meta_value ){
+                update_post_meta( $post_id, $color_four_meta_key, $new_color_four_meta_value );
+            }
+
+
+        // !################### Selected User Domain ###################
+            /* Get the posted data and sanitize it for use as an HTML class. */
+            $selected_email_domain_meta_value = ( isset( $_POST['email-domain-select'] ) ? filter_var( $_POST['email-domain-select'], FILTER_SANITIZE_EMAIL ) : ’ );
+            /* Get the meta key. */
+            $selected_email_domain_meta_key = 'selected_email_domain';
+            /* Get the meta value of the custom field key. */
+            $graph_type_meta_value = get_post_meta( $post_id, $selected_email_domain_meta_key, true );
+            /* If a new meta value was added and there was no previous value, add it. */
+            if ( $graph_type_meta_value && ’ == $selected_email_domain_meta_value ){
+                add_post_meta( $post_id, $selected_email_domain_meta_key, $selected_email_domain_meta_value, true );
+            }
+            /* If the new meta value does not match the old value, update it. */
+            elseif ( $selected_email_domain_meta_value != $graph_type_meta_value ){
+                update_post_meta( $post_id, $selected_email_domain_meta_key, $selected_email_domain_meta_value );
+            }
 
         /* If there is no new meta value but an old value exists, delete it. */
         // elseif ( ’ == $new_graph_type_meta_value && $graph_type_meta_value ){
@@ -353,12 +769,19 @@ class AgfReport {
         
     }
 
-    public function console_log($output, $with_script_tags = true) {
-        $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
-        if ($with_script_tags) {
-            $js_code = '<script>' . $js_code . '</script>';
+    public function console_log($output = null, $with_script_tags = true) {
+        if($output != null){
+            $js_code = 'console.log(' . json_encode($output, JSON_HEX_TAG) . ');';
+            if ($with_script_tags) {
+                $js_code = '<script>' . $js_code . '</script>';
+            }
+            echo $js_code;
         }
-        echo $js_code;
     }
 
 }
+
+
+
+
+
