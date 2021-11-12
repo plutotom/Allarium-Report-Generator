@@ -11,15 +11,16 @@ class AgfReport {
         $this->console_log("Initiating AgfReport class.");
         $this->registerReportPostType();
         $this->console_log("AgfReport Short Code initiated.");        
-        add_shortcode( 'agfGraph', array( $this, 'Agf_short_code_graph_func' ) );
         add_shortcode( 'agfTable', array( $this, 'Agf_short_code_table_func' ) );
+        add_shortcode( 'agfGraph', array( $this, 'Agf_short_code_graph_func' ) );
         add_action( 'add_meta_boxes', array( $this, 'register_reporting_metabox'  ));
         // Called when user clicks publish or save page.
         add_action( 'save_post',      array( $this, 'save_reporting_metabox' ), 10, 2 );   
     }
-
+    
     // Getting entries based on user Role.
     public function get_entries_by_user_id($form_id, $user_arr = []){
+        // Takes form id and an array of user ids. Returns an array of entries that pertain to those users.
         // filter selected_form_entries by user_id
         // get gravity forms entries
         $entries = GFAPI::get_entries($form_id); 
@@ -59,6 +60,31 @@ class AgfReport {
             }
         }
         return $selected_form_entries_by_role;
+    }
+
+    public function sort_entries_by_not_this_role($roles = [], $entries = []){
+        // Gets all entries that do not have the role in the roles array.
+        $selected_form_entries_by_role = [];
+        foreach($entries as $entry){
+            // get user by id
+            $current_loop_user_data = get_user_by('id', $entry['created_by']);
+            // if current_loop_user_data->roles is in roles array
+            if(!in_array($current_loop_user_data->roles[0], $roles)){
+                $selected_form_entries_by_role[] = $entry;
+            }
+        }
+        return $selected_form_entries_by_role;
+    }
+
+    public function get_own_entries($entries){
+        // get all entries for current user.
+        $current_user_id = get_current_user_id();
+        foreach($entries as $entry){
+            if($entry['created_by'] == $current_user_id){
+                $selected_form_entries[] = $entry;
+            }
+        }
+        return $selected_form_entries;
     }
 
     public function score_data($entries = []){
@@ -104,8 +130,25 @@ class AgfReport {
         return $chunked_entries;
     }
 
-    public static function Agf_short_code_table_func( $atts ) {
+    public function get_domains_in_scored_entries($entries = []){
+        // This gets all domains in the scored entries then returns an array of all unique domains.
+
+        $domains = array();
+        foreach($entries as $key => $value){
+            //only add domain if it is not already in the array
+            $current_loop_user_id = $value['entry']['created_by'];
+            $current_loop_user_email = get_user_by('id', $current_loop_user_id)->data->user_email;
+            $domain = explode("@", $current_loop_user_email)[1];
+            if(!in_array($domain, $domains)){
+                $domains[] = $domain;
+            }
+        }
+        return $domains;
+    }
+
+    public function Agf_short_code_table_func( $atts ) {
         // * ################################# Getting meta data and entries #################################
+        ob_start( ); 
         $post_id = $atts['id'];
         $post = get_post($post_id);        
         $post_meta = get_post_meta($post_id);
@@ -119,70 +162,150 @@ class AgfReport {
 
         // get selected form entries
         $selected_form_entries = GFAPI::get_entries($selected_form_id);
-
         // ! ################################# End Getting Meta Data #################################
 
+
+        // ? Sorting Entries by Domain
+        $this->console_log($selected_email_domain);
+        if($selected_email_domain !== 'all-domains'){
+            // If selected_email_domain is not all-domains, then get entries by domain.
+            $entries_sorted_by_domain = $this->sort_entries_by_domain([$selected_email_domain], $selected_form_entries);
+        }else{
+            // No filtering needed.
+            $entries_sorted_by_domain = $selected_form_entries;
+        }
+            $this->console_log($entries_sorted_by_domain);
+            $this->console_log("^ entreis sorted by domain ");
+
         // ? filtering entries by user role
-            $entries_sorted_by_domain = self::sort_entries_by_domain([$selected_email_domain, "live.com", "gmail.com", "hotmail.com"], $selected_form_entries);
-            // log entries_sorted_by_domain
-            self::console_log($entries_sorted_by_domain);
-            self::console_log("^ entreis sorted by domain ");
-        // ? Filtering entries by user domain.
-            $entries_sorted_by_role = self::sort_entries_by_role([$selected_role], $entries_sorted_by_domain);
-            // log entries_sorted_by_role
-            self::console_log($entries_sorted_by_role);
-            self::console_log("^ entreis sorted by user role ");
-            self::console_log("Selected user Role: " . $selected_role);
-            self::console_log("Selected Email domain: " . $selected_email_domain);
-
-        // ? scoring data
-            $scored_data = self::score_data($entries_sorted_by_role);
-            // log scored_data
-            self::console_log($scored_data);
-            self::console_log("^ scored data ");
-       
-        // ! html table for all users scores
-            $html_table = '<table class="table table-striped table-bordered table-hover" id="dataTables-example">';
-            $html_table .= '<thead>';
-            $html_table .= '<tr>';
-
-            $html_table .= '<th>User ID</th>';
-            $html_table .= '<th>User Email</th>';
-            $html_table .= '<th>User Name</th>';
-            $html_table .= '<th>CDBI</th>';
-            $html_table .= '<th>DDD</th>';
-            $html_table .= '<th>ME</th>';
-            $html_table .= '<th>MS</th>';
-            $html_table .= '<th>Created Date</th>';
-            $html_table .= '</tr>';
-            $html_table .= '<tr>';
-            
-            foreach($scored_data as $key => $value){
-                // get user email by id
-                $user_email = get_userdata($value['entry']['created_by'])->data->user_email;
-                // log user email
-                $user_name = get_userdata($value['entry']['created_by'])->data->user_nicename;
-                $html_table .= '<tr>  
-                <td>'.$value['entry']['created_by'].'</td> 
-                <td>'.$user_email.'</td>
-                <td>'.$user_name.'</td>
-                <td>'.$value['data']['cdbi_avg'].'</td>
-                <td>'.$value['data']['ddd_avg'].'</td>
-                <td>'.$value['data']['me_avg'].'</td>
-                <td>'.$value['data']['ms_avg'].'</td>
-                <td>'.$value['entry']['date_created'].'</td>
-                </tr>';
+            if($selected_role == 'subscriber'){
+                // get only current logged in user entries.
+                $entries_sorted_by_role = $this->get_own_entries($entries_sorted_by_domain);
+            }elseif($selected_role == 'all-roles'){
+                // No filtering needed.
+                $entries_sorted_by_role = $entries_sorted_by_domain;
+            }elseif($selected_role == 'administrator'){
+                // No filtering needed.
+                $entries_sorted_by_role = $entries_sorted_by_domain;
+            }elseif($selected_role != 'subscriber' && $selected_role != 'administrator'){
+                // then it is a group leader, getting all entries other then admin.
+                $entries_sorted_by_role = $this->sort_entries_by_not_this_role(['administrator'], $entries_sorted_by_domain);
+            }else{
+                // If for some reason the selected_role is not set, then no filtering needed.
+                $entries_sorted_by_role = $entries_sorted_by_domain;
             }
+            // If it is admin then no need to filter.
+            // Admins can see all entries.
+            $this->console_log($entries_sorted_by_role);
+            $this->console_log("^ entries sorted by role and domain ");
+        
+        // ? scoring data
+            $scored_data = $this->score_data($entries_sorted_by_role);
+            // log scored_data
+            $this->console_log($scored_data);
+            $this->console_log("^ scored data ");
 
-            $html_table .= '</tr>';
-            $html_table .= '</thead>';
-            $html_table .= '<tbody>';
-        return $html_table;
+        // ? Creating Array of domains that are in scored entries.
+            $domains_in_scored_entries = $this->get_domains_in_scored_entries($scored_data);
+            $this->console_log($domains_in_scored_entries);
+            $this->console_log("^ domains in scored entries ");
+        ?>  
+        <!-- 	Bootstrap v2.3.2 -->
+            <link
+                rel="stylesheet"
+                media="all"
+                href="https://s3.amazonaws.com/dynatable-docs-assets/css/bootstrap-2.3.2.min.css"
+            />
+        <!-- Plugin styles -->
+        <link
+            rel="stylesheet"
+            media="all"
+            href="https://s3.amazonaws.com/dynatable-docs-assets/css/jquery.dynatable.css"
+        />
+
+        <!--  jQuery v3.0.0-beta1 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
+
+        <!-- JS Pluging -->
+        <script
+            type="text/javascript"
+            src="https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js"
+        ></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('#html-table')
+                .bind('dynatable:init', function(e, dynatable) {
+                    dynatable.queries.functions['domainInput'] = function(record, queryValue) {
+                        // get value after @ symble in recored.userEmail
+                        var domain = record.userEmail.split('@')[1];
+                        return domain === queryValue; 
+                    };
+                })
+                .dynatable({
+                    features: {
+                    paginate: false,
+                    recordCount: false,
+                    sorting: false,
+                    search: true
+                    },
+                    inputs: {
+                    queries: $('#domainInput')
+                    }
+                });
+            });
+
+        </script>
+        <!-- // ! html table for all users scores -->
+            <select id='domainInput' class='domainInput'>
+              <option value=""></option>
+                <?php
+                foreach($domains_in_scored_entries as $domain){
+                    echo "<option value='$domain'>$domain</option>";
+                }
+                ?>
+            </select>
+            <table class="table table-striped table-bordered table-hover" id="html-table">';
+                <thead>
+                <tr>
+                <th>User ID</th>
+                <th>User Email</th>
+                <th>User Name</th>
+                <th>CDBI</th>
+                <th>DDD</th>
+                <th>ME</th>
+                <th>MS</th>
+                <th>Created Date</th>
+                </tr>
+                <tr>
+            </thead>
+            <tbody>
+            <?php
+                foreach($scored_data as $key => $value){
+                    // get user email by id
+                    $user_email = get_userdata($value['entry']['created_by'])->data->user_email;
+                    // log user email
+                    $user_name = get_userdata($value['entry']['created_by'])->data->user_nicename;
+                    echo '<tr>  
+                    <td>'.$value['entry']['created_by'].'</td> 
+                    <td>'.$user_email.'</td>
+                    <td>'.$user_name.'</td>
+                    <td>'.$value['data']['cdbi_avg'].'</td>
+                    <td>'.$value['data']['ddd_avg'].'</td>
+                    <td>'.$value['data']['me_avg'].'</td>
+                    <td>'.$value['data']['ms_avg'].'</td>
+                    <td>'.$value['entry']['date_created'].'</td>
+                    </tr>';
+                }
+            echo '</tr>';
+            echo '</tbody>';
+            echo '</table>';
+
+        return ob_get_clean();
 
         // TODO get average with applied filters. (right now we are getting all entires and averaging them)
     }
 
-    public static function Agf_short_code_graph_func( $atts ) {
+    public function Agf_short_code_graph_func( $atts ) {
         $post_id = $atts['id'];
         $post = get_post($post_id);
         // get graph_type from post meta data
@@ -379,16 +502,20 @@ class AgfReport {
 		);
 	}
 
-    // has to be public
     public function render_metabox( $post ) {
         wp_nonce_field( basename( __FILE__ ), 'reporting_meta_box_nonce' );
-
+        $post_meta = get_post_meta($post->ID); 
+        $this->console_log($post_meta);
+        $this->console_log("Post Meta");
         // getting all forms to add to select option list.
         $forms = GFAPI::get_forms();
         // getting all needed post meta data.
         $graph_type = get_post_meta($post->ID, 'graph_type', true);
         $selected_form_id = get_post_meta($post->ID, 'selected_form_id', true);
-        
+        // get selected domain
+        $selected_email_domain = get_post_meta($post->ID, 'selected_email_domain', true);
+        // log selected domain
+        $this->console_log($selected_email_domain);
         // get entries for selected form
         $entries = GFAPI::get_entries($selected_form_id);
         $this->console_log($entries);
@@ -396,7 +523,6 @@ class AgfReport {
         // getting all entries for selected form and averaging them.
         // every time the meta box loads this will rerun to get the latest data.
         $averaged_data_set = $this->get_entry_average_score($selected_form_id);
-
 
         // ! Graph Color Picker
             ?>
@@ -427,6 +553,7 @@ class AgfReport {
             // make array of each users email 
             $user_emails = array();
             $users = get_users();
+
             foreach($users as $user){
                 // select user email after @ and 
                 // Only add email if it is not already in the array in upper case
@@ -435,27 +562,29 @@ class AgfReport {
                     $user_emails[] = strtoupper($user_email);
                 }
             }
+            // Adding all_DOMAINS if not in array of all user domains.
+            if(!in_array("ALL-DOMAINS", $user_emails)){
+                $user_emails[] = "ALL-DOMAINS";
+            }
             $this->console_log("list of user domains");
             $this->console_log($user_emails);
 
             echo '<select id="email-domain-select" class="email-domain-select" name="email-domain-select">';
             foreach($user_emails as $email_domain) {
                 // Making the selected filtered by email_domain be the selected option.
-                if($email_domain == $post->selected_email_domain){
+                if($email_domain == strtoupper($selected_email_domain)){
                     echo '<option name="email-domain-select-option" selected value="'.strtolower($email_domain).'">'.strtolower($email_domain).'</option>';
                 }else{
                     echo '<option name="email-domain-select-option" value="'.strtolower($email_domain) .'">'.strtolower($email_domain) .'</option>';
                 }
             }
             echo '</select>';
-            echo '<button type="submit" >Filter</button>';
-
-        // ! Sort by user roles (INCOMPLETE)
+            
+        // ! Sort by user roles
             // make array of all wordpress roels
             $roles = array();
             $roles = array_keys(get_editable_roles());
-
-            //? Makknig select for all roles.
+            //? Making select for all roles.
             //? I think this may just need to take all entries and sort them by role.
                 echo '<select id="role-select" class="role-select" name="role-select">';
                 echo '<option name="role-select-option" value="all_users">All Users</option>';
@@ -468,7 +597,6 @@ class AgfReport {
                 }
             }
             echo '</select>';
-            echo '<button type="submit" >Filter</button>';
         // ! Gravity form dropdown list.
             echo '<select id="form-select" class="form-select" name="form-select">';
                 foreach($forms as $form) {
@@ -480,8 +608,6 @@ class AgfReport {
                     }
                 }
             echo '</select>';
-            echo '<button type="submit" >Filter</button>';
-
 
         // ! Graph type select
             $graph_type_list = array(
@@ -506,33 +632,9 @@ class AgfReport {
             }
 
             echo '</select>';
-            echo '<button name="graph-select-submit" type="submit" >Select Graph</button>';
+            echo '<button type="submit" >Filter</button>';
 
-		// ! Meta Box Table HTML
-            echo '<style>
-                    table, th, td {
-                    border:1px solid black;
-                    }
-                </style>';
 
-            echo '<h1>Your scores</h1>';
-            echo '<table style="width:100%">
-                    <tr>';
-                        // for each averaged_data_set as table headers
-                        foreach($averaged_data_set as $key => $value){
-                            echo '<th>'.$key.'</th>';
-                        }
-                echo'    </tr>
-                <tr>';
-               //for each average score echo a column
-                foreach($averaged_data_set as $key => $value){
-                    echo '<td>'.$value.'</td>';
-                }
-                echo '<td>'. $post->sub_title .'</td>';
-                echo '<td>'. $post->graph_type .'</td>';
-                echo '<td>'. $post->selected_form_id .'</td>';
-                echo '</tr>';
-            echo '</table>';
 
 
 
@@ -580,20 +682,17 @@ class AgfReport {
                     </script>
                     </body>';
     
-                }
-
+    }
     
-    
-                public function save_reporting_metabox( $post_id, $post ) {
-
+    public function save_reporting_metabox( $post_id, $post ) {
         /* Verify the nonce before proceeding. */
             if ( !isset( $_POST['reporting_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['reporting_meta_box_nonce'], basename( __FILE__ ) ) )
                 return $post_id;
 
-            /* Get the post type object. */
+        /* Get the post type object. */
             $post_type = get_post_type_object( $post->post_type );
 
-            /* Check if the current user has permission to edit the post. */
+        /* Check if the current user has permission to edit the post. */
             if ( !current_user_can( $post_type->cap->edit_post, $post_id ) )
             return $post_id;
 

@@ -22,4 +22,5 @@ include_once( AGFR__PLUGIN_DIR . "deactivate.php" );
 
 // calls the AgfReport class and calls the init function.
 $class_agfr = new AgfReport();
+// below was only a test to see if the class was working.
 // add_shortcode( 'agfReportGraph', array( 'AgfReport', 'Agf_report_function' ) );
