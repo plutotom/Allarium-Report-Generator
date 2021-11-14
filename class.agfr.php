@@ -17,136 +17,12 @@ class AgfReport {
         // Called when user clicks publish or save page.
         add_action( 'save_post',      array( $this, 'save_reporting_metabox' ), 10, 2 );   
     }
-    
-    // Getting entries based on user Role.
-    public function get_entries_by_user_id($form_id, $user_arr = []){
-        // Takes form id and an array of user ids. Returns an array of entries that pertain to those users.
-        // filter selected_form_entries by user_id
-        // get gravity forms entries
-        $entries = GFAPI::get_entries($form_id); 
-        foreach($user_arr as $user_id){
-            foreach($entries as $entry){
-                if($entry['created_by'] == $user_id){
-                    $selected_form_entries[] = $entry;
-                }
-            }
+
+    public function Agf_short_code_table_func( $atts ) {        
+        if($atts['id'] == '' || $atts['id'] == null){
+            $this->console_log("Please add a valid post ID to short code to agfTable short code");
+            return null;
         }
-        return $selected_form_entries;
-    }
-
-    public fUnction sort_entries_by_domain($domains = [], $entries = []){
-        // returns only entries that have uses in the selected domains.
-            foreach($entries as $entry){
-                // get user by id in order to check that uses domain.
-                $entry_user_data = get_user_by('id', $entry['created_by']);
-                // getting only domain (ex: @gmail.com) from email.
-                $current_loop_user_domain = explode("@", $entry_user_data->data->user_email)[1];
-                // if current_loop_user_domain is in domain array
-                if(in_array($current_loop_user_domain, $domains)){
-                    $selected_form_entries_by_domain[] = $entry;
-                }
-            }
-        return $selected_form_entries_by_domain;
-    }
-    
-    public function sort_entries_by_role($roles = [], $entries = []){
-        $selected_form_entries_by_role = [];
-        foreach($entries as $entry){
-            // get user by id
-            $current_loop_user_data = get_user_by('id', $entry['created_by']);
-            // if current_loop_user_data->roles is in roles array
-            if(in_array($current_loop_user_data->roles[0], $roles)){
-                $selected_form_entries_by_role[] = $entry;
-            }
-        }
-        return $selected_form_entries_by_role;
-    }
-
-    public function sort_entries_by_not_this_role($roles = [], $entries = []){
-        // Gets all entries that do not have the role in the roles array.
-        $selected_form_entries_by_role = [];
-        foreach($entries as $entry){
-            // get user by id
-            $current_loop_user_data = get_user_by('id', $entry['created_by']);
-            // if current_loop_user_data->roles is in roles array
-            if(!in_array($current_loop_user_data->roles[0], $roles)){
-                $selected_form_entries_by_role[] = $entry;
-            }
-        }
-        return $selected_form_entries_by_role;
-    }
-
-    public function get_own_entries($entries){
-        // get all entries for current user.
-        $current_user_id = get_current_user_id();
-        foreach($entries as $entry){
-            if($entry['created_by'] == $current_user_id){
-                $selected_form_entries[] = $entry;
-            }
-        }
-        return $selected_form_entries;
-    }
-
-    public function score_data($entries = []){
-        // This gets only the imputed values from the use from an array of entries.
-            // This is needed because an entry also has meta data along with it.
-            $arry_of_entry_values = array();
-            foreach($entries as $key1 => $entry){
-                foreach($entry as $key2 => $value){
-                    // All keys that are numeric are entry values or section headers. The rest of the keys are form meta data.
-                    // Gravity form section titles have a value of '', therefore they are filtered out.
-                    if(is_numeric($key2) && $value !== ''){
-                        // add only unique key values to array
-                        if(!in_array($key2, $arry_of_entry_values)){
-                            $arry_of_entry_values[$key1]['data'][$key2] = $value;
-                            
-                        }
-                    }   
-                }
-                $arry_of_entry_values[$key1]['entry'] = $entry;
-            }
-        // get every other 4 value. This gets each section. So section 1 with each four questions
-        // will be in one array. This is done so the next step each value can be gotten by index.
-        // example, index[1] will always pertain to data_driven, and index 
-        // [3] always marketing_scale.
-        $chunked_entries = array();
-        foreach($arry_of_entry_values as $key => $value){
-            $chunked_entries[$key]['data'] = array_chunk($value['data'],4);
-            $chunked_entries[$key]['entry'] = $value['entry'];
-
-            // This is adding each value that pertains to one question to its own array.
-            // example, index[1] will always pertain to cdbi, or index[2] to ddd.
-            foreach($chunked_entries[$key]['data'] as $key2 => $chunked_section){
-                $chunked_entries[$key]['data']['cdbi_avg'][] = $chunked_section[0];
-                $chunked_entries[$key]['data']['ddd_avg'][] = $chunked_section[1];
-                $chunked_entries[$key]['data']['me_avg'][] = $chunked_section[2];
-                $chunked_entries[$key]['data']['ms_avg'][] = $chunked_section[3];
-            }
-            $chunked_entries[$key]['data']['cdbi_avg'] = array_sum($chunked_entries[$key]['data']['cdbi_avg'])/count($chunked_entries[$key]['data']['cdbi_avg']);
-            $chunked_entries[$key]['data']['ddd_avg'] = array_sum($chunked_entries[$key]['data']['ddd_avg'])/count($chunked_entries[$key]['data']['ddd_avg']);
-            $chunked_entries[$key]['data']['me_avg'] = array_sum($chunked_entries[$key]['data']['me_avg'])/count($chunked_entries[$key]['data']['me_avg']);
-            $chunked_entries[$key]['data']['ms_avg'] = array_sum($chunked_entries[$key]['data']['ms_avg'])/count($chunked_entries[$key]['data']['ms_avg']);
-        }
-        return $chunked_entries;
-    }
-
-    public function get_domains_in_scored_entries($entries = []){
-        // This gets all domains in the scored entries then returns an array of all unique domains.
-
-        $domains = array();
-        foreach($entries as $key => $value){
-            //only add domain if it is not already in the array
-            $current_loop_user_id = $value['entry']['created_by'];
-            $current_loop_user_email = get_user_by('id', $current_loop_user_id)->data->user_email;
-            $domain = explode("@", $current_loop_user_email)[1];
-            if(!in_array($domain, $domains)){
-                $domains[] = $domain;
-            }
-        }
-        return $domains;
-    }
-
-    public function Agf_short_code_table_func( $atts ) {
         // * ################################# Getting meta data and entries #################################
         ob_start( ); 
         $post_id = $atts['id'];
@@ -166,7 +42,6 @@ class AgfReport {
 
 
         // ? Sorting Entries by Domain
-        $this->console_log($selected_email_domain);
         if($selected_email_domain !== 'all-domains'){
             // If selected_email_domain is not all-domains, then get entries by domain.
             $entries_sorted_by_domain = $this->sort_entries_by_domain([$selected_email_domain], $selected_form_entries);
@@ -174,8 +49,8 @@ class AgfReport {
             // No filtering needed.
             $entries_sorted_by_domain = $selected_form_entries;
         }
-            $this->console_log($entries_sorted_by_domain);
-            $this->console_log("^ entreis sorted by domain ");
+            // $this->console_log($entries_sorted_by_domain);
+            // $this->console_log("^ entreis sorted by domain ");
 
         // ? filtering entries by user role
             if($selected_role == 'subscriber'){
@@ -196,19 +71,29 @@ class AgfReport {
             }
             // If it is admin then no need to filter.
             // Admins can see all entries.
-            $this->console_log($entries_sorted_by_role);
-            $this->console_log("^ entries sorted by role and domain ");
+            // $this->console_log($entries_sorted_by_role);
+            // $this->console_log("^ entries sorted by role and domain ");
         
         // ? scoring data
             $scored_data = $this->score_data($entries_sorted_by_role);
             // log scored_data
-            $this->console_log($scored_data);
-            $this->console_log("^ scored data ");
+            // $this->console_log($scored_data);
+            // $this->console_log("^ scored data ");
 
         // ? Creating Array of domains that are in scored entries.
             $domains_in_scored_entries = $this->get_domains_in_scored_entries($scored_data);
-            $this->console_log($domains_in_scored_entries);
-            $this->console_log("^ domains in scored entries ");
+
+
+            // create an array of all users in scored entries.
+            $users_names = array();
+            foreach($scored_data as $key2 => $value){
+                //only add domain if it is not already in the array
+                $current_loop_user_id = $value['entry']['created_by'];
+                $user = get_user_by('id', $current_loop_user_id)->data->display_name;
+                if(!in_array($user, $users_names)){
+                    $users_names[] = $user;
+                }
+            }
         ?>  
         <!-- 	Bootstrap v2.3.2 -->
             <link
@@ -240,6 +125,9 @@ class AgfReport {
                         var domain = record.userEmail.split('@')[1];
                         return domain === queryValue; 
                     };
+                    dynatable.queries.functions['userName'] = function(record, queryValue) {
+                        return queryValue === record.userName; 
+                    };
                 })
                 .dynatable({
                     features: {
@@ -249,10 +137,11 @@ class AgfReport {
                     search: true
                     },
                     inputs: {
-                    queries: $('#domainInput')
-                    }
+                        queries: $('#domainInput, #userName')
+                    },
                 });
             });
+            
 
         </script>
         <!-- // ! html table for all users scores -->
@@ -264,7 +153,15 @@ class AgfReport {
                 }
                 ?>
             </select>
-            <table class="table table-striped table-bordered table-hover" id="html-table">';
+            <select id='userName' class='userName'>
+              <option value=""></option>
+                <?php
+                foreach($users_names as $names){
+                    echo "<option value='$names'>$names</option>";
+                }
+                ?>
+            </select>
+            <table class="table table-striped table-bordered table-hover" id="html-table">
                 <thead>
                 <tr>
                 <th>User ID</th>
@@ -284,7 +181,7 @@ class AgfReport {
                     // get user email by id
                     $user_email = get_userdata($value['entry']['created_by'])->data->user_email;
                     // log user email
-                    $user_name = get_userdata($value['entry']['created_by'])->data->user_nicename;
+                    $user_name = get_userdata($value['entry']['created_by'])->data->display_name;
                     echo '<tr>  
                     <td>'.$value['entry']['created_by'].'</td> 
                     <td>'.$user_email.'</td>
@@ -301,66 +198,125 @@ class AgfReport {
             echo '</table>';
 
         return ob_get_clean();
-
-        // TODO get average with applied filters. (right now we are getting all entires and averaging them)
     }
 
     public function Agf_short_code_graph_func( $atts ) {
+        if($atts['id'] == '' || $atts['id'] == null){
+            $this->console_log("Please add a valid post ID to short code to agfTable short code");
+            return null;
+        }
+        
+        // * ################################# Getting meta data and entries #################################
+        ob_start( ); 
         $post_id = $atts['id'];
-        $post = get_post($post_id);
-        // get graph_type from post meta data
+        $post = get_post($post_id);        
+        $post_meta = get_post_meta($post_id);
+
+        // Post meta data.
         $graph_type = get_post_meta( $post_id, 'graph_type', true );
+        $selected_email_domain = get_post_meta( $post_id, 'selected_email_domain', true );
+        $selected_role = get_post_meta( $post_id, 'selected_role', true );
         // get selected form id from post meta data
         $selected_form_id = get_post_meta( $post_id, 'selected_form_id', true );
-        $averaged_data_set = self::get_entry_average_score($selected_form_id);
 
-        $graph_html = '<body width="100px" height="100px">
+        // get selected form entries
+        $selected_form_entries = GFAPI::get_entries($selected_form_id);
+        // ! ################################# End Getting Meta Data #################################
 
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js" integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        // ? Sorting Entries by Domain
+        $this->console_log($selected_email_domain);
+        if($selected_email_domain !== 'all-domains'){
+            // If selected_email_domain is not all-domains, then get entries by domain.
+            $entries_sorted_by_domain = $this->sort_entries_by_domain([$selected_email_domain], $selected_form_entries);
+        }else{
+            // No filtering needed.
+            $entries_sorted_by_domain = $selected_form_entries;
+        }
+        
+        // $this->console_log($entries_sorted_by_domain);
+        // $this->console_log("^ entreis sorted by domain ");
 
-            <div height="100px" width="100px"><canvas id="myChart" height="40vh" width="80vw"></div>
-            <script>
-            var ctx = document.getElementById("myChart").getContext("2d");
-            var myChart = new Chart(ctx, {
-            type: "'.$graph_type.'",
-            data: {
-            labels: ["Centralized Data and BI Reporting Priority Score", "Data-Driven Decision Making Priority Score", "Marketing Experimentation Priority Score", "Marketing Scale and Growth Priority Score"],
-            datasets: [
-                {
-                    label: "# of Votes",
-                    data: ['.$averaged_data_set['average_centralized_Data'] . ",". $averaged_data_set['average_data_driven'] .",". $averaged_data_set['average_marketing_experimentation']. ",". $averaged_data_set['average_marketing_scale']. '],
-                        backgroundColor: [
-                            "'.$post->graph_color_one.'",
-                            "'. $post->graph_color_two . '",
-                            "'. $post->graph_color_three . '",
-                            "'. $post->graph_color_four . '",
-                        ],
-                        borderColor: [
-                            "'.$post->graph_border_color_one.'",
-                            "'. $post->graph_border_color_two . '",
-                            "'. $post->graph_border_color_three . '",
-                            "'. $post->graph_border_color_four . '",
-                        ],
-                    borderWidth: 1,
+        // ? filtering entries by user role
+            if($selected_role == 'subscriber'){
+                // get only current logged in user entries.
+                $entries_sorted_by_role = $this->get_own_entries($entries_sorted_by_domain);
+            }elseif($selected_role == 'all-roles'){
+                // No filtering needed.
+                $entries_sorted_by_role = $entries_sorted_by_domain;
+            }elseif($selected_role == 'administrator'){
+                // No filtering needed.
+                $entries_sorted_by_role = $entries_sorted_by_domain;
+            }elseif($selected_role != 'subscriber' && $selected_role != 'administrator'){
+                // then it is a group leader, getting all entries other then admin.
+                $entries_sorted_by_role = $this->sort_entries_by_not_this_role(['administrator'], $entries_sorted_by_domain);
+            }else{
+                // If for some reason the selected_role is not set, then no filtering needed.
+                $entries_sorted_by_role = $entries_sorted_by_domain;
+            }
+            // If it is admin then no need to filter.
+            // Admins can see all entries.
+            // $this->console_log($entries_sorted_by_role);
+            // $this->console_log("^ entries sorted by role and domain ");
+        
+        // ? scoring data
+            $scored_data = $this->score_data($entries_sorted_by_role);
+            // log scored_data
+            // $this->console_log($scored_data);
+            // $this->console_log("^ scored data ");
+
+        // ? Creating Array of domains that are in scored entries.
+            $domains_in_scored_entries = $this->get_domains_in_scored_entries($scored_data);
+            // $this->console_log($domains_in_scored_entries);
+            // $this->console_log("^ domains in scored entries "); 
+    
+        $averaged_data_set = $this->average_scored_entries($scored_data);
+            
+            echo '<body width="100px" height="100px">
+
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js" integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+                <div height="100px" width="100px"><canvas id="myChart" height="40vh" width="80vw"></div>
+                <script>
+                var ctx = document.getElementById("myChart").getContext("2d");
+                var myChart = new Chart(ctx, {
+                type: "'.$graph_type.'",
+                data: {
+                labels: ["Centralized Data and BI Reporting Priority Score", "Data-Driven Decision Making Priority Score", "Marketing Experimentation Priority Score", "Marketing Scale and Growth Priority Score"],
+                datasets: [
+                    {
+                        label: "# of Votes",
+                        data: ['.$averaged_data_set['cdbi_avg'] . ",". $averaged_data_set['ddd_avg'] .",". $averaged_data_set['me_avg']. ",". $averaged_data_set['ms_avg']. '],
+                            backgroundColor: [
+                                "'.$post->graph_color_one.'",
+                                "'. $post->graph_color_two . '",
+                                "'. $post->graph_color_three . '",
+                                "'. $post->graph_color_four . '",
+                            ],
+                            borderColor: [
+                                "'.$post->graph_border_color_one.'",
+                                "'. $post->graph_border_color_two . '",
+                                "'. $post->graph_border_color_three . '",
+                                "'. $post->graph_border_color_four . '",
+                            ],
+                        borderWidth: 1,
+                    },
+                ],
                 },
-            ],
-            },
-                options: {
-                    
-                    scales: {
-                        y: {
-                            
-                        beginAtZero: true,
+                    options: {
+                        
+                        scales: {
+                            y: {
+                                
+                            beginAtZero: true,
+                            },
                         },
                     },
-                },
-            });
-            </script>
+                });
+                </script>
             </body>';
-
-
         
-        return $graph_html;
+        
+        return ob_get_clean();
     }
 
     private function registerReportPostType(){
@@ -369,96 +325,7 @@ class AgfReport {
         init_agf_report(); // this is a imported function from agfr-register-post-type.php.
     }
 
-    public function get_entry_average_score($form_id){
-        $selected_form_entries = GFAPI::get_entries($form_id);
-        
-        // for each array in selected_form_entires select the items 2 - 20 items in each array in selected_form_entries
-        // This gets all field values for each entry.
-        $selected_form_entries_last_12 = array();
-        foreach($selected_form_entries as $key => $value){
-                $selected_form_entries_last_12[$key] = array_slice($value,-15);
-        }
-        // remove all non numeric values from selected_form_entries_last_12
-        // this is done because there are some non numeric values in the array that are not scores.
-        // this removes them.
-        // I believe the non numeric values are the section titles.
-        $selected_form_entries_last_12_numeric = array();
-        foreach($selected_form_entries_last_12 as $key => $value){
-            $selected_form_entries_last_12_numeric[$key] = array_filter($value, 'is_numeric');
-        }
-
-        // get every other 4 value. This gets each section. So section 1 with each four questions
-        // will be in one array. This is done so the next step each value can be gotten by index.
-        // example, index[1] will always pertain to data_driven, and index 
-        // [3] always marketing_scale.
-        $selected_form_entries_last_12_numeric_every_4 = array();
-        foreach($selected_form_entries_last_12_numeric as $key => $value){
-            $selected_form_entries_last_12_numeric_every_4[$key] = array_chunk($value,4);
-        }
-
-        // getting the score of each variable.
-        $centralized_Data = array();
-        $data_driven = array();
-        $marketing_experimentation = array();
-        $marketing_scale = array();
-        // every item in index [0] will be centralized_Data and [2] will be marketing_experimentation
-        $res = array();
-        foreach($selected_form_entries_last_12_numeric_every_4 as $key => $value){
-            $centralized_Data[$key] = array_map(function($v){return $v[0];}, $value);
-            $data_driven[$key] = array_map(function($v){return $v[1];}, $value);
-            $marketing_experimentation[$key] = array_map(function($v){return $v[2];}, $value);
-            $marketing_scale[$key] = array_map(function($v){return $v[3];}, $value);
-        }
-
-
-        // put all the arrays in one array 
-        $res['centralized_Data'] = $centralized_Data;
-        $res['data_driven'] = $data_driven;
-        $res['marketing_experimentation'] = $marketing_experimentation;
-        $res['marketing_scale'] = $marketing_scale;
-
-        
-        // average every array in $res
-        // This gives the average for each entry in each category.
-        $average_centralized_Data = array_map(function($v){return array_sum($v)/count($v);}, $res['centralized_Data']);
-        $average_data_driven = array_map(function($v){return array_sum($v)/count($v);}, $res['data_driven']);
-        $average_marketing_experimentation = array_map(function($v){return array_sum($v)/count($v);}, $res['marketing_experimentation']);
-        $average_marketing_scale = array_map(function($v){return array_sum($v)/count($v);}, $res['marketing_scale']);
-
-        // This averages each category
-        $average_centralized_Data_average = array_sum($average_centralized_Data)/count($average_centralized_Data);
-        $average_data_driven_average = array_sum($average_data_driven)/count($average_data_driven);
-        $average_marketing_experimentation_average = array_sum($average_marketing_experimentation)/count($average_marketing_experimentation);
-        $average_marketing_scale_average = array_sum($average_marketing_scale)/count($average_marketing_scale);
-
-        // put all the averages in one array
-        $averages['average_centralized_Data'] = $average_centralized_Data_average;
-        $averages['average_data_driven'] = $average_data_driven_average;
-        $averages['average_marketing_experimentation'] = $average_marketing_experimentation_average;
-        $averages['average_marketing_scale'] = $average_marketing_scale_average;
-        
-        // round the averages
-        $averages['average_centralized_Data'] = round($averages['average_centralized_Data'],2);
-        $averages['average_data_driven'] = round($averages['average_data_driven'],2);
-        $averages['average_marketing_experimentation'] = round($averages['average_marketing_experimentation'],2);
-        $averages['average_marketing_scale'] = round($averages['average_marketing_scale'],2);
-        return $averages;
-    }
-
-    public function get_user_by_role($roles){
-        // get users by role
-        foreach($roles as $role){
-            $users = get_users(array('role' => $role));
-            foreach($users as $user){
-                $user_array[] = $user;
-            }
-        }
-        
-        $this->console_log("All Users");
-        $this->console_log($user_array);
-        return $user_array;
-    }
-
+    // Generates a report when a user submits a form
     public function add_report($entry, $form) {
         // Makes sure Gravity Forms class is available.
         if ( class_exists( 'GFCommon' ) ) {
@@ -866,6 +733,248 @@ class AgfReport {
         //     delete_post_meta( $post_id, $graph_type_meta_key, $graph_type_meta_value );
         // }
         
+    }
+
+    // ###### Helper functions ######
+
+    public function average_scored_entries($entries){
+        $entries_average = array();
+
+        //put all entry data into one array
+        foreach($entries as $entry){
+            $entries_average['cdbi_avg'][] = $entry['data']["cdbi_avg"];
+            $entries_average['ddd_avg'][] = $entry['data']["ddd_avg"];
+            $entries_average['me_avg'][] = $entry['data']["me_avg"];
+            $entries_average['ms_avg'][] = $entry['data']["ms_avg"];
+        }
+        
+        //calculate average in each array
+        $entries_average['cdbi_avg'] = array_sum($entries_average['cdbi_avg']) / count($entries_average['cdbi_avg']);
+        $entries_average['ddd_avg'] = array_sum($entries_average['ddd_avg']) / count($entries_average['ddd_avg']);
+        $entries_average['me_avg'] = array_sum($entries_average['me_avg']) / count($entries_average['me_avg']);
+        $entries_average['ms_avg'] = array_sum($entries_average['ms_avg']) / count($entries_average['ms_avg']);
+        
+        // $this->console_log($entries_average);
+        // $this->console_log("###############");
+        return $entries_average;
+    }
+
+    public function get_entry_average_score($form_id){
+        $selected_form_entries = GFAPI::get_entries($form_id);
+        
+        // for each array in selected_form_entires select the items 2 - 20 items in each array in selected_form_entries
+        // This gets all field values for each entry.
+        $selected_form_entries_last_12 = array();
+        foreach($selected_form_entries as $key => $value){
+                $selected_form_entries_last_12[$key] = array_slice($value,-15);
+        }
+        // remove all non numeric values from selected_form_entries_last_12
+        // this is done because there are some non numeric values in the array that are not scores.
+        // this removes them.
+        // I believe the non numeric values are the section titles.
+        $selected_form_entries_last_12_numeric = array();
+        foreach($selected_form_entries_last_12 as $key => $value){
+            $selected_form_entries_last_12_numeric[$key] = array_filter($value, 'is_numeric');
+        }
+
+        // get every other 4 value. This gets each section. So section 1 with each four questions
+        // will be in one array. This is done so the next step each value can be gotten by index.
+        // example, index[1] will always pertain to data_driven, and index 
+        // [3] always marketing_scale.
+        $selected_form_entries_last_12_numeric_every_4 = array();
+        foreach($selected_form_entries_last_12_numeric as $key => $value){
+            $selected_form_entries_last_12_numeric_every_4[$key] = array_chunk($value,4);
+        }
+
+        // getting the score of each variable.
+        $centralized_Data = array();
+        $data_driven = array();
+        $marketing_experimentation = array();
+        $marketing_scale = array();
+        // every item in index [0] will be centralized_Data and [2] will be marketing_experimentation
+        $res = array();
+        foreach($selected_form_entries_last_12_numeric_every_4 as $key => $value){
+            $centralized_Data[$key] = array_map(function($v){return $v[0];}, $value);
+            $data_driven[$key] = array_map(function($v){return $v[1];}, $value);
+            $marketing_experimentation[$key] = array_map(function($v){return $v[2];}, $value);
+            $marketing_scale[$key] = array_map(function($v){return $v[3];}, $value);
+        }
+
+
+        // put all the arrays in one array 
+        $res['centralized_Data'] = $centralized_Data;
+        $res['data_driven'] = $data_driven;
+        $res['marketing_experimentation'] = $marketing_experimentation;
+        $res['marketing_scale'] = $marketing_scale;
+
+        
+        // average every array in $res
+        // This gives the average for each entry in each category.
+        $average_centralized_Data = array_map(function($v){return array_sum($v)/count($v);}, $res['centralized_Data']);
+        $average_data_driven = array_map(function($v){return array_sum($v)/count($v);}, $res['data_driven']);
+        $average_marketing_experimentation = array_map(function($v){return array_sum($v)/count($v);}, $res['marketing_experimentation']);
+        $average_marketing_scale = array_map(function($v){return array_sum($v)/count($v);}, $res['marketing_scale']);
+
+        // This averages each category
+        $average_centralized_Data_average = array_sum($average_centralized_Data)/count($average_centralized_Data);
+        $average_data_driven_average = array_sum($average_data_driven)/count($average_data_driven);
+        $average_marketing_experimentation_average = array_sum($average_marketing_experimentation)/count($average_marketing_experimentation);
+        $average_marketing_scale_average = array_sum($average_marketing_scale)/count($average_marketing_scale);
+
+        // put all the averages in one array
+        $averages['average_centralized_Data'] = $average_centralized_Data_average;
+        $averages['average_data_driven'] = $average_data_driven_average;
+        $averages['average_marketing_experimentation'] = $average_marketing_experimentation_average;
+        $averages['average_marketing_scale'] = $average_marketing_scale_average;
+        
+        // round the averages
+        $averages['average_centralized_Data'] = round($averages['average_centralized_Data'],2);
+        $averages['average_data_driven'] = round($averages['average_data_driven'],2);
+        $averages['average_marketing_experimentation'] = round($averages['average_marketing_experimentation'],2);
+        $averages['average_marketing_scale'] = round($averages['average_marketing_scale'],2);
+        return $averages;
+    }
+
+    public function get_user_by_role($roles){
+        // get users by role
+        foreach($roles as $role){
+            $users = get_users(array('role' => $role));
+            foreach($users as $user){
+                $user_array[] = $user;
+            }
+        }
+        
+        $this->console_log("All Users");
+        $this->console_log($user_array);
+        return $user_array;
+    }
+
+    // Getting entries based on user Role.
+       public function get_entries_by_user_id($form_id, $user_arr = []){
+        // Takes form id and an array of user ids. Returns an array of entries that pertain to those users.
+        // filter selected_form_entries by user_id
+        // get gravity forms entries
+        $entries = GFAPI::get_entries($form_id); 
+        foreach($user_arr as $user_id){
+            foreach($entries as $entry){
+                if($entry['created_by'] == $user_id){
+                    $selected_form_entries[] = $entry;
+                }
+            }
+        }
+        return $selected_form_entries;
+    }
+
+    public fUnction sort_entries_by_domain($domains = [], $entries = []){
+        // returns only entries that have uses in the selected domains.
+            foreach($entries as $entry){
+                // get user by id in order to check that uses domain.
+                $entry_user_data = get_user_by('id', $entry['created_by']);
+                // getting only domain (ex: @gmail.com) from email.
+                $current_loop_user_domain = explode("@", $entry_user_data->data->user_email)[1];
+                // if current_loop_user_domain is in domain array
+                if(in_array($current_loop_user_domain, $domains)){
+                    $selected_form_entries_by_domain[] = $entry;
+                }
+            }
+        return $selected_form_entries_by_domain;
+    }
+    
+    public function sort_entries_by_role($roles = [], $entries = []){
+        $selected_form_entries_by_role = [];
+        foreach($entries as $entry){
+            // get user by id
+            $current_loop_user_data = get_user_by('id', $entry['created_by']);
+            // if current_loop_user_data->roles is in roles array
+            if(in_array($current_loop_user_data->roles[0], $roles)){
+                $selected_form_entries_by_role[] = $entry;
+            }
+        }
+        return $selected_form_entries_by_role;
+    }
+
+    public function sort_entries_by_not_this_role($roles = [], $entries = []){
+        // Gets all entries that do not have the role in the roles array.
+        $selected_form_entries_by_role = [];
+        foreach($entries as $entry){
+            // get user by id
+            $current_loop_user_data = get_user_by('id', $entry['created_by']);
+            // if current_loop_user_data->roles is in roles array
+            if(!in_array($current_loop_user_data->roles[0], $roles)){
+                $selected_form_entries_by_role[] = $entry;
+            }
+        }
+        return $selected_form_entries_by_role;
+    }
+
+    public function get_own_entries($entries){
+        // get all entries for current user.
+        $current_user_id = get_current_user_id();
+        foreach($entries as $entry){
+            if($entry['created_by'] == $current_user_id){
+                $selected_form_entries[] = $entry;
+            }
+        }
+        return $selected_form_entries;
+    }
+
+    public function score_data($entries = []){
+        // This gets only the imputed values from the use from an array of entries.
+            // This is needed because an entry also has meta data along with it.
+            $arry_of_entry_values = array();
+            foreach($entries as $key1 => $entry){
+                foreach($entry as $key2 => $value){
+                    // All keys that are numeric are entry values or section headers. The rest of the keys are form meta data.
+                    // Gravity form section titles have a value of '', therefore they are filtered out.
+                    if(is_numeric($key2) && $value !== ''){
+                        // add only unique key values to array
+                        if(!in_array($key2, $arry_of_entry_values)){
+                            $arry_of_entry_values[$key1]['data'][$key2] = $value;
+                            
+                        }
+                    }   
+                }
+                $arry_of_entry_values[$key1]['entry'] = $entry;
+            }
+        // get every other 4 value. This gets each section. So section 1 with each four questions
+        // will be in one array. This is done so the next step each value can be gotten by index.
+        // example, index[1] will always pertain to data_driven, and index 
+        // [3] always marketing_scale.
+        $chunked_entries = array();
+        foreach($arry_of_entry_values as $key => $value){
+            $chunked_entries[$key]['data'] = array_chunk($value['data'],4);
+            $chunked_entries[$key]['entry'] = $value['entry'];
+
+            // This is adding each value that pertains to one question to its own array.
+            // example, index[1] will always pertain to cdbi, or index[2] to ddd.
+            foreach($chunked_entries[$key]['data'] as $key2 => $chunked_section){
+                $chunked_entries[$key]['data']['cdbi_avg'][] = $chunked_section[0];
+                $chunked_entries[$key]['data']['ddd_avg'][] = $chunked_section[1];
+                $chunked_entries[$key]['data']['me_avg'][] = $chunked_section[2];
+                $chunked_entries[$key]['data']['ms_avg'][] = $chunked_section[3];
+            }
+            $chunked_entries[$key]['data']['cdbi_avg'] = array_sum($chunked_entries[$key]['data']['cdbi_avg'])/count($chunked_entries[$key]['data']['cdbi_avg']);
+            $chunked_entries[$key]['data']['ddd_avg'] = array_sum($chunked_entries[$key]['data']['ddd_avg'])/count($chunked_entries[$key]['data']['ddd_avg']);
+            $chunked_entries[$key]['data']['me_avg'] = array_sum($chunked_entries[$key]['data']['me_avg'])/count($chunked_entries[$key]['data']['me_avg']);
+            $chunked_entries[$key]['data']['ms_avg'] = array_sum($chunked_entries[$key]['data']['ms_avg'])/count($chunked_entries[$key]['data']['ms_avg']);
+        }
+        return $chunked_entries;
+    }
+
+    public function get_domains_in_scored_entries($entries = []){
+        // This gets all domains in the scored entries then returns an array of all unique domains.
+
+        $domains = array();
+        foreach($entries as $key => $value){
+            //only add domain if it is not already in the array
+            $current_loop_user_id = $value['entry']['created_by'];
+            $current_loop_user_email = get_user_by('id', $current_loop_user_id)->data->user_email;
+            $domain = explode("@", $current_loop_user_email)[1];
+            if(!in_array($domain, $domains)){
+                $domains[] = $domain;
+            }
+        }
+        return $domains;
     }
 
     public function console_log($output = null, $with_script_tags = true) {
