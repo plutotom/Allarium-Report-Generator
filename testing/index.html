@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- multi-select style -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/multi-select/0.9.12/css/multi-select.css"
+      integrity="sha512-2sFkW9HTkUJVIu0jTS8AUEsTk8gFAFrPmtAxyzIhbeXHRH8NXhBFnLAMLQpuhHF/dL5+sYoNHWYYX2Hlk+BVHQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    <input type="button" value="+" onclick="addRow()" />
+
+    <div id="content">
+      <input type="text" name="name" value="" />
+      <input type="text" name="value" value="" />
+      <label><input type="checkbox" name="check" value="1" />Checked?</label>
+      <input type="button" value="-" onclick="removeRow()" />
+      <p>testing input area</p>
+    </div>
+    <div>
+      <h4>Multiselect Tutorial</h4>
+      <select multiple="multiple" id="my-select" name="my-select[]">
+        <option value="elem_1">elem 1</option>
+        <option value="elem_2">elem 2</option>
+        <option value="elem_3">elem 3</option>
+        <option value="elem_4">elem 4</option>
+        ...
+        <option value="elem_100">elem 100</option>
+      </select>
+    </div>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/multi-select/0.9.12/js/jquery.multi-select.min.js"
+      integrity="sha512-vSyPWqWsSHFHLnMSwxfmicOgfp0JuENoLwzbR+Hf5diwdYTJraf/m+EKrMb4ulTYmb/Ra75YmckeTQ4sHzg2hg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script type="text/javascript">
+      // http://loudev.com/#usage
+      // Passing $ from jQuary because wordpress runs jQuary in no conflict mode.
+
+      function addRow() {
+        const div = document.createElement("div");
+
+        div.className = "row";
+
+        div.innerHTML = `<select multiple="multiple" id="my-select" name="my-select[]">
+              echo '<option value="'.$field['id']." ". $field['label'] .'">'.$field['label'].'</option>';
+           }
+     </select>`;
+
+        document.getElementById("content").appendChild(div);
+        multiSelect_append("row");
+      }
+
+      function removeRow(input) {
+        document.getElementById("content").removeChild(input.parentNode);
+      }
+
+      function multiSelect_append(element_id) {
+        console.log("multiSelect_append");
+        element_id = "#".element_id;
+        $(element_id).multiSelect();
+      }
+
+      (function ($) {
+        var selected_fields = [];
+
+        // add value to selected_fields array when user selects an option
+        $("#my-select").multiSelect({
+          afterSelect: function (values) {
+            selected_fields.push(values);
+            console.log(selected_fields);
+
+            console.log($("#my-select").find(":selected").val());
+          },
+          afterDeselect: function (values) {
+            selected_fields.splice(selected_fields.indexOf(values), 1);
+            console.log(selected_fields);
+          },
+
+          selectableHeader:
+            "<input type='text' class='search-input' autocomplete='off' placeholder='Search'>",
+          selectionHeader:
+            "<input type='text' class='search-input' autocomplete='off' placeholder='Search'>",
+          afterInit: function (ms) {
+            var that = this,
+              $selectableSearch = that.$selectableUl.prev(),
+              $selectionSearch = that.$selectionUl.prev(),
+              selectableSearchString =
+                "#" +
+                that.$container.attr("id") +
+                " .ms-elem-selectable:not(.ms-selected)",
+              selectionSearchString =
+                "#" +
+                that.$container.attr("id") +
+                " .ms-elem-selection.ms-selected";
+
+            that.qs1 = $selectableSearch
+              .quicksearch(selectableSearchString)
+              .on("keydown", function (e) {
+                if (e.which === 40) {
+                  that.$selectableUl.focus();
+                  return false;
+                }
+              });
+
+            that.qs2 = $selectionSearch
+              .quicksearch(selectionSearchString)
+              .on("keydown", function (e) {
+                if (e.which == 40) {
+                  that.$selectionUl.focus();
+                  return false;
+                }
+              });
+          },
+          afterSelect: function () {
+            this.qs1.cache();
+            this.qs2.cache();
+          },
+          afterDeselect: function () {
+            this.qs1.cache();
+            this.qs2.cache();
+          },
+        });
+
+        var formData = new FormData();
+        formData.append("selected_fields", selected_fields);
+
+        $("#select-all").click(function () {
+          $("#my-select").multiSelect("select_all");
+          return false;
+        });
+        $("#deselect-all").click(function () {
+          $("#my-select").multiSelect("deselect_all");
+          return false;
+        });
+      })(jQuery);
+    </script>
+  </body>
+</html>

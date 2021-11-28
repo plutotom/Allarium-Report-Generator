@@ -7,18 +7,35 @@ class AgfReport {
         add_action( 'init', array( $this, 'init' ) );
 	}
 
-    public  function init() {
+     function init() {
         $this->console_log("Initiating AgfReport class.");
+        $this->console_log("AgfReport Short Code initiated.");
         $this->registerReportPostType();
-        $this->console_log("AgfReport Short Code initiated.");        
+
+        $this->regiester_settings();
+        
         add_shortcode( 'agfTable', array( $this, 'Agf_short_code_table_func' ) );
         add_shortcode( 'agfGraph', array( $this, 'Agf_short_code_graph_func' ) );
         add_action( 'add_meta_boxes', array( $this, 'register_reporting_metabox'  ));
         // Called when user clicks publish or save page.
-        add_action( 'save_post',      array( $this, 'save_reporting_metabox' ), 10, 2 );   
+        add_action( 'save_post', array( $this, 'save_reporting_metabox' ), 10, 2 );   
+        add_action( 'save_post', array( $this, 'save_label_questions_metabox' ), 10, 2 );   
+
+        add_action( 'add_meta_boxes', array( $this, 'register_question_labeling_metabox'  ));
+        add_action( 'save_post',      array( $this, 'save_question_labeling_metabox' ), 10, 2 );   
     }
 
-    public function Agf_short_code_table_func( $atts ) {        
+    private function registerReportPostType(){
+        $this->console_log("Initiating post type agfReport");
+        // function to register post type
+        init_agf_report(); // this is a imported function from agfr-register-post-type.php.
+    }
+
+    private function regiester_settings(){
+        return null;      
+    }
+
+    public function Agf_short_code_table_func( $atts ) {
         if($atts['id'] == '' || $atts['id'] == null){
             $this->console_log("Please add a valid post ID to short code to agfTable short code");
             return null;
@@ -39,7 +56,7 @@ class AgfReport {
         // get selected form entries
         $selected_form_entries = GFAPI::get_entries($selected_form_id);
         // ! ################################# End Getting Meta Data #################################
-
+        $this->console_log($selected_form_entries);
 
         // ? Sorting Entries by Domain
         if($selected_email_domain !== 'all-domains'){
@@ -319,12 +336,6 @@ class AgfReport {
         return ob_get_clean();
     }
 
-    private function registerReportPostType(){
-        $this->console_log("Initiating post type agfReport");
-        // function to register post type
-        init_agf_report(); // this is a imported function from agfr-register-post-type.php.
-    }
-
     // Generates a report when a user submits a form
     public function add_report($entry, $form) {
         // Makes sure Gravity Forms class is available.
@@ -362,18 +373,80 @@ class AgfReport {
 		add_meta_box(
 			'reporting-graph', // ID
 			__( 'Reporting Graph', 'text_domain' ), // Title
-			array( $this, 'render_metabox' ), // call back function that renders html for view
+			array( $this, 'render_graph_table_metabox' ), // call back function that renders html for view
 			['agfReport', 'post', 'page'], // the page it is to be called on. Also called screen.
 			'advanced', // Context?
 			'default'   // Priority
 		);
 	}
 
-    public function render_metabox( $post ) {
+    public function register_question_labeling_metabox() {
+		add_meta_box(
+			'label-questions', // ID
+			__( 'Label Questions', 'text_domain' ), // Title
+			array( $this, 'render_label_questions_metabox' ), // call back function that renders html for view
+			['agfReport', 'post', 'page'], // the page it is to be called on. Also called screen.
+			'advanced', // Context?
+			'default'   // Priority
+		);
+	}
+
+    public function render_label_questions_metabox($post) {
+        // wp_nonce_field( basename( __FILE__ ), 'reporting_meta_box_nonce' );
+        $post_meta = get_post_meta($post->ID); 
+        // getting all needed post meta data.
+        $selected_form_id = get_post_meta($post->ID, 'selected_form_id', true);
+        // get entries for selected form
+        $entries = GFAPI::get_entries($selected_form_id);
+        $form = GFAPI::get_form($selected_form_id);
+        $selected_field_types_unserialize = unserialize($post_meta["selected_field_types"][0]);
+        // $this->console_log(unserialize($post_meta["my_select_key"][0]) );
+        // $this->console_log($post_meta);
+
+        // !################### Listing Question types ########################
+            $field_types = array();
+            // make array of field types
+            foreach($form['fields'] as $field) {
+                //add $fieldtype to the array if it is not already there
+                if(!in_array($field['type'], $field_types)) {
+                    array_push($field_types, $field['type']);
+                }
+            } // ["section", "select", etc]
+
+            //display list with checkboxes all field_types
+            echo '<h3>Select field types</h3>';
+            echo '<div>Checked boxes will be included in dropdown list as questions, non checked items will be considered non question fields.</div>';
+            // list all field types. Field types are gravity form fields sections, select, email, etc.
+
+            echo '<select multiple id="selected-field-types" name="selected-field-types[]">';
+            foreach($field_types as $field_type) {
+                if(in_array($field_type, $selected_field_types_unserialize)) {
+                    echo '<option selected value="'.$field_type.'">'.$field_type.'</option>';
+                } else {
+                    echo '<option  value="'.$field_type.'">'.$field_type.'</option>';
+                }
+            }
+            echo '</select>';
+        // !################### Add Category ########################
+            // this section will be front end code that when a user clicks a button will add a category to the report.
+            
+        // !################### Listing Question in groups ########################
+            $this->muti_select_questions($form, $field_types, $post, $post_meta);
+    }
+    // get post id
+    public function muti_select_questions($form, $field_types, $post, $post_meta) {
+        wp_enqueue_script('multiSelect', 'https://cdnjs.cloudflare.com/ajax/libs/multi-select/0.9.12/js/jquery.multi-select.min.js', array ( 'jquery' ), 1.1, true);
+        wp_enqueue_style('multiSelect-css', 'https://cdnjs.cloudflare.com/ajax/libs/multi-select/0.9.12/css/multi-select.css');
+        wp_enqueue_script(
+            'msjs',
+            plugin_dir_url(__FILE__).'js/multi_select_js.js');
+        add_action( 'wp_enqueue_scripts', 'enqueue_muti_select_scripts' );
+        return include_once( AGFR__PLUGIN_DIR . "muti_select.php" );
+    }
+
+    public function render_graph_table_metabox( $post ) {
         wp_nonce_field( basename( __FILE__ ), 'reporting_meta_box_nonce' );
         $post_meta = get_post_meta($post->ID); 
-        $this->console_log($post_meta);
-        $this->console_log("Post Meta");
         // getting all forms to add to select option list.
         $forms = GFAPI::get_forms();
         // getting all needed post meta data.
@@ -382,14 +455,15 @@ class AgfReport {
         // get selected domain
         $selected_email_domain = get_post_meta($post->ID, 'selected_email_domain', true);
         // log selected domain
-        $this->console_log($selected_email_domain);
+        // $this->console_log($selected_email_domain);
         // get entries for selected form
         $entries = GFAPI::get_entries($selected_form_id);
-        $this->console_log($entries);
+        // $this->console_log($entries);
 
         // getting all entries for selected form and averaging them.
         // every time the meta box loads this will rerun to get the latest data.
         $averaged_data_set = $this->get_entry_average_score($selected_form_id);
+
 
         // ! Graph Color Picker
             ?>
@@ -433,8 +507,7 @@ class AgfReport {
             if(!in_array("ALL-DOMAINS", $user_emails)){
                 $user_emails[] = "ALL-DOMAINS";
             }
-            $this->console_log("list of user domains");
-            $this->console_log($user_emails);
+           
 
             echo '<select id="email-domain-select" class="email-domain-select" name="email-domain-select">';
             foreach($user_emails as $email_domain) {
@@ -551,6 +624,19 @@ class AgfReport {
     
     }
     
+    public function save_label_questions_metabox($post_id, $post){
+        /* Verify the nonce before proceeding. */
+        if ( !isset( $_POST['reporting_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['reporting_meta_box_nonce'], basename( __FILE__ ) ) )
+            return $post_id;
+
+        /* Get the post type object. */
+            $post_type = get_post_type_object( $post->post_type );
+
+        /* Check if the current user has permission to edit the post. */
+            if ( !current_user_can( $post_type->cap->edit_post, $post_id ) )
+            return $post_id;
+    }
+
     public function save_reporting_metabox( $post_id, $post ) {
         /* Verify the nonce before proceeding. */
             if ( !isset( $_POST['reporting_meta_box_nonce'] ) || !wp_verify_nonce( $_POST['reporting_meta_box_nonce'], basename( __FILE__ ) ) )
@@ -714,27 +800,58 @@ class AgfReport {
 
         // !################### Selected User Domain ###################
             /* Get the posted data and sanitize it for use as an HTML class. */
-            $selected_email_domain_meta_value = ( isset( $_POST['email-domain-select'] ) ? filter_var( $_POST['email-domain-select'], FILTER_SANITIZE_EMAIL ) : ’ );
+            $new_selected_email_domain_meta_value = ( isset( $_POST['email-domain-select'] ) ? filter_var( $_POST['email-domain-select'], FILTER_SANITIZE_EMAIL ) : ’ );
             /* Get the meta key. */
             $selected_email_domain_meta_key = 'selected_email_domain';
             /* Get the meta value of the custom field key. */
-            $graph_type_meta_value = get_post_meta( $post_id, $selected_email_domain_meta_key, true );
+            $selected_email_domain_meta_value = get_post_meta( $post_id, $selected_email_domain_meta_key, true );
             /* If a new meta value was added and there was no previous value, add it. */
-            if ( $graph_type_meta_value && ’ == $selected_email_domain_meta_value ){
-                add_post_meta( $post_id, $selected_email_domain_meta_key, $selected_email_domain_meta_value, true );
+            if ( $selected_email_domain_meta_value && ’ == $new_selected_email_domain_meta_value ){
+                add_post_meta( $post_id, $selected_email_domain_meta_key, $new_selected_email_domain_meta_value, true );
             }
             /* If the new meta value does not match the old value, update it. */
-            elseif ( $selected_email_domain_meta_value != $graph_type_meta_value ){
-                update_post_meta( $post_id, $selected_email_domain_meta_key, $selected_email_domain_meta_value );
+            elseif ( $new_selected_email_domain_meta_value != $selected_email_domain_meta_value ){
+                update_post_meta( $post_id, $selected_email_domain_meta_key, $new_selected_email_domain_meta_value );
+            }
+    
+    
+        // // !################### Field Type Array ###################
+        //     // save field type array
+        //     $new_field_type_array_meta_value = ( isset( $_POST['field-type-array'] ) ? filter_var( $_POST['field-type-array'], FILTER_SANITIZE_EMAIL ) : ’ );
+        //     $field_type_array_meta_key = 'field_type_array';
+        //     $field_type_array_meta_value = get_post_meta( $post_id, $field_type_array_meta_key, true );
+        //     if ( $field_type_array_meta_value && ’ == $new_field_type_array_meta_value ){
+        //         add_post_meta( $post_id, $field_type_array_meta_key, $new_field_type_array_meta_value, true );
+        //     }
+        //     elseif ( $new_field_type_array_meta_value != $field_type_array_meta_value ){
+        //         update_post_meta( $post_id, $field_type_array_meta_key, $new_field_type_array_meta_value );
+        //     }
+            
+        // !################### Selected Field Types ###################
+            // save selected field types
+            $new_selected_field_types_meta_value = ( isset( $_POST['selected-field-types'] ) ? array_map( 'strip_tags', $_POST['selected-field-types']) : ’ );
+            $selected_field_types_meta_key = 'selected_field_types';
+            $selected_field_types_meta_value = get_post_meta( $post_id, $selected_field_types_meta_key, true );
+            if ( $selected_field_types_meta_value && ’ == $new_selected_field_types_meta_value ){
+                add_post_meta( $post_id, $selected_field_types_meta_key, $new_selected_field_types_meta_value, true );
+            }
+            elseif ( $new_selected_field_types_meta_value != $selected_field_types_meta_value ){
+                update_post_meta( $post_id, $selected_field_types_meta_key, $new_selected_field_types_meta_value );
             }
 
-        /* If there is no new meta value but an old value exists, delete it. */
-        // elseif ( ’ == $new_graph_type_meta_value && $graph_type_meta_value ){
-        //     delete_post_meta( $post_id, $graph_type_meta_key, $graph_type_meta_value );
-        // }
-        
+            
+            // filter_var( [""], FILTER_SANITIZE_EMAIL);
+            // update_post_meta( $post_id, "my_select_key", "", true );
+            if( isset( $_POST[ 'my-select' ] ) ) {
+                update_post_meta( $post_id, 'my_select_key', array_map( 'sanitize_text_field', $_POST["my-select"]) );
+            }
     }
 
+    // ###### Enque scripts ######
+
+    function enqueue_muti_select_scripts() {
+        
+    }
     // ###### Helper functions ######
 
     public function average_scored_entries($entries){
@@ -865,7 +982,7 @@ class AgfReport {
         return $selected_form_entries;
     }
 
-    public fUnction sort_entries_by_domain($domains = [], $entries = []){
+    public function sort_entries_by_domain($domains = [], $entries = []){
         // returns only entries that have uses in the selected domains.
             foreach($entries as $entry){
                 // get user by id in order to check that uses domain.
@@ -988,8 +1105,3 @@ class AgfReport {
     }
 
 }
-
-
-
-
-
