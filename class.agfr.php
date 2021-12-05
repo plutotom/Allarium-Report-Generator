@@ -1,5 +1,5 @@
 <?php
-include_once "agfr-register-post-type.php"; // register post type function.
+include_once "includes/agfr-register-post-type.php"; // register post type function.
 
 
 class AgfReport
