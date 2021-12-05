@@ -1,61 +1,8 @@
 // http://loudev.com/#usage
 // Passing $ from jQuary because wordpress runs jQuary in no conflict mode.
 
-function addRow() {
-  console.log("addRow");
-  console.log(post_meta);
-  console.log(jQuery("#input_area").val());
-
-  // add div to the DOM
-  // var div = document.createElement("div");
-  // div.className = "row";
-  // div.innerHTML =
-  //   '<input type="text" name="input_area[]" value="' +
-  //   jQuery("#input_area").val() +
-  //   '" /> <a href="#" onclick="removeRow(this)">Remove</a>';
-  // document.getElementById("input_area").appendChild(div);
-
-  var new_category = document.createElement("div");
-  new_category.className = "row";
-  new_category.innerHTML = `<select multiple="multiple" id="my-select" name="my-select[]">
-         foreach($form['fields'] as $field) {
-             if(in_array($field['type'], $field_types)) {
-                 echo '<option value="'.$field['id']." ". $field['label'] .'">'.$field['label'].'</option>';
-             }
-         }
-   </select>`;
-  document.getElementById("input_area").appendChild(new_category);
-
-  // new_category.innerHTML = `<div class="row">
-  //                <input type="text" name="name" value="" />
-  //                <input type="text" name="value" value="" />
-  //                <label><input type="checkbox" name="check" value="1" />Checked?</label>
-  //                <input type="button" value="-" onclick="removeRow(this)">
-  //                </div>`;
-}
-function removeRow(input) {
-  input.parentNode.remove();
-}
-
 (function ($) {
   console.log("multi_select_js.js loaded");
-  function addRow() {
-    console.log("addRow");
-    console.log($("#input_area").val());
-
-    $("#input_area").insertAdjacentHTML(
-      "afterbegin",
-      `<div class="row">
-                <input type="text" name="name" value="" />
-                <input type="text" name="value" value="" />
-                <label><input type="checkbox" name="check" value="1" />Checked?</label>
-                <input type="button" value="-" onclick="removeRow(this)">
-                </div>`
-    );
-  }
-  function removeRow(input) {
-    input.parentNode.remove();
-  }
 
   var selected_fields = [];
 
@@ -126,4 +73,8 @@ function removeRow(input) {
     $("#my-select").multiSelect("deselect_all");
     return false;
   });
+})(jQuery);
+
+(function ($) {
+  console.log("multi_select_js.js loaded");
 })(jQuery);
