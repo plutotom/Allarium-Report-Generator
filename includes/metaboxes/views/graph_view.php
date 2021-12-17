@@ -96,7 +96,7 @@ function agf_get_entry_average_score($form_id)
 
 function agf_render_graph_table_metabox($post)
 {
-    wp_nonce_field(basename(__FILE__), 'reporting_meta_box_nonce');
+    wp_nonce_field('reporting_meta_box_nonce_action', 'reporting_meta_box_nonce');
     $post_meta = get_post_meta($post->ID);
     // getting all forms to add to select option list.
     $forms = GFAPI::get_forms();
@@ -116,28 +116,36 @@ function agf_render_graph_table_metabox($post)
 
     // ! Graph Color Picker
 ?>
-    <div class="graph-color-picker">
-        <h3 for="graph-color-picker">Graph Color Picker</h3>
-
-        <br />
-        <label for="graph-color-one-picker">Graph Color One Picker HEX</label>
-        <input type="color" id="graph-color-one-picker" name="graph-color-one-picker" value=<?php echo $post->graph_color_one ?> />
-        <input type="color" id="graph-border-color-one-picker" name="graph-border-color-one-picker" value=<?php echo $post->graph_border_color_one ?> />
-        <br />
-        <label for="graph-color-two-picker">Graph Color Two Picker HEX</label>
-        <input type="color" id="graph-color-two-picker" name="graph-color-two-picker" value=<?php echo $post->graph_color_two ?> />
-        <input type="color" id="graph-border-color-two-picker" name="graph-border-color-two-picker" value=<?php echo $post->graph_border_color_two ?> />
-        <br />
-        <label for="graph-color-three-picker">Graph Color Three Picker HEX</label>
-        <input type="color" id="graph-color-three-picker" name="graph-color-three-picker" value=<?php echo $post->graph_color_three ?> />
-        <input type="color" id="graph-color-border-three-picker" name="graph-border-color-three-picker" value=<?php echo $post->graph_border_color_three ?> />
-        <br />
-        <label for="graph-color-four-picker">Graph Color Four Picker HEX</label>
-        <input type="color" id="graph-color-four-picker" name="graph-color-four-picker" value=<?php echo $post->graph_color_four ?> />
-        <input type="color" id="graph-border-color-four-picker" name="graph-border-color-four-picker" value=<?php echo $post->graph_border_color_four ?> />
-    </div>
+<div class="graph-color-picker">
+    <h3 for="graph-color-picker">Graph Color Picker</h3>
 
     <br />
+    <label for="graph-color-one-picker">Graph Color One Picker HEX</label>
+    <input type="color" id="graph-color-one-picker" name="graph-color-one-picker"
+        value=<?php echo $post->graph_color_one ?> />
+    <input type="color" id="graph-border-color-one-picker" name="graph-border-color-one-picker"
+        value=<?php echo $post->graph_border_color_one ?> />
+    <br />
+    <label for="graph-color-two-picker">Graph Color Two Picker HEX</label>
+    <input type="color" id="graph-color-two-picker" name="graph-color-two-picker"
+        value=<?php echo $post->graph_color_two ?> />
+    <input type="color" id="graph-border-color-two-picker" name="graph-border-color-two-picker"
+        value=<?php echo $post->graph_border_color_two ?> />
+    <br />
+    <label for="graph-color-three-picker">Graph Color Three Picker HEX</label>
+    <input type="color" id="graph-color-three-picker" name="graph-color-three-picker"
+        value=<?php echo $post->graph_color_three ?> />
+    <input type="color" id="graph-color-border-three-picker" name="graph-border-color-three-picker"
+        value=<?php echo $post->graph_border_color_three ?> />
+    <br />
+    <label for="graph-color-four-picker">Graph Color Four Picker HEX</label>
+    <input type="color" id="graph-color-four-picker" name="graph-color-four-picker"
+        value=<?php echo $post->graph_color_four ?> />
+    <input type="color" id="graph-border-color-four-picker" name="graph-border-color-four-picker"
+        value=<?php echo $post->graph_border_color_four ?> />
+</div>
+
+<br />
 <?php
     // ! Dropdown for user domain names
     // make array of each users email 

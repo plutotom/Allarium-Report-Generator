@@ -55,11 +55,11 @@ class AgfReport
 
         // ######################### Display all forms in html dropdown ####################################
 ?>
-        <div class="form-field">
-            <label for="agf_form_select"><?php _e('Select a Gravity Form', 'agfReport'); ?></label>
-            <select name="agf_form_select" id="agf_form_select">
-                <option value="">Select a Gravity Form</option>
-                <?php
+<div class="form-field">
+    <label for="agf_form_select"><?php _e('Select a Gravity Form', 'agfReport'); ?></label>
+    <select name="agf_form_select" id="agf_form_select">
+        <option value="">Select a Gravity Form</option>
+        <?php
                 foreach ($forms as $form) {
                     $selected = "";
                     if (isset($post_meta['agf_form_select']) && $form->id == $post_meta['agf_form_select'][0]) {
@@ -68,9 +68,9 @@ class AgfReport
                     echo "<option value='{$form->id}' {$selected}>{$form->title}</option>";
                 }
                 ?>
-            </select>
-        </div>
-        <?php
+    </select>
+</div>
+<?php
         // #################################################################################################
         // wp_nonce_field( basename( __FILE__ ), 'reporting_meta_box_nonce' );
         $post_meta = get_post_meta(121);
@@ -96,7 +96,7 @@ class AgfReport
             'hide_empty' => false,
         ]);
         // !################### Listing Question in groups ########################
-        $this->muti_select_questions($form, $post_meta, $all_form_fields);
+        $this->multi_select_questions($form, $post_meta, $all_form_fields);
     }
 
     public function register_taxonomy()
@@ -128,11 +128,11 @@ class AgfReport
         function agfReport_ref_page_callback()
         {
         ?>
-            <div class="wrap">
-                <h1><?php _e('Page Title', 'textdomain'); ?></h1>
-                <p><?php _e('Helpful stuff here', 'textdomain'); ?></p>
-            </div>
-        <?php
+<div class="wrap">
+    <h1><?php _e('Page Title', 'textdomain'); ?></h1>
+    <p><?php _e('Helpful stuff here', 'textdomain'); ?></p>
+</div>
+<?php
         }
         add_action('admin_menu', 'books_register_ref_page');
     }
@@ -215,75 +215,75 @@ class AgfReport
             }
         }
         ?>
-        <!-- 	Bootstrap v2.3.2 -->
-        <link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/bootstrap-2.3.2.min.css" />
-        <!-- Plugin styles -->
-        <link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/jquery.dynatable.css" />
+<!-- 	Bootstrap v2.3.2 -->
+<link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/bootstrap-2.3.2.min.css" />
+<!-- Plugin styles -->
+<link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/jquery.dynatable.css" />
 
-        <!--  jQuery v3.0.0-beta1 -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
+<!--  jQuery v3.0.0-beta1 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
 
-        <!-- JS Pluging -->
-        <script type="text/javascript" src="https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function() {
-                $('#html-table')
-                    .bind('dynatable:init', function(e, dynatable) {
-                        dynatable.queries.functions['domainInput'] = function(record, queryValue) {
-                            // get value after @ symble in recored.userEmail
-                            var domain = record.userEmail.split('@')[1];
-                            return domain === queryValue;
-                        };
-                        dynatable.queries.functions['userName'] = function(record, queryValue) {
-                            return queryValue === record.userName;
-                        };
-                    })
-                    .dynatable({
-                        features: {
-                            paginate: false,
-                            recordCount: false,
-                            sorting: false,
-                            search: true
-                        },
-                        inputs: {
-                            queries: $('#domainInput, #userName')
-                        },
-                    });
-            });
-        </script>
-        <!-- // ! html table for all users scores -->
-        <select id='domainInput' class='domainInput'>
-            <option value=""></option>
-            <?php
+<!-- JS Pluging -->
+<script type="text/javascript" src="https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#html-table')
+        .bind('dynatable:init', function(e, dynatable) {
+            dynatable.queries.functions['domainInput'] = function(record, queryValue) {
+                // get value after @ symble in recored.userEmail
+                var domain = record.userEmail.split('@')[1];
+                return domain === queryValue;
+            };
+            dynatable.queries.functions['userName'] = function(record, queryValue) {
+                return queryValue === record.userName;
+            };
+        })
+        .dynatable({
+            features: {
+                paginate: false,
+                recordCount: false,
+                sorting: false,
+                search: true
+            },
+            inputs: {
+                queries: $('#domainInput, #userName')
+            },
+        });
+});
+</script>
+<!-- // ! html table for all users scores -->
+<select id='domainInput' class='domainInput'>
+    <option value=""></option>
+    <?php
             foreach ($domains_in_scored_entries as $domain) {
                 echo "<option value='$domain'>$domain</option>";
             }
             ?>
-        </select>
-        <select id='userName' class='userName'>
-            <option value=""></option>
-            <?php
+</select>
+<select id='userName' class='userName'>
+    <option value=""></option>
+    <?php
             foreach ($users_names as $names) {
                 echo "<option value='$names'>$names</option>";
             }
             ?>
-        </select>
-        <table class="table table-striped table-bordered table-hover" id="html-table">
-            <thead>
-                <tr>
-                    <th>User ID</th>
-                    <th>User Email</th>
-                    <th>User Name</th>
-                    <th>CDBI</th>
-                    <th>DDD</th>
-                    <th>ME</th>
-                    <th>MS</th>
-                    <th>Created Date</th>
-                </tr>
-                <tr>
-            </thead>
-            <tbody>
-                <?php
+</select>
+<table class="table table-striped table-bordered table-hover" id="html-table">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>User Email</th>
+            <th>User Name</th>
+            <th>CDBI</th>
+            <th>DDD</th>
+            <th>ME</th>
+            <th>MS</th>
+            <th>Created Date</th>
+        </tr>
+        <tr>
+    </thead>
+    <tbody>
+        <?php
                 foreach ($scored_data as $key => $value) {
                     // get user email by id
                     $user_email = get_userdata($value['entry']['created_by'])->data->user_email;
@@ -548,10 +548,10 @@ class AgfReport
 
 
                 // !################### Listing Question in groups ########################
-                $this->muti_select_questions($form, $field_types, $post, $post_meta);
+                $this->multi_select_questions($form, $field_types, $post, $post_meta);
             }
             // get post id
-            public function muti_select_questions($form, $post_meta, $all_forms)
+            public function multi_select_questions($form, $post_meta, $all_forms)
             {
                 wp_enqueue_script('multiSelect', 'https://cdnjs.cloudflare.com/ajax/libs/multi-select/0.9.12/js/jquery.multi-select.min.js', array('jquery'), 1.1, true);
                 wp_enqueue_style('multiSelect-css', 'https://cdnjs.cloudflare.com/ajax/libs/multi-select/0.9.12/css/multi-select.css');
@@ -587,28 +587,36 @@ class AgfReport
 
                 // ! Graph Color Picker
                 ?>
-                <div class="graph-color-picker">
-                    <h3 for="graph-color-picker">Graph Color Picker</h3>
+        <div class="graph-color-picker">
+            <h3 for="graph-color-picker">Graph Color Picker</h3>
 
-                    <br />
-                    <label for="graph-color-one-picker">Graph Color One Picker HEX</label>
-                    <input type="color" id="graph-color-one-picker" name="graph-color-one-picker" value=<?php echo $post->graph_color_one ?> />
-                    <input type="color" id="graph-border-color-one-picker" name="graph-border-color-one-picker" value=<?php echo $post->graph_border_color_one ?> />
-                    <br />
-                    <label for="graph-color-two-picker">Graph Color Two Picker HEX</label>
-                    <input type="color" id="graph-color-two-picker" name="graph-color-two-picker" value=<?php echo $post->graph_color_two ?> />
-                    <input type="color" id="graph-border-color-two-picker" name="graph-border-color-two-picker" value=<?php echo $post->graph_border_color_two ?> />
-                    <br />
-                    <label for="graph-color-three-picker">Graph Color Three Picker HEX</label>
-                    <input type="color" id="graph-color-three-picker" name="graph-color-three-picker" value=<?php echo $post->graph_color_three ?> />
-                    <input type="color" id="graph-color-border-three-picker" name="graph-border-color-three-picker" value=<?php echo $post->graph_border_color_three ?> />
-                    <br />
-                    <label for="graph-color-four-picker">Graph Color Four Picker HEX</label>
-                    <input type="color" id="graph-color-four-picker" name="graph-color-four-picker" value=<?php echo $post->graph_color_four ?> />
-                    <input type="color" id="graph-border-color-four-picker" name="graph-border-color-four-picker" value=<?php echo $post->graph_border_color_four ?> />
-                </div>
+            <br />
+            <label for="graph-color-one-picker">Graph Color One Picker HEX</label>
+            <input type="color" id="graph-color-one-picker" name="graph-color-one-picker"
+                value=<?php echo $post->graph_color_one ?> />
+            <input type="color" id="graph-border-color-one-picker" name="graph-border-color-one-picker"
+                value=<?php echo $post->graph_border_color_one ?> />
+            <br />
+            <label for="graph-color-two-picker">Graph Color Two Picker HEX</label>
+            <input type="color" id="graph-color-two-picker" name="graph-color-two-picker"
+                value=<?php echo $post->graph_color_two ?> />
+            <input type="color" id="graph-border-color-two-picker" name="graph-border-color-two-picker"
+                value=<?php echo $post->graph_border_color_two ?> />
+            <br />
+            <label for="graph-color-three-picker">Graph Color Three Picker HEX</label>
+            <input type="color" id="graph-color-three-picker" name="graph-color-three-picker"
+                value=<?php echo $post->graph_color_three ?> />
+            <input type="color" id="graph-color-border-three-picker" name="graph-border-color-three-picker"
+                value=<?php echo $post->graph_border_color_three ?> />
+            <br />
+            <label for="graph-color-four-picker">Graph Color Four Picker HEX</label>
+            <input type="color" id="graph-color-four-picker" name="graph-color-four-picker"
+                value=<?php echo $post->graph_color_four ?> />
+            <input type="color" id="graph-border-color-four-picker" name="graph-border-color-four-picker"
+                value=<?php echo $post->graph_border_color_four ?> />
+        </div>
 
-                <br />
+        <br />
         <?php
                 // ! Dropdown for user domain names
                 // make array of each users email 

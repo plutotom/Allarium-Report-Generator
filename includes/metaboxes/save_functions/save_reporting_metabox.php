@@ -1,8 +1,8 @@
 <?php
-function agf_save_reporting_metabox($post_id, $post)
-{
+// function agf_save_reporting_metabox($post_id, $post)
+// {
     /* Verify the nonce before proceeding. */
-    if (!isset($_POST['reporting_meta_box_nonce']) || !wp_verify_nonce($_POST['reporting_meta_box_nonce'], basename(__FILE__)))
+    if (!isset($_POST['reporting_meta_box_nonce']) || !wp_verify_nonce($_POST['reporting_meta_box_nonce'], 'reporting_meta_box_nonce_action'))
         return $post_id;
 
     /* Get the post type object. */
@@ -195,4 +195,4 @@ function agf_save_reporting_metabox($post_id, $post)
     if (isset($_POST['my-select'])) {
         update_post_meta($post_id, 'my_select_key', array_map('sanitize_text_field', $_POST["my-select"]));
     }
-}
+// }
