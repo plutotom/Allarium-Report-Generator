@@ -87,6 +87,22 @@ function get_domains_in_scored_entries($entries = [])
     return $domains;
 }
 
+function sort_entries_by_domain($domains = [], $entries = [])
+    {
+        // returns only entries that have uses in the selected domains.
+        foreach ($entries as $entry) {
+            // get user by id in order to check that uses domain.
+            $entry_user_data = get_user_by('id', $entry['created_by']);
+            // getting only domain (ex: @gmail.com) from email.
+            $current_loop_user_domain = explode("@", $entry_user_data->data->user_email)[1];
+            // if current_loop_user_domain is in domain array
+            if (in_array($current_loop_user_domain, $domains)) {
+                $selected_form_entries_by_domain[] = $entry;
+            }
+        }
+        return $selected_form_entries_by_domain;
+    }
+
 function agf_shortcode_table_func($atts)
 {
     if ($atts['id'] == '' || $atts['id'] == null) {
@@ -164,75 +180,75 @@ function agf_shortcode_table_func($atts)
         }
     }
 ?>
-    <!-- 	Bootstrap v2.3.2 -->
-    <link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/bootstrap-2.3.2.min.css" />
-    <!-- Plugin styles -->
-    <link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/jquery.dynatable.css" />
+<!-- 	Bootstrap v2.3.2 -->
+<link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/bootstrap-2.3.2.min.css" />
+<!-- Plugin styles -->
+<link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/jquery.dynatable.css" />
 
-    <!--  jQuery v3.0.0-beta1 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
+<!--  jQuery v3.0.0-beta1 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
 
-    <!-- JS Pluging -->
-    // ! enque scripts in wordpress.
-    <script type="text/javascript" src="https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('#html-table')
-                .bind('dynatable:init', function(e, dynatable) {
-                    dynatable.queries.functions['domainInput'] = function(record, queryValue) {
-                        // get value after @ symble in recored.userEmail
-                        var domain = record.userEmail.split('@')[1];
-                        return domain === queryValue;
-                    };
-                    dynatable.queries.functions['userName'] = function(record, queryValue) {
-                        return queryValue === record.userName;
-                    };
-                })
-                .dynatable({
-                    features: {
-                        paginate: false,
-                        recordCount: false,
-                        sorting: false,
-                        search: true
-                    },
-                    inputs: {
-                        queries: $('#domainInput, #userName')
-                    },
-                });
+<!-- JS Pluging -->
+// ! enque scripts in wordpress.
+<script type="text/javascript" src="https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#html-table')
+        .bind('dynatable:init', function(e, dynatable) {
+            dynatable.queries.functions['domainInput'] = function(record, queryValue) {
+                // get value after @ symble in recored.userEmail
+                var domain = record.userEmail.split('@')[1];
+                return domain === queryValue;
+            };
+            dynatable.queries.functions['userName'] = function(record, queryValue) {
+                return queryValue === record.userName;
+            };
+        })
+        .dynatable({
+            features: {
+                paginate: false,
+                recordCount: false,
+                sorting: false,
+                search: true
+            },
+            inputs: {
+                queries: $('#domainInput, #userName')
+            },
         });
-    </script>
-    <!-- // ! html table for all users scores -->
-    <select id='domainInput' class='domainInput'>
-        <option value=""></option>
-        <?php
+});
+</script>
+<!-- // ! html table for all users scores -->
+<select id='domainInput' class='domainInput'>
+    <option value=""></option>
+    <?php
         foreach ($domains_in_scored_entries as $domain) {
             echo "<option value='$domain'>$domain</option>";
         }
         ?>
-    </select>
-    <select id='userName' class='userName'>
-        <option value=""></option>
-        <?php
+</select>
+<select id='userName' class='userName'>
+    <option value=""></option>
+    <?php
         foreach ($users_names as $names) {
             echo "<option value='$names'>$names</option>";
         }
         ?>
-    </select>
-    <table class="table table-striped table-bordered table-hover" id="html-table">
-        <thead>
-            <tr>
-                <th>User ID</th>
-                <th>User Email</th>
-                <th>User Name</th>
-                <th>CDBI</th>
-                <th>DDD</th>
-                <th>ME</th>
-                <th>MS</th>
-                <th>Created Date</th>
-            </tr>
-            <tr>
-        </thead>
-        <tbody>
+</select>
+<table class="table table-striped table-bordered table-hover" id="html-table">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>User Email</th>
+            <th>User Name</th>
+            <th>CDBI</th>
+            <th>DDD</th>
+            <th>ME</th>
+            <th>MS</th>
+            <th>Created Date</th>
+        </tr>
+        <tr>
+    </thead>
+    <tbody>
         <?php
         foreach ($scored_data as $key => $value) {
             // get user email by id

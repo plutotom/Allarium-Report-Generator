@@ -28,8 +28,10 @@ include(AGFR__PLUGIN_DIR . "includes/shortcodes/shortcode_table.php");
 include(AGFR__PLUGIN_DIR . "includes/helper_class/helper_class.php");
 // include enqueue scripts file
 include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_scripts.php");
+//include enqueue styles file
+include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_styles.php");
 // include ajax processes
-include(AGFR__PLUGIN_DIR . "process/add_question_category.php");
+include(AGFR__PLUGIN_DIR . "process/process_form_metabox_ajax.php");
 
 // Hooks
 // register_activation_hook(__FILE__, 'agf_init_report');
@@ -50,7 +52,10 @@ add_action('save_post', 'agf_save_metabox', 10, 2);
 
 // Other Hooks
 add_action('wp_ajax_add_question_category', 'add_question_category_process');
-
+add_action('wp_ajax_agf_get_form_questions', 'get_all_form_questions_process');
+//enqueue scripts and styles
+add_action('admin_enqueue_scripts', 'agf_enqueue_styles');
+add_action('admin_enqueue_scripts', 'agf_get_post_data_list_questions_metabox_script');
 // TODO make save function for agf_register_list_forms_metabox
 // TODO make agf_register_list_forms_metabox a multi select metabox
 

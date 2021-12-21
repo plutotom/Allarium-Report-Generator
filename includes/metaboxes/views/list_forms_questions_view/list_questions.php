@@ -9,7 +9,11 @@
 <h1>List Questions</h1>
 <button id="add-question-category">Add Category</button>
 
-<?php
+<h3>name of category goes here</h3>
+<div class="col-12 col-md-8 container" id="list-question-category-container">
 
-// including HTML
-include 'category_box_with_questions.html';
+</div>
+<div class="d-none" id="overlay"></div>
+
+
+<?php
