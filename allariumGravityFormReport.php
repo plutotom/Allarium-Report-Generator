@@ -51,8 +51,9 @@ add_action('save_post', 'agf_save_metabox', 10, 2);
 
 
 // Other Hooks
-add_action('wp_ajax_add_question_category', 'add_question_category_process');
-add_action('wp_ajax_agf_get_form_questions', 'get_all_form_questions_process');
+add_action('wp_ajax_add_question_category', 'agf_add_question_category_process');
+add_action('wp_ajax_agf_update_post_meta', 'agf_update_post_meta_process');
+
 //enqueue scripts and styles
 add_action('admin_enqueue_scripts', 'agf_enqueue_styles');
 add_action('admin_enqueue_scripts', 'agf_get_post_data_list_questions_metabox_script');

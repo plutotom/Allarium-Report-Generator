@@ -34,9 +34,9 @@ var entries = <?php echo json_encode($entries); ?>;
         <select name="agf_null_forms" id="agf_null_forms">
             <option selected="selected" value="">Create a from first.</option>
         </select>
-
         <?php } //endif
     ?>
     </select>
+    <input type="submit" value="Update Form Selection" class="button button-primary button-large" id="agf-save-button">
     <?php
 ?>

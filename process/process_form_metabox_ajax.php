@@ -1,6 +1,6 @@
 <?php
 
-function add_question_category_process(){
+function agf_add_question_category_process(){
     print_r("Processing ajax request to add category");
     // print_r($_POST);
 
@@ -10,19 +10,31 @@ function add_question_category_process(){
 };
 
 // gets all form questions and returns them
-function get_all_form_questions_process(){
-    // get gravity forms
-    $forms = GFAPI::get_forms();
-    // get post id
+function agf_update_post_meta_process(){    
     $post_id = $_POST['post_id'];
 
+    // Getting previous data from post meta
+    $category_data  = get_post_meta( $post_id, 'category_data', true );
 
-    // $categories_data  = get_post_meta( $post_id, 'categories', true );
-    // $categories_data = empty($recipe_data) ? [] : $recipe_data;
-    // update_post_meta( $post_id, 'category_data', $categories_data );
+    if(empty($category_data)){
+        print_r("No categories found, creating category data field");
+        add_post_meta( $post_id, "category_data", 
+        [
+            "question_label" => [],
+            "question_checkbox" => [],
+            "category_title" => []
+        ],
+         true );
+    }else{
+        print_r("Categories found");
+        $category_data = maybe_unserialize($category_data);
+    }
+  
+    print_r("Processing ajax request to update post meta");
+    $category_data = ["category_title" => "title set from within", "category_questions" => ["question 1", "question 2"]];
+    update_post_meta( $post_id, 'category_data', $_POST["data"] );
 
-    $output['status'] = 2; // 2 == success 1 == fail
-    $output['all_forms'] = $forms; 
-    
+
+    $output['status'] = 2; // 2 == success, 1 == fail
     wp_send_json( $output ); // sends a response back to the ajax call and does wp_die();
 };
