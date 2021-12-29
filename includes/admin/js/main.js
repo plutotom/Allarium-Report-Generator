@@ -1,4 +1,4 @@
-// Global Variables: agf_list_questions_metabox_obj: post_data, ajax_url, all_forms
+// Global Variables: agf_list_questions_metabox_obj: post_data, ajax_url, all_forms, all_entries
 
 /**
  * Filter function to get only selected forms
@@ -13,7 +13,7 @@ function agf_uid() {
  * @param {event} event onKeyDown event
  */
 
-function handel_search(event) {
+function agf_handel_search(event) {
   var input, filter, question_list, i, label, txtValue;
   console.log("opening the menu");
   input = event.target.value;
@@ -79,22 +79,48 @@ function agf_prepare_category_data(event, $) {
           parent_text = parent_text.trim();
           // id of the category
           var item_id = $(question_input_element).attr("id");
-          var formId = $(question_input_element).attr("id");
-          
-          var fieldId = $(question_input_element).attr("class");
+
+          var question_class = $(question_input_element).attr("class");
+          // get all text after space
+          var form_id = question_class.split("form_id=")[1];
+          var field_id = question_class.split("field_id=")[1];
+
+          // making sure the value is not null
+          if (field_id && field_id) {
+            form_id = form_id.split(" ")[0];
+          }
 
           if (!post_data[item_id]) {
+            if (field_id && field_id) {
+              post_data[category_id] = {
+                question: [
+                  {
+                    question_name: parent_text,
+                    form_id: form_id,
+                    field_id: field_id,
+                  },
+                ],
+                category_id: category_id,
+                category_title: category_title.trim(),
+              };
+            }
             post_data[category_id] = {
               question: [parent_text],
               category_id: category_id,
               category_title: category_title.trim(),
             };
           } else {
-            post_data[category_id].question.push(parent_text);
+            // post_data[category_id].question.push(parent_text);
+            post_data[category_id].question.push({
+              question_name: parent_text,
+              form_id: form_id,
+              field_id: field_id,
+            });
           }
         }
       });
   });
+  // Sending data to update post meta
   agf_update_post_meta(event, $, post_data);
 }
 
@@ -120,6 +146,7 @@ function agf_update_post_meta(event, $, category_data) {
       action: "agf_update_post_meta",
       data: category_data,
       post_id: agf_list_questions_metabox_obj.post_id,
+      nonce: agf_list_questions_metabox_obj.nonce,
     },
     success: function (response) {
       // update post meta data
@@ -148,18 +175,25 @@ function agf_load_categories($, unique_questions) {
       var load_question_list_html = "";
       // put all questions in to html
       unique_questions.forEach(function (unique_question) {
-        if (
-          category.question &&
-          category.question.includes(unique_question.label)
-        ) {
-          load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
-                <input name="question-checkbox[]" checked id="${category.category_id}" class="question-checkbox" type="checkbox">&nbsp</input>
-                ${unique_question["label"]}</label>`;
-        } else {
-          load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
-                <input name="question-checkbox[]" id="${category.category_id}" class="question-checkbox" type="checkbox">&nbsp</input>
-                ${unique_question["label"]}</label>`;
-        }
+        if (Array.isArray(category.question)) {
+          // if category.question is not empty
+          for (let question of category.question) {
+            // if current unique question is not in category.question array.question name then add it.
+            // console.log("found quesstions");
+            if (question.question_name === unique_question["label"]) {
+              // form_id=${category.question["formId"]} field_id=${category.question["id"]}
+              load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
+               <input name="question-checkbox[]" checked id="${category.category_id}" class="question-checkbox" type="checkbox">&nbsp</input>
+               ${unique_question["label"]}</label>`;
+              break;
+            } else {
+              // this only fires if a category has no questions
+              load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
+              <input name="question-checkbox[]" id="${category.category_id}" class="question-checkbox form_id=${unique_question["formId"]} field_id=${unique_question["id"]}" type="checkbox">&nbsp</input>
+              ${unique_question["label"]}</label>`;
+            }
+          }
+        } // end if array
       }); // end unique_questions loop
 
       var load_category_html = `<div id="${category.category_id}" class="col-12 col-md-8 container category-container">
@@ -167,13 +201,16 @@ function agf_load_categories($, unique_questions) {
 
             <div class="category-${category.category_id} ${category.category_id}" id="category-${category.category_id} ${category.category_id}">
 
-            <button onclick="event.preventDefault();" id="agf-question-list-menu-dropdown" class="button button-primary button-large agf-question-list-menu-dropdown">
+            <button onclick="agf_open_category_menu(event, jQuery);" id="agf-question-list-menu-dropdown" class="button button-primary button-large agf-question-list-menu-dropdown">
                 Menu 1 &#9013;
+            </button>
+            <button onclick="agf_delete_category(event, jQuery);" id="${category.category_id}" class="btn btn-danger btn-large agr-delete-category-button">
+            Delete Category;
             </button>
             
             <div id="${category.category_id}" style="padding: 10px;" class="d-none shadow rounded agf-menu agf-question-list-div-with-search">
 
-            <input onkeyup="handel_search(event)" type="text" id="${category.category_id}"            class="agf-question-list-search" placeholder="Search Questions.." title="Type a question">
+            <input onkeyup="agf_handel_search(event)" type="text" id="${category.category_id}"            class="agf-question-list-search" placeholder="Search Questions.." title="Type a question">
             <div class="question-list-div" id="${category.category_id}">
             ${load_question_list_html}
             </div>
@@ -225,16 +262,35 @@ function agf_get_unique_questions() {
   return unique_question_list;
 }
 
+/**
+ * Deletes the selected category.
+ * @param {*} event
+ * @param {jQuery} $
+ */
+
 function agf_delete_category(event, $) {
   event.preventDefault();
   console.log("Running delete category");
-  //   var category_id = event.target.id;
-  //   var category_data = agf_list_questions_metabox_obj.post_data.category_data;
-  //   var category_data_to_delete = category_data.filter(function (category) {
-  //     return category.category_id !== category_id;
-  //   });
-  //   agf_update_post_meta(event, $, category_data_to_delete);
-  //   $(`#${category_id}`).remove();
+  var category_id = event.target.id;
+  var Category_data = agf_list_questions_metabox_obj.post_data.category_data;
+  delete Category_data[category_id];
+  agf_update_post_meta(event, $, Category_data);
+  $(`#${category_id}`).remove(); // removes every element with the id of category_id
+}
+
+/**
+ * Opens the menu dropdown that holds question list.
+ * @param {event} event - event object
+ */
+
+function agf_open_category_menu(event, $) {
+  event.preventDefault();
+  var search_input = $(event.target).parent().find(".agf-question-list-search");
+
+  console.log("Opening Menu");
+  event.target.parentElement.children[2].classList.remove("d-none");
+  document.getElementById("overlay").classList.remove("d-none");
+  search_input[0].focus();
 }
 
 (function ($, window, document) {
@@ -244,9 +300,6 @@ function agf_delete_category(event, $) {
     console.log(agf_list_questions_metabox_obj);
     const unique_questions = agf_get_unique_questions();
     agf_load_categories($, unique_questions);
-    // log unique_questions
-    console.log(unique_questions);
-
     //! Adding html category box on button click
     $("#add-question-category").on("click", function (event) {
       event.preventDefault();
@@ -257,72 +310,61 @@ function agf_delete_category(event, $) {
       unique_questions.forEach(function (question) {
         question_uid = agf_uid();
         question_list_html += `<label name="question-label" id="${category_uid}" class="d-block agf-question-label">
-            <input name="question-checkbox[]" id="${category_uid}" class="question-checkbox  form_id=${question["formId"]} field_id=${question["id"]}" type="checkbox">&nbsp</input>
+            <input name="question-checkbox[]" id="${category_uid}" class="question-checkbox form_id=${question["formId"]} field_id=${question["id"]}" type="checkbox">&nbsp</input>
             ${question["label"]}</label>`;
       });
-
       var category_html = `<div id="${category_uid}" class="col-12 col-md-8 container category-container">
-        <input name="category-title[]" type="text" id="${category_uid}" class="category-title"  placeholder="Category Name"/>
-
-            <div class="category-${category_uid} ${category_uid}" id="category-${category_uid} ${category_uid}">
-
-            <button onclick="event.preventDefault();" id="agf-question-list-menu-dropdown" class="button button-primary button-large agf-question-list-menu-dropdown">
-                Menu 1 &#9013;
+          <input name="category-title[]" type="text" id="${category_uid}" class="category-title"  placeholder="Category Name"/>
+        
+          <div class="category-div ${category_uid}" id="${category_uid}">
+        
+            
+            <button onclick="agf_open_category_menu(event, jQuery);" id="${category_uid}" class="agf-question-list-menu-dropdown button button-primary button-large">
+            Menu 1 &#9013; </button>
+           
+            <button onclick="agf_delete_category(event, jQuery);" id="${category_uid}" class="btn btn-danger btn-large agr-delete-category-button">
+            Delete Category;
             </button>
-            <button onclick="agf_delete_category(event, $);" id="agf-delete-category ${category_uid}" class="btn btn-danger btn-large agr-delete-category-button">
-                Delete Category
-            </button>
+
             
             
             <div id="${category_uid}" style="padding: 10px;" class="d-none shadow rounded agf-menu agf-question-list-div-with-search">
 
-            <input onkeyup="handel_search(event)" type="text" id="${category_uid}"            class="agf-question-list-search" placeholder="Search Questions.." title="Type a question">
-            <div class="question-list-div" id="${category_uid}">
-            ${question_list_html}
+              <input onkeyup="agf_handel_search(event)" type="text" id="${category_uid}" class="agf-question-list-search" placeholder="Search Questions.." title="Type a question">
+              <div class="question-list-div" id="${category_uid}">
+                ${question_list_html}
+              </div>
             </div>
-            </div>
-            </div>
-            </div>
+          </div>
         </div>`;
       $("#list-question-category-container").append(category_html);
     }), // end of add-question-category button click
-      //! Handling the click event to add menu drop down
-      $("#list-question-category-container").on(
-        "click",
-        "button",
-        function (event) {
-          event.preventDefault();
-          console.log("opening the menu");
-          // Open the menu
-          event.target.parentElement.children[1].classList.remove("d-none");
-          document.getElementById("overlay").classList.remove("d-none");
+      //! Hiding menu drop down on click outside
+      $("#overlay").on("click", function (event) {
+        event.preventDefault();
+        console.log("Hiding");
+
+        //* resetting the search input
+        var items = document.getElementsByClassName("agf-menu");
+        var search = document.getElementsByClassName(
+          "agf-question-list-search"
+        );
+        // for each search set value to empty
+        for (var i = 0; i < search.length; i++) {
+          search[i].value = "";
         }
-      );
+        // for each agf-question-label set style to display: ""
+        var questions = document.getElementsByClassName("agf-question-label");
+        for (var i = 0; i < questions.length; i++) {
+          questions[i].style.display = "";
+        }
 
-    //! Hiding menu drop down on click outside
-    $("#overlay").on("click", function (event) {
-      event.preventDefault();
-      console.log("Hiding");
-
-      //* resetting the search input
-      var items = document.getElementsByClassName("agf-menu");
-      var search = document.getElementsByClassName("agf-question-list-search");
-      // for each search set value to empty
-      for (var i = 0; i < search.length; i++) {
-        search[i].value = "";
-      }
-      // for each agf-question-label set style to display: ""
-      var questions = document.getElementsByClassName("agf-question-label");
-      for (var i = 0; i < questions.length; i++) {
-        questions[i].style.display = "";
-      }
-
-      //* close the menu
-      var items = document.getElementsByClassName("agf-menu");
-      for (let i = 0; i < items.length; i++) {
-        items[i].classList.add("d-none");
-      }
-      document.getElementById("overlay").classList.add("d-none");
-    });
+        //* close the menu
+        var items = document.getElementsByClassName("agf-menu");
+        for (let i = 0; i < items.length; i++) {
+          items[i].classList.add("d-none");
+        }
+        document.getElementById("overlay").classList.add("d-none");
+      });
   }); // end document ready
 })(jQuery, window, document);

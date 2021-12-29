@@ -1,6 +1,4 @@
 <?php
-
-
 class Agf_Helper_Class
 {
     public function __construct()

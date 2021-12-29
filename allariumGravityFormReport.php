@@ -32,6 +32,8 @@ include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_scripts.php");
 include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_styles.php");
 // include ajax processes
 include(AGFR__PLUGIN_DIR . "process/process_form_metabox_ajax.php");
+//include custom actions
+include_once(AGFR__PLUGIN_DIR . "includes/custom_actions/agf_gform_after_submission.php");
 
 // Hooks
 // register_activation_hook(__FILE__, 'agf_init_report');
@@ -63,3 +65,6 @@ add_action('admin_enqueue_scripts', 'agf_get_post_data_list_questions_metabox_sc
 
 // ShortCode
 add_shortcode('agfTable', 'agf_shortcode_table_func');
+
+// Custom Actions
+add_action( 'gform_after_submission', 'agf_gform_after_subbission', 10, 2 );

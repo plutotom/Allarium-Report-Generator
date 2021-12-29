@@ -23,18 +23,15 @@ function agf_get_post_data_list_questions_metabox_script()
                 $form_id = $form['id'];
                 $entries[$form['title']] = GFAPI::get_entries( $form_id );
             }
-            
-
-
-
-
+            $agf_nonce = wp_create_nonce('agf_category_nonce');
             // localize script, create a custom js object
             // this will enqueue the script and append the url to a javascript variable named agf_list_questions_metabox_obj
             wp_localize_script(
                 'agf_main_js', 
                 'agf_list_questions_metabox_obj', // name of javascript variable that url will be append to.
                     [
-                        'ajax_url'           => admin_url('admin-ajax.php'),
+                        'nonce'         => $agf_nonce,
+                        'ajax_url'      => admin_url('admin-ajax.php'),
                         'post_data'     => $post_data,
                         'post_id'       => $post_id,
                         'all_forms'     => $forms,

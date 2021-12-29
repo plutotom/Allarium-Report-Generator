@@ -12,7 +12,12 @@ function agf_add_question_category_process(){
 // gets all form questions and returns them
 function agf_update_post_meta_process(){    
     $post_id = $_POST['post_id'];
-
+    if(!wp_verify_nonce($_POST['nonce'], 'agf_category_nonce')){
+        print_r("failed to verify nonce");
+        echo $output["status"] = 1;
+        return $post_id;
+    }
+    
     // Getting previous data from post meta
     $category_data  = get_post_meta( $post_id, 'category_data', true );
 
@@ -36,5 +41,6 @@ function agf_update_post_meta_process(){
 
 
     $output['status'] = 2; // 2 == success, 1 == fail
-    wp_send_json( $output ); // sends a response back to the ajax call and does wp_die();
+    echo $output;
+    // wp_send_json( $output ); // sends a response back to the ajax call and does wp_die();
 };
