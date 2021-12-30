@@ -167,34 +167,39 @@ function agf_update_post_meta(event, $, category_data) {
  * @param {jQuery} $ jQuery object
  * @param {array} unique_questions - array of unique questions that is returned from agf_get_unique_questions.
  */
-function agf_load_categories($, unique_questions) {
+function agf_load_categories($, question_list) {
   var category_data = agf_list_questions_metabox_obj.post_data.category_data;
+  let checked = "";
+  function agf_is_checked(cq_arr, question_label) {
+    const { length } = cq_arr;
+    const id = length + 1;
+    const found = cq_arr.some((item) => item.question_name === question_label);
+    // if (!found) cq_arr.push({ id, username: question });
+    return found; // found will be weather or not the question is in the array, i.e. if question should be checked.
+  }
   // loading saved categories
   if (category_data) {
     Object.values(category_data).forEach((category, index, array) => {
-      var load_question_list_html = "";
-      // put all questions in to html
-      unique_questions.forEach(function (unique_question) {
-        if (Array.isArray(category.question)) {
-          // if category.question is not empty
-          for (let question of category.question) {
-            // if current unique question is not in category.question array.question name then add it.
-            // console.log("found quesstions");
-            if (question.question_name === unique_question["label"]) {
-              // form_id=${category.question["formId"]} field_id=${category.question["id"]}
-              load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
-               <input name="question-checkbox[]" checked id="${category.category_id}" class="question-checkbox" type="checkbox">&nbsp</input>
-               ${unique_question["label"]}</label>`;
-              break;
-            } else {
-              // this only fires if a category has no questions
-              load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
-              <input name="question-checkbox[]" id="${category.category_id}" class="question-checkbox form_id=${unique_question["formId"]} field_id=${unique_question["id"]}" type="checkbox">&nbsp</input>
-              ${unique_question["label"]}</label>`;
-            }
-          }
-        } // end if array
-      }); // end unique_questions loop
+      let load_question_list_html = "";
+      if (category.question) {
+        question_list.forEach((question, index, array) => {
+          if (agf_is_checked(category.question, question["label"])) {
+            checked = "checked";
+          } else checked = "";
+          load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
+              <input ${checked} name="question-checkbox[]" id="${category.category_id}" class="question-checkbox form_id=${question["formId"]} field_id=${question["id"]}"
+                type="checkbox">&nbsp</input>
+            ${question["label"]}</label>`;
+        });
+      } else {
+        // if category.question is empty do this
+        question_list.forEach((question, index, array) => {
+          load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
+              <input name="question-checkbox[]" id="${category.category_id}" class="question-checkbox form_id=${question["formId"]} field_id=${question["id"]}"
+                type="checkbox">&nbsp</input>
+            ${question["label"]}</label>`;
+        });
+      }
 
       var load_category_html = `<div id="${category.category_id}" class="col-12 col-md-8 container category-container">
         <input name="category-title[]" type="text" id="${category.category_id}" class="category-title"  placeholder="Category Name" value="${category.category_title}"/>
@@ -225,10 +230,11 @@ function agf_load_categories($, unique_questions) {
 
 /**
  * Takes selected forms and gets their questions, only unique questions are returned
+ * @param {boolean} unique - if true, only unique questions are returned, else returns array of all questions
  * @returns {array} - array of unique questions based on the selected forms.
  */
 
-function agf_get_unique_questions() {
+function agf_get_unique_questions(unique) {
   var all_forms = agf_list_questions_metabox_obj.all_forms;
 
   // converting array of ids from strings to ints
@@ -236,10 +242,10 @@ function agf_get_unique_questions() {
     agf_list_questions_metabox_obj.post_data.multi_selected_forms_ids.map(
       Number
     );
-
   var filtered_forms = all_forms.filter((form) =>
     selected_forms_ids.includes(form.id)
   );
+
   // for each question in the response, put it in the question_list
   // creating one big list of questions to filter through later.
   var question_list = [];
@@ -251,15 +257,19 @@ function agf_get_unique_questions() {
     });
   }); // end loop of questions
 
-  //* removing duplicate questions based on the questions label's last 12 characters.
-  //* This is done because each question has a clients name in it therefor making all questions unique.
-  //* Getting the last 12 characters of the label is enough to tell if it is unique most of the time.
-  const unique_question_list = [
-    ...new Map(
-      question_list.map((item) => [item["label"].slice(-12), item])
-    ).values(),
-  ];
-  return unique_question_list;
+  if (unique === true) {
+    //* removing duplicate questions based on the questions label's last 12 characters.
+    //* This is done because each question has a clients name in it therefor making all questions unique.
+    //* Getting the last 12 characters of the label is enough to tell if it is unique most of the time.
+    const unique_question_list = [
+      ...new Map(
+        question_list.map((item) => [item["label"].slice(-12), item])
+      ).values(),
+    ];
+    return unique_question_list;
+  }
+
+  return question_list;
 }
 
 /**
@@ -293,21 +303,117 @@ function agf_open_category_menu(event, $) {
   search_input[0].focus();
 }
 
+/**
+ *
+ * @param {int} form_id - the id of the form that the field id belongs to.
+ * @param {int} field_id - the id of the desired field
+ * @param {array} all_question_list - An array of all questions in all forms.
+ * @returns {object} - The whole question object.
+ */
+
+function get_form_label_by_form_and_field_id(
+  form_id,
+  field_id,
+  all_question_list
+) {
+  return all_question_list.filter((question) => {
+    if (question.formId == form_id && question.id == field_id) {
+      return question.label;
+    }
+  })[0];
+}
+
+/**
+ * Scores gravity form entries based on created categories.
+//! * @param {array} form_questions_list - array of all questions in all forms.
+ * @returns {obj} - object of scored data
+ */
+
+function agf_score_entries(form_questions_list = []) {
+  // this is a mess and needs cleaned up tomorrow.
+  // but it is heading in the right direction.
+  console.log("Scoring entries");
+  // let all_entries = [];
+  let questions_objs = [];
+  var temp_obj = {};
+
+  // send to server to get all entries
+  $.ajax({
+    url: agf_list_questions_metabox_obj.ajax_url,
+    type: "POST",
+    data: {
+      action: "agf_score_entries",
+      form_id: agf_list_questions_metabox_obj,
+      nonce: agf_list_questions_metabox_obj.nonce,
+      post_id: agf_list_questions_metabox_obj.post_id,
+    },
+    success: function (response) {
+      console.log(response);
+    },
+    error: function (error) {
+      console.log(error);
+    },
+  });
+
+  // // Puts all entries into an array
+  // Object.values(agf_list_questions_metabox_obj.all_entries).map(
+  //   (single_entry) => {
+  //     // all_entries.push(...value);
+  //     Object.keys(single_entry).map(function (key) {
+  //       // If the field is a email field.
+  //       if (single_entry[key] && single_entry[key].includes("@")) {
+  //         // console.log(single_entry[key].toUpperCase());
+  //         var email = single_entry[key].toUpperCase();
+  //       }
+  //       email ? (temp_obj.email = email) : null;
+
+  //       //* If the field is a value field or other entry meta data.
+  //       if (single_entry[key] && single_entry[key].includes("glikertcol")) {
+  //         score = scoring_values_schema[single_entry[key]];
+  //         var question = get_form_label_by_form_and_field_id(
+  //           single_entry["form_id"],
+  //           key,
+  //           form_questions_list
+  //         );
+  //         question["score"] = score;
+  //         questions_objs.push(question);
+  //       }
+  //     });
+  //   }
+  // );
+
+  // temp_obj.questions = questions_objs;
+  // console.log(temp_obj);
+}
+
 (function ($, window, document) {
   ("use strict");
   // execute when the DOM is ready
   $(document).ready(function () {
-    console.log(agf_list_questions_metabox_obj);
-    const unique_questions = agf_get_unique_questions();
-    agf_load_categories($, unique_questions);
+    const questions_list = agf_get_unique_questions(false);
+
+    agf_list_questions_metabox_obj.scoring_values_schema = {
+      glikertcol2079ce3b4: 0, // completely disagree
+      glikertcol2afb99d83: 1, // Mostly disagree
+      glikertcol2c8b03172: 2, // Somewhat Disagree
+      glikertcol2705122be: 3, // Somewhat Agree
+      glikertcol297044e96: 4, // Mostly Agree
+      glikertcol25100bcbb: 5, // Completely Agree
+      glikertcol25156cc64: null, // N/A
+    };
+    agf_list_questions_metabox_obj.question_list = questions_list;
+
+    agf_load_categories($, questions_list);
+    // agf_score_entries();
+
     //! Adding html category box on button click
     $("#add-question-category").on("click", function (event) {
       event.preventDefault();
       const category_uid = agf_uid();
 
-      // put all questions in to html
+      // Put all questions in to html
       var question_list_html = "";
-      unique_questions.forEach(function (question) {
+      agf_list_questions_metabox_obj.question_list.forEach(function (question) {
         question_uid = agf_uid();
         question_list_html += `<label name="question-label" id="${category_uid}" class="d-block agf-question-label">
             <input name="question-checkbox[]" id="${category_uid}" class="question-checkbox form_id=${question["formId"]} field_id=${question["id"]}" type="checkbox">&nbsp</input>

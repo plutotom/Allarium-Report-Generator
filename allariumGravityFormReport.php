@@ -32,6 +32,7 @@ include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_scripts.php");
 include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_styles.php");
 // include ajax processes
 include(AGFR__PLUGIN_DIR . "process/process_form_metabox_ajax.php");
+include(AGFR__PLUGIN_DIR . "process/process_scoring_categories.php");
 //include custom actions
 include_once(AGFR__PLUGIN_DIR . "includes/custom_actions/agf_gform_after_submission.php");
 
@@ -46,15 +47,17 @@ add_action('init', 'agf_register_taxonomy');
 add_action('admin_menu', 'agf_register_settings');
 
 //Hooks for metaboxes
-add_action('add_meta_boxes', 'agf_register_reporting_metabox');
+// add_action('add_meta_boxes', 'agf_register_reporting_metabox');
 add_action('add_meta_boxes', 'agf_register_list_forms_metabox');
 add_action('post_submitbox_misc_actions', 'agf_render_shortcode_hint');
 add_action('save_post', 'agf_save_metabox', 10, 2);
 
 
-// Other Hooks
+// ajax hooks
 add_action('wp_ajax_add_question_category', 'agf_add_question_category_process');
 add_action('wp_ajax_agf_update_post_meta', 'agf_update_post_meta_process');
+add_action('wp_ajax_agf_score_entries', 'agf_score_entries');
+
 
 //enqueue scripts and styles
 add_action('admin_enqueue_scripts', 'agf_enqueue_styles');
