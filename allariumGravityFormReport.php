@@ -70,4 +70,4 @@ add_action('admin_enqueue_scripts', 'agf_get_post_data_list_questions_metabox_sc
 add_shortcode('agfTable', 'agf_shortcode_table_func');
 
 // Custom Actions
-add_action( 'gform_after_submission', 'agf_gform_after_subbission', 10, 2 );
+// add_action( 'gform_after_submission', 'agf_gform_after_subbission', 10, 2 );

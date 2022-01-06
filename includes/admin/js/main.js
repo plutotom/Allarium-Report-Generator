@@ -58,7 +58,7 @@ function agf_prepare_category_data(event, $) {
     if (!post_data[category_id]) {
       // if this category id is not already in post_data then add it.
       post_data[category_id] = {
-        question: [],
+        category_questions: [],
         category_id: category_id,
         category_title: category_title.trim(),
       };
@@ -93,7 +93,7 @@ function agf_prepare_category_data(event, $) {
           if (!post_data[item_id]) {
             if (field_id && field_id) {
               post_data[category_id] = {
-                question: [
+                category_questions: [
                   {
                     question_name: parent_text,
                     form_id: form_id,
@@ -103,15 +103,15 @@ function agf_prepare_category_data(event, $) {
                 category_id: category_id,
                 category_title: category_title.trim(),
               };
-            }
+            } // if no form id and no field id.
             post_data[category_id] = {
-              question: [parent_text],
+              category_questions: [parent_text],
               category_id: category_id,
               category_title: category_title.trim(),
             };
           } else {
-            // post_data[category_id].question.push(parent_text);
-            post_data[category_id].question.push({
+            // if the item (category) is already in post_data then add the question to the category
+            post_data[category_id].category_questions.push({
               question_name: parent_text,
               form_id: form_id,
               field_id: field_id,
@@ -120,6 +120,7 @@ function agf_prepare_category_data(event, $) {
         }
       });
   });
+
   // Sending data to update post meta
   agf_update_post_meta(event, $, post_data);
 }
@@ -137,6 +138,7 @@ function agf_prepare_category_data(event, $) {
 function agf_update_post_meta(event, $, category_data) {
   event.preventDefault();
   console.log("Running update post meta");
+  console.log(category_data);
 
   //   making ajax request to update post meta
   $.ajax({
@@ -181,9 +183,9 @@ function agf_load_categories($, question_list) {
   if (category_data) {
     Object.values(category_data).forEach((category, index, array) => {
       let load_question_list_html = "";
-      if (category.question) {
+      if (category.category_questions) {
         question_list.forEach((question, index, array) => {
-          if (agf_is_checked(category.question, question["label"])) {
+          if (agf_is_checked(category.category_questions, question["label"])) {
             checked = "checked";
           } else checked = "";
           load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
@@ -192,7 +194,7 @@ function agf_load_categories($, question_list) {
             ${question["label"]}</label>`;
         });
       } else {
-        // if category.question is empty do this
+        // if category.category_questions is empty do this
         question_list.forEach((question, index, array) => {
           load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
               <input name="question-checkbox[]" id="${category.category_id}" class="question-checkbox form_id=${question["formId"]} field_id=${question["id"]}"
@@ -325,11 +327,12 @@ function get_form_label_by_form_and_field_id(
 
 /**
  * Scores gravity form entries based on created categories.
+ * @param {jQuery} $ - jQuery object
 //! * @param {array} form_questions_list - array of all questions in all forms.
  * @returns {obj} - object of scored data
  */
 
-function agf_score_entries(form_questions_list = []) {
+function agf_score_entries($, form_questions_list = []) {
   // this is a mess and needs cleaned up tomorrow.
   // but it is heading in the right direction.
   console.log("Scoring entries");
@@ -343,14 +346,15 @@ function agf_score_entries(form_questions_list = []) {
     type: "POST",
     data: {
       action: "agf_score_entries",
-      form_id: agf_list_questions_metabox_obj,
       nonce: agf_list_questions_metabox_obj.nonce,
       post_id: agf_list_questions_metabox_obj.post_id,
     },
     success: function (response) {
+      // console.log("success");
       console.log(response);
     },
     error: function (error) {
+      console.log("error");
       console.log(error);
     },
   });
@@ -402,9 +406,9 @@ function agf_score_entries(form_questions_list = []) {
       glikertcol25156cc64: null, // N/A
     };
     agf_list_questions_metabox_obj.question_list = questions_list;
-
+    console.log(agf_list_questions_metabox_obj);
     agf_load_categories($, questions_list);
-    // agf_score_entries();
+    agf_score_entries($);
 
     //! Adding html category box on button click
     $("#add-question-category").on("click", function (event) {
