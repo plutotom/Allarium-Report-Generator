@@ -10,9 +10,6 @@ function agf_score_entries(){
         // echo $output["status"];
         // return $post_id;
     }
-
-
-    
     // get post meta data
     $category_data  = get_post_meta( $post_id, 'category_data', true );
     $form_ids  = get_post_meta( $post_id, 'multi_selected_forms_ids', true );
@@ -86,11 +83,13 @@ function agf_score_entries(){
         }
     }
     header('Content-Type: application/json');
-    echo json_encode($scored_obj, JSON_PRETTY_PRINT);
+    // echo json_encode($scored_obj, JSON_PRETTY_PRINT);
 
 
+    // update post meta data
+    update_post_meta( $post_id, 'scored_entries', $scored_obj );
 
-    // wp_send_json( $_POST ); // sends a response back to the ajax call and does wp_die();
+    wp_send_json( $scored_obj ); // sends a response back to the ajax call and does wp_die();
     
     wp_die(); // this is required to terminate immediately and return a proper response
 

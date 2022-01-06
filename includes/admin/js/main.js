@@ -333,14 +333,7 @@ function get_form_label_by_form_and_field_id(
  */
 
 function agf_score_entries($, form_questions_list = []) {
-  // this is a mess and needs cleaned up tomorrow.
-  // but it is heading in the right direction.
   console.log("Scoring entries");
-  // let all_entries = [];
-  let questions_objs = [];
-  var temp_obj = {};
-
-  // send to server to get all entries
   $.ajax({
     url: agf_list_questions_metabox_obj.ajax_url,
     type: "POST",
@@ -351,43 +344,14 @@ function agf_score_entries($, form_questions_list = []) {
     },
     success: function (response) {
       // console.log("success");
-      console.log(response);
+      // console.log(response);
+      agf_list_questions_metabox_obj.scored_entries = response;
     },
     error: function (error) {
       console.log("error");
-      console.log(error);
+      // console.log(error);
     },
   });
-
-  // // Puts all entries into an array
-  // Object.values(agf_list_questions_metabox_obj.all_entries).map(
-  //   (single_entry) => {
-  //     // all_entries.push(...value);
-  //     Object.keys(single_entry).map(function (key) {
-  //       // If the field is a email field.
-  //       if (single_entry[key] && single_entry[key].includes("@")) {
-  //         // console.log(single_entry[key].toUpperCase());
-  //         var email = single_entry[key].toUpperCase();
-  //       }
-  //       email ? (temp_obj.email = email) : null;
-
-  //       //* If the field is a value field or other entry meta data.
-  //       if (single_entry[key] && single_entry[key].includes("glikertcol")) {
-  //         score = scoring_values_schema[single_entry[key]];
-  //         var question = get_form_label_by_form_and_field_id(
-  //           single_entry["form_id"],
-  //           key,
-  //           form_questions_list
-  //         );
-  //         question["score"] = score;
-  //         questions_objs.push(question);
-  //       }
-  //     });
-  //   }
-  // );
-
-  // temp_obj.questions = questions_objs;
-  // console.log(temp_obj);
 }
 
 (function ($, window, document) {
