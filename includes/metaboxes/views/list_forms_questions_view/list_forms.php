@@ -29,7 +29,7 @@ var entries = <?php echo json_encode($entries); ?>;
                            
     
         } //endforeach
-    } else { $helper::console_log("running?"); ?>
+    } else { Agf_Helper_Class::console_log("running?"); ?>
         <p style="color:red"><?php esc_html_e('Start with creating a form first.', 'agf'); ?></p>
         <select name="agf_null_forms" id="agf_null_forms">
             <option selected="selected" value="">Create a from first.</option>

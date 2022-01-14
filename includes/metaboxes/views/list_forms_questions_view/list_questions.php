@@ -21,5 +21,8 @@
 </div>
 <div class="d-none" id="overlay"></div>
 
+<!-- <button onClick="agf_js_pdf_print(event, jQuery)" class="button button-primary button-large"
+    id="ajax-request-button-print">print res</button>
 
-<?php
+<?php 
+// echo '<a href="'.AGFR__PLUGIN_DIR .'agf_print.php">run php</a>';

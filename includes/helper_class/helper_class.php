@@ -23,17 +23,14 @@ class Agf_Helper_Class
      * @param {array} category data. 
      * @return {Array} if category found returns the name of the categories the question belongs too, else returns [].
      */
-    
-
-     // TODO this is return duplicates right now, need to only return unique values.
-
-     // ! if the question is in more then one category, it will return the first category it finds. 
-     // TODO it should return all categories that the passed field and form id belongs too.
      
     public static function sort_by_categories($field_id, $form_id, $categories){
         $category_name_to_return = [];
         // loop thorough all categories and find if entry_id is in the category
+       
+        if(!empty($categories)){
         foreach($categories as $category ){
+            if(!empty($category["category_questions"])){
             foreach($category["category_questions"] as $category_question){
                 // if $entry_id is in the category return
                 if($category_question["form_id"] == $form_id && $category_question["field_id"] == $field_id){
@@ -67,10 +64,29 @@ class Agf_Helper_Class
                     // print_r($entry_id);
                     // print_r("\n");
                     // print_r("###############################################");
-
-                }
             }
-        }
-        return $category_name_to_return;
+        } // end category question loop
+        } // end if categories question is not empty
+        } // end category loop
+        } // end if categories is not empty
+    return $category_name_to_return;
     }
+
+    /**
+     * Creates a PDF print out 
+     * @param {string} - html_string. This is the html string that will be printed out.
+     * @param {string} - pdf_name. This is the name of the pdf file.
+     * @param {string} - pdf_path. This is the path of the pdf file.
+     * @return {string} - returns the path of the pdf file.
+     */
+
+     public static function pdf_print(){
+        // $mpdf = new \Mpdf\Mpdf(['mode' => 'c']);
+        // header('Content-Type: application/pdf');
+        // $mpdf->WriteHTML("<p> here is a p tag</p>");
+        // $mpdf->Output();
+        // wp_die();
+        // header('Content-Type: application/json');
+        return true;
+     }
 }

@@ -344,7 +344,7 @@ function agf_score_entries($, form_questions_list = []) {
     },
     success: function (response) {
       // console.log("success");
-      // console.log(response);
+      console.log(response);
       agf_list_questions_metabox_obj.scored_entries = response;
     },
     error: function (error) {

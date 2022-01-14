@@ -5,6 +5,8 @@
 function agf_score_entries(){
     $output["status"] = 1; // 2 == success, 1 == fail
     $post_id = $_POST['post_id'];
+
+    
     if(!wp_verify_nonce($_POST['nonce'], 'agf_category_nonce')){
         $output["error_message"] = "failed to verify nonce";
         // echo $output["status"];
@@ -13,7 +15,7 @@ function agf_score_entries(){
     // get post meta data
     $category_data  = get_post_meta( $post_id, 'category_data', true );
     $form_ids  = get_post_meta( $post_id, 'multi_selected_forms_ids', true );
-
+    
     $scoring_schema = [
       "glikertcol2079ce3b4"=> 0, // completely disagree
       "glikertcol2afb99d83"=> 1, // Mostly disagree
@@ -26,6 +28,7 @@ function agf_score_entries(){
     $scored_obj = [];
     $form_index = 0;
     foreach($form_ids as $form_id){
+        $entry_index = 0;
         // get entries and append to array
         $current_form_entries = GFAPI::get_entries( $form_id );
         foreach($current_form_entries as $entry){
@@ -61,7 +64,6 @@ function agf_score_entries(){
                     }
                 }
             }
-            $entry_index = 0;
             $scored_obj[$user_email]["forms"][$form_index]["entries"][$entry_index]["categories"] = $personal_score;
             $scored_obj[$user_email]["forms"][$form_index]["entries"][$entry_index]["entry_id"] = $entry_id;
             $entry_index +=1;
@@ -82,14 +84,15 @@ function agf_score_entries(){
             }
         }
     }
-    header('Content-Type: application/json');
-    // echo json_encode($scored_obj, JSON_PRETTY_PRINT);
+    
 
+    // header('Content-Type: application/json');
+    // echo json_encode($scored_obj, JSON_PRETTY_PRINT);
 
     // update post meta data
     update_post_meta( $post_id, 'scored_entries', $scored_obj );
 
-    wp_send_json( $scored_obj ); // sends a response back to the ajax call and does wp_die();
+    // wp_send_json( $scored_obj ); // sends a response back to the ajax call and does wp_die();
     
     wp_die(); // this is required to terminate immediately and return a proper response
 

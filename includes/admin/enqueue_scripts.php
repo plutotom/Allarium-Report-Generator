@@ -1,7 +1,6 @@
 <?php
 // This file is used to enqueue scripts for the admin area.
 
-
 // registering javascript script.
 function agf_get_post_data_list_questions_metabox_script()
 {
