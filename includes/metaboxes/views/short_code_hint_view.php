@@ -1,6 +1,6 @@
 <?php
 // META BOX HINT
-function agf_render_shortcode_hint($post) {
+function agf_render_short_code_hint($post) {
 global $post;
 
 // include self::$metaboxes_dir . 'views/shortcode-hint.php';
@@ -11,6 +11,9 @@ global $post;
     <div>
         <input type="text" readonly="readonly" value="[agfGraph id='<?php echo $post->ID; ?>']" class="code widefat" />
         <input type="text" readonly="readonly" value="[agfTable id='<?php echo $post->ID; ?>']" class="code widefat" />
+        <!-- <input type="text" readonly="readonly" value="[userScore id='<?php echo $post->ID; ?>']" class="code widefat" /> -->
+        <input type="text" readonly="readonly" value="[allarium_score id='<?php echo $post->ID; ?>']"
+            class="code widefat" />
         <span
             class="howto"><?php esc_html_e( 'Add this shortcode to a post or page to embed this view.', 'gravityview' ); ?></span>
     </div>

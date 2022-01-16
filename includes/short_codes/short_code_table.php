@@ -1,10 +1,13 @@
 <?php
-function agf_shortcode_table_v2($atts)
+function agf_short_code_table($atts)
 {
     if ($atts['id'] == '' || $atts['id'] == null) {
         // console_log("Please add a valid post ID to short code to agfTable short code");
         return null;
     }
+
+    
+
     // * ################################# Getting meta data and entries #################################
     ob_start();
     $post_id = $atts['id'];
@@ -15,44 +18,48 @@ function agf_shortcode_table_v2($atts)
 
 ?>
 <div id="agf_html_table">
-    <!-- 	Bootstrap v2.3.2 -->
-    <link rel="stylesheet" media="all"
-        href="https://s3.amazonaws.com/dynatable-docs-assets/css/bootstrap-2.3.2.min.css" />
-    <!-- Plugin styles -->
-    <link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/jquery.dynatable.css" />
 
-    <!--  jQuery v3.0.0-beta1 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
+    <?php
+    // 	<!-- Bootstrap v2.3.2 -->
+    // <link rel="stylesheet" media="all"
+    //     href="https://s3.amazonaws.com/dynatable-docs-assets/css/bootstrap-2.3.2.min.css" />
+    // <!-- Plugin styles -->
+    // <link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/jquery.dynatable.css" />
 
-    <!-- JS Pluging -->
-    // ! enque scripts in wordpress.
-    <script type="text/javascript" src="https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js"></script>
-    <script type="text/javascript">
-    $(document).ready(function() {
-        $('#html-table')
-            .bind('dynatable:init', function(e, dynatable) {
-                dynatable.queries.functions['domainInput'] = function(record, queryValue) {
-                    // get value after @ symble in recored.userEmail
-                    var domain = record.userEmail.split('@')[1];
-                    return domain === queryValue;
-                };
-                dynatable.queries.functions['userName'] = function(record, queryValue) {
-                    return queryValue === record.userName;
-                };
-            })
-            .dynatable({
-                features: {
-                    paginate: false,
-                    recordCount: false,
-                    sorting: false,
-                    search: true
-                },
-                inputs: {
-                    queries: $('#domainInput, #userName')
-                },
-            });
-    });
-    </script>
+    // <!--  jQuery v3.0.0-beta1 -->
+    // <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
+
+    // <!-- JS Pluging -->
+    // // ! enqueue scripts in wordpress.
+    // <script type="text/javascript" src="https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js"></script>
+    // <script type="text/javascript">
+    // $(document).ready(function() {
+    //     $('#html-table')
+    //         .bind('dynatable:init', function(e, dynatable) {
+    //             dynatable.queries.functions['domainInput'] = function(record, queryValue) {
+    //                 // get value after @ symble in recored.userEmail
+    //                 var domain = record.userEmail.split('@')[1];
+    //                 return domain === queryValue;
+    //             };
+    //             dynatable.queries.functions['userName'] = function(record, queryValue) {
+    //                 return queryValue === record.userName;
+    //             };
+    //         })
+    //         .dynatable({
+    //             features: {
+    //                 paginate: false,
+    //                 recordCount: false,
+    //                 sorting: false,
+    //                 search: true
+    //             },
+    //             inputs: {
+    //                 queries: $('#domainInput, #userName')
+    //             },
+    //         });
+    // });
+    // </script>
+
+?>
     <!-- // ! html table for all users scores -->
 
 
@@ -64,7 +71,6 @@ function agf_shortcode_table_v2($atts)
             foreach($user['forms'] as $form_key => &$form){
                 foreach($form['entries'] as $entry_key => &$entry){
                     foreach($entry['categories'] as $category_key => &$category){
-                        // Agf_Helper_Class::console_log($category_key);
                         !in_array($category_key, $categories_names) ? $categories_names[] = $category_key : null;
                     }
                 }

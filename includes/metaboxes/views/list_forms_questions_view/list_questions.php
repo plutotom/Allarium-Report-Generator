@@ -8,11 +8,6 @@
 
 <h1>List Questions</h1>
 <button class="button button-primary button-large" id="add-question-category">Add Category</button>
-<button onClick="agf_prepare_category_data(event, jQuery);" class="button button-primary button-large"
-    id="ajax-request-button">save
-    categories</button>
-
-
 
 
 <h3>name of category goes here</h3>

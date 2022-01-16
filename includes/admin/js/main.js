@@ -154,6 +154,7 @@ function agf_update_post_meta(event, $, category_data) {
       // update post meta data
       console.log(response);
       console.log("positive response");
+      agf_score_entries($); // update scoring after category post meta is updated.
       return response;
     },
     error: function (response) {
@@ -212,7 +213,7 @@ function agf_load_categories($, question_list) {
                 Menu 1 &#9013;
             </button>
             <button onclick="agf_delete_category(event, jQuery);" id="${category.category_id}" class="btn btn-danger btn-large agr-delete-category-button">
-            Delete Category;
+            Delete Category
             </button>
             
             <div id="${category.category_id}" style="padding: 10px;" class="d-none shadow rounded agf-menu agf-question-list-div-with-search">
@@ -283,11 +284,15 @@ function agf_get_unique_questions(unique) {
 function agf_delete_category(event, $) {
   event.preventDefault();
   console.log("Running delete category");
+  var result = confirm("Want to delete?");
+  if (!result) {
+    return;
+  }
   var category_id = event.target.id;
   var Category_data = agf_list_questions_metabox_obj.post_data.category_data;
   delete Category_data[category_id];
-  agf_update_post_meta(event, $, Category_data);
   $(`#${category_id}`).remove(); // removes every element with the id of category_id
+  agf_prepare_category_data(event, $);
 }
 
 /**
@@ -397,7 +402,7 @@ function agf_score_entries($, form_questions_list = []) {
             Menu 1 &#9013; </button>
            
             <button onclick="agf_delete_category(event, jQuery);" id="${category_uid}" class="btn btn-danger btn-large agr-delete-category-button">
-            Delete Category;
+            Delete Category
             </button>
 
             
@@ -412,11 +417,13 @@ function agf_score_entries($, form_questions_list = []) {
           </div>
         </div>`;
       $("#list-question-category-container").append(category_html);
+      agf_prepare_category_data(event, $);
     }), // end of add-question-category button click
       //! Hiding menu drop down on click outside
       $("#overlay").on("click", function (event) {
         event.preventDefault();
         console.log("Hiding");
+        agf_prepare_category_data(event, $);
 
         //* resetting the search input
         var items = document.getElementsByClassName("agf-menu");
