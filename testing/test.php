@@ -166,8 +166,173 @@ $html = '<!-- <title>Capability Assessment Results</title> -->
                         <br>90%+</p>
                 </th>
             </tr>
-            <!-- Table Row 2 -->
-            <tr>
+            <!-- Table Row 2 -->';
+ $user_email = "plutotom@Live.com";
+ $entry_id = "317";
+ $entry_to_print = "";
+ $entry_user_email = "";
+
+$obj = '{
+    "plutotom@live.com": {
+      "forms": [
+        {
+          "entries": [
+            {
+              "categories": {
+                "Foundations": 2.82,
+                "Organization": 3.38,
+                "Systems": 2.25
+              },
+              "entry_id": "317"
+            },
+            {
+              "categories": {
+                "Foundations": 2.24,
+                "Organization": 2.13,
+                "Systems": 2.25
+              },
+              "entry_id": "316"
+            }
+          ],
+          "form_id": "8"
+        },
+        {
+          "entries": [
+            {
+              "categories": {
+                "Foundations": 4
+              },
+              "entry_id": "360"
+            },
+            {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "359"
+            }
+          ],
+          "form_id": "11"
+        }
+      ]
+    },
+    "isaiah.proctor@allarium.com": {
+      "forms": [
+        {
+          "entries": {
+            "2": {
+              "categories": {
+                "Foundations": 2.24,
+                "Organization": 2.13,
+                "Systems": 2.25
+              },
+              "entry_id": "315"
+            },
+            "3": {
+              "categories": {
+                "Foundations": 2.24,
+                "Organization": 2.13,
+                "Systems": 2.25
+              },
+              "entry_id": "314"
+            }
+          },
+          "form_id": "8"
+        },
+        {
+          "entries": {
+            "2": {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "358"
+            },
+            "3": {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "357"
+            },
+            "4": {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "356"
+            },
+            "5": {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "355"
+            },
+            "6": {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "354"
+            },
+            "7": {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "353"
+            },
+            "8": {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "352"
+            },
+            "9": {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "351"
+            },
+            "10": {
+              "categories": {
+                "Foundations": 2.18
+              },
+              "entry_id": "350"
+            }
+          },
+          "form_id": "11"
+        }
+      ]
+    }
+  }';
+$obj = json_decode($obj, true);
+
+// echo '<pre>';
+// print_r($obj);
+// echo '</pre>';
+
+
+
+
+// Get user email from obj
+foreach ($obj as $user => $data) {
+    // loop though each entry
+    foreach ($data['forms'] as $form) {
+        // loop though each entry
+        foreach ($form['entries'] as $entry) {
+            // loop though each entry
+            foreach ($entry['categories'] as $category => $score) {
+                // loop though each entry
+                // if entry id matches the entry id in the obj
+                if ($entry['entry_id'] == $entry_id) {
+                    // set the entry_to_print to the entry
+                    $entry_to_print = $entry;
+                    // set the entry_user_email to the user email
+                    $entry_user_email = $user;
+                    // get form name 
+                    $form_id = $form['form_id'];
+                }
+            }
+        }
+    }    
+}
+
+' <tr>
                 <td class="col-1 gray-cell">
                     <p>Centralized Data<br> and BI Reporting</p>
                 </td>
@@ -175,203 +340,99 @@ $html = '<!-- <title>Capability Assessment Results</title> -->
                 <td>B1</td>
                 <td>C1</td>
                 <td>D1</td>
-            </tr>
-            <!-- Table Row 3 -->
-            <tr>
-                <td class="col-1 gray-cell">
-                    <p>Marketing<br> Experimentation</p>
-                </td>
-                <td>A2</td>
-                <td >B2</td>
-                <td class="Crow">C2</td>
-                <td>D2</td>
-            </tr>
-            <!-- Table Row 4 -->
-            <tr>
-                <td class="col-1 gray-cell">
-                    <p>Marketing Scale <br> and Growth</p>
-                </td>
-                <td>A3</td>
-                <td>B3</td>
-                <td>C3</td>
-                <td class="Drow">D3</td>
-            </tr>
-            <!-- Table Row 5 -->
-            <tr>
-                <td class="col-1 gray-cell">
-                    <p>Data-Driven<br>  Decision Making</p>
-                </td>
-                <td>A4</td>
-                <td class="Brow">B4</td>
-                <td>C4</td>
-                <td>D4</td>
-            </tr>
-        </table>
-    </div>
-    <!-- End Table -->
-
-
-
-    <div class="logo-row">
-        <img src="https://www.measured.com/wp-content/uploads/2021/04/measured-logotext.svg">
-    </div>
-    </div> <!-- End Container -->
-<div class="gradient-bottom"></div>';
-
-
-$obj = '{
-    "plutotom@live.com": {
-      forms: [
-        {
-          entries: [
-            {
-              categories: {
-                Foundations: 2.82,
-                Organization: 3.38,
-                Systems: 2.25,
-              },
-              entry_id: "317",
-            },
-            {
-              categories: {
-                Foundations: 2.24,
-                Organization: 2.13,
-                Systems: 2.25,
-              },
-              entry_id: "316",
-            },
-          ],
-          form_id: "8",
-        },
-        {
-          entries: [
-            {
-              categories: {
-                Foundations: 4,
-              },
-              entry_id: "360",
-            },
-            {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "359",
-            },
-          ],
-          form_id: "11",
-        },
-      ],
-    },
-    "isaiah.proctor@allarium.com": {
-      forms: [
-        {
-          entries: {
-            2: {
-              categories: {
-                Foundations: 2.24,
-                Organization: 2.13,
-                Systems: 2.25,
-              },
-              entry_id: "315",
-            },
-            3: {
-              categories: {
-                Foundations: 2.24,
-                Organization: 2.13,
-                Systems: 2.25,
-              },
-              entry_id: "314",
-            },
-          },
-          form_id: "8",
-        },
-        {
-          entries: {
-            2: {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "358",
-            },
-            3: {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "357",
-            },
-            4: {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "356",
-            },
-            5: {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "355",
-            },
-            6: {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "354",
-            },
-            7: {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "353",
-            },
-            8: {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "352",
-            },
-            9: {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "351",
-            },
-            10: {
-              categories: {
-                Foundations: 2.18,
-              },
-              entry_id: "350",
-            },
-          },
-          form_id: "11",
-        },
-      ],
-    },
-}';
-$obj = json_decode($obj, true);
-
-echo $obj;
+            </tr>';
+$table_results = null;
+// append each category and score to the table
+    foreach ($entry_to_print['categories'] as $category => $score) {
+        $score = round($score/7 * 100, 2);
+        // if the score is less than 40
+        if ($score <= 40) {
+            // append the table row to the table_results
+            $table_results .= '<tr>
+                    <td class="col-1 gray-cell">
+                        <p>'.$category.'<br>'.$score.'%</p>
+                    </td>
+                    <td class="Arow">A1</td>
+                    <td>B1</td>
+                    <td>C1</td>
+                    <td>D1</td>
+                </tr>';
+        }
+        // if the score is between 40 and 64
+        else if ($score > 40 && $score <= 64) {
+            // append the table row to the table_results
+            $table_results .= '<tr>
+                    <td class="col-1 gray-cell">
+                        <p>'.$category.'<br>'.$score.'%</p>
+                    </td>
+                    <td>A1</td>
+                    <td class="Brow">B1</td>
+                    <td>C1</td>
+                    <td>D1</td>
+                </tr>';
+        }
+        // if the score is between 64 and 89
+        else if ($score > 64 && $score <= 89) {
+            // append the table row to the table_results
+            $table_results .= '<tr>
+                    <td class="col-1 gray-cell">
+                        <p>'.$category.'<br>'.$score.'%</p>
+                    </td>
+                    <td>A1</td>
+                    <td>B1</td>
+                    <td class="Crow">C1</td>
+                    <td>D1</td>
+                </tr>';
+        }
+        // if the score is between 89 and 100
+        else if ($score > 89 && $score <= 100) {
+            // append the table row to the table_results
+            $table_results .= '<tr>
+                    <td class="col-1 gray-cell">
+                        <p>'.$category.'<br>'.$score.'%</p>
+                    </td>
+                    <td>A1</td>
+                    <td>B1</td>
+                    <td>C1</td>
+                    <td class="Drow">D1</td>
+                </tr>';
+        }
+    }
 
 
 
 
 
+$html .= $table_results;
+$html .= '</table>
+        </div>
+        <!-- End Table -->
 
-$mpdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/', 'm~ode' => 'utf-8',
-    // 'format' => [960, 300],
-    'orientation' => 'P'
-]);
 
 
+        <div class="logo-row">
+            <img src="https://www.measured.com/wp-content/uploads/2021/04/measured-logotext.svg">
+        </div>
+        </div> <!-- End Container -->
+        <div class="gradient-bottom"></div>';
+echo '<pre>';
+print_r($html);
+echo '</pre>';
 
 
 
 // print_r($_REQUEST);
 if($_REQUEST['thing'] === 'true'){
+    $mpdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/', 'm~ode' => 'utf-8',
+        // 'format' => [960, 300],
+        'orientation' => 'P'
+    ]);
     $mpdf->WriteHTML($html);
     $mpdf->AddPage(); //equivalents e.g. <pagebreak /> and AddPage():
     $mpdf->Output();
 }
 
-
-// echo a tag with link
-echo '<a href="test.php?thing=true" target="_blank">runf php</a>';
+if($_REQUEST['thing'] != 'true'){
+    // echo a tag with link
+    echo '<a href="test.php?thing=true" target="_blank">runf php</a>';
+}
