@@ -338,7 +338,6 @@ function get_form_label_by_form_and_field_id(
  */
 
 function agf_score_entries($, form_questions_list = []) {
-  console.log("Scoring entries");
   $.ajax({
     url: agf_list_questions_metabox_obj.ajax_url,
     type: "POST",

@@ -9,11 +9,14 @@ global $post;
     <i class="dashicons dashicons-editor-code"></i>
     <span><?php esc_html_e( 'Embed Shortcode', 'gravityview' ); ?></span>
     <div>
-        <input type="text" readonly="readonly" value="[agfGraph id='<?php echo $post->ID; ?>']" class="code widefat" />
-        <input type="text" readonly="readonly" value="[agfTable id='<?php echo $post->ID; ?>']" class="code widefat" />
-        <!-- <input type="text" readonly="readonly" value="[userScore id='<?php echo $post->ID; ?>']" class="code widefat" /> -->
-        <input type="text" readonly="readonly" value="[allarium_score id='<?php echo $post->ID; ?>']"
+        <input type="text" readonly="readonly" value="[agfGraph id=<?php echo $post->ID; ?>]" class="code widefat" />
+        <input type="text" readonly="readonly" value="[allarium_score id=<?php echo $post->ID; ?>]"
             class="code widefat" />
+        <input type="text" readonly="readonly" value="[allarium_score current=true id=<?php echo $post->ID; ?>]"
+            class="code widefat" />
+        <input type="text" readonly="readonly" value="[allarium_score entry_id={enter id} id=<?php echo $post->ID; ?>"
+            class="code widefat" />
+        <input type="text" readonly="readonly" value="[allarium_score_print]" class="code widefat" />
         <span
             class="howto"><?php esc_html_e( 'Add this shortcode to a post or page to embed this view.', 'gravityview' ); ?></span>
     </div>

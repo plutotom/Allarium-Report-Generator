@@ -9,7 +9,6 @@
 <h1>List Questions</h1>
 <button class="button button-primary button-large" id="add-question-category">Add Category</button>
 
-
 <h3>name of category goes here</h3>
 <div class="col-12 col-md-8 container" id="list-question-category-container">
 
@@ -20,4 +19,3 @@
     id="ajax-request-button-print">print res</button>
 
 <?php 
-// echo '<a href="'.AGFR__PLUGIN_DIR .'agf_print.php">run php</a>';

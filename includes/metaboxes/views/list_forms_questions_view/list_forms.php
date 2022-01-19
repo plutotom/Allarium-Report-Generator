@@ -1,11 +1,3 @@
-<?php
-?>
-<script>
-// put php variable into js variable
-var agf_forms = <?php echo json_encode($forms); ?>;
-var entries = <?php echo json_encode($entries); ?>;
-</script>
-
 <div id="agf-multi-select-forms-div">
 
     <label

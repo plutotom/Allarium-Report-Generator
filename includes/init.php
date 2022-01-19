@@ -6,7 +6,7 @@
  * @see get_post_type_labels() for label keys.
  */
 
-function agf_init_report()
+function agf_init()
 {
     $labels = array(
         'name'                  => _x('AGF Report', 'Post type general name', 'textdomain'),

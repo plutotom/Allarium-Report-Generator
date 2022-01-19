@@ -27,6 +27,7 @@ include(AGFR__PLUGIN_DIR . "includes/metaboxes/short_code_hint_metabox.php");
 // include short code 
 // include(AGFR__PLUGIN_DIR . "includes/short_codes/short_code_table.php");
 include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_allarium_score.php");
+include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_short_code_pdf_print.php");
 
 // include helper 
 include(AGFR__PLUGIN_DIR . "includes/helper_class/helper_class.php");
@@ -43,14 +44,13 @@ include(AGFR__PLUGIN_DIR . "process/agf_process_pdf_print.php");
 include_once(AGFR__PLUGIN_DIR . "includes/custom_actions/agf_gform_after_submission.php");
 
 // Hooks
-// register_activation_hook(__FILE__, 'agf_init_report');
-register_deactivation_hook(__FILE__, 'agfr_deactivate');
-add_action('init', 'agf_init_report');
-add_action('init', 'agf_register_taxonomy');
+register_deactivation_hook(__FILE__, 'agf_deactivate');
+add_action('init', 'agf_init');
+// add_action('init', 'agf_register_taxonomy');
 // add_action('init', 'Agf_Helper_Class');
 // add_action( 'init', array( 'Agf_Helper_Class', 'init' ) );
 
-add_action('admin_menu', 'agf_register_settings');
+// add_action('admin_menu', 'agf_register_settings');
 
 //Hooks for metaboxes
 // add_action('add_meta_boxes', 'agf_register_reporting_metabox');
@@ -72,13 +72,9 @@ add_action('admin_enqueue_scripts', 'agf_get_post_data_list_questions_metabox_sc
 add_action('wp_footer', 'agf_enqueue_frontend_scripts'); 
 
 // Short_Code
-add_shortcode('agfTable', 'agf_short_code_table');
 add_shortcode('allarium_score', 'agf_short_code_score');
-// add_short_code('loggedUserScore', 'agf_short_code_logged_in_user_score');
+add_shortcode('allarium_score_print', 'agf_short_code_pdf_print');
 
 
-// if (!is_admin() && get_post_type() === "agfreport") {
-    
-//     // add_action('wp_enqueue_scripts', 'agf_enqueue_frontend_scripts');
-//     // add_action('wp_enqueue_scripts', 'agf_enqueue_frontend_styles');
-// }
+
+require_once __DIR__ . '/vendor/autoload.php';
