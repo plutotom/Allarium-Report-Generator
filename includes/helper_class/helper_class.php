@@ -71,22 +71,4 @@ class Agf_Helper_Class
         } // end if categories is not empty
     return $category_name_to_return;
     }
-
-    /**
-     * Creates a PDF print out 
-     * @param {string} - html_string. This is the html string that will be printed out.
-     * @param {string} - pdf_name. This is the name of the pdf file.
-     * @param {string} - pdf_path. This is the path of the pdf file.
-     * @return {string} - returns the path of the pdf file.
-     */
-
-     public static function pdf_print(){
-        // $mpdf = new \Mpdf\Mpdf(['mode' => 'c']);
-        // header('Content-Type: application/pdf');
-        // $mpdf->WriteHTML("<p> here is a p tag</p>");
-        // $mpdf->Output();
-        // wp_die();
-        // header('Content-Type: application/json');
-        return true;
-     }
 }

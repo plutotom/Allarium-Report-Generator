@@ -375,11 +375,11 @@ require_once( '../assets/fpdf/fpdf.php');
 
     
 
-    $pdf = new FPDF();
-    $pdf->AddPage();
-    $pdf->SetFont('Arial','B',16);
-    $pdf->Cell(40,10,'Hello World!');
-    header("Content-type:application/pdf");
-    $pdf->Output();
+    // $pdf = new FPDF();
+    // $pdf->AddPage();
+    // $pdf->SetFont('Arial','B',16);
+    // $pdf->Cell(40,10,'Hello World!');
+    // header("Content-type:application/pdf");
+    // $pdf->Output();
 
 ?>

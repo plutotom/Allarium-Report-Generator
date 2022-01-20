@@ -179,8 +179,8 @@ $obj = '{
           "entries": [
             {
               "categories": {
-                "Foundations": 2.82,
-                "Organization": 3.38,
+                "Foundations": 6.82,
+                "Organization": 5.38,
                 "Systems": 2.25
               },
               "entry_id": "317"
@@ -302,10 +302,7 @@ $obj = '{
   }';
 $obj = json_decode($obj, true);
 
-// echo '<pre>';
-// print_r($obj);
-// echo '</pre>';
-
+// $post_meta = get_post_meta(243);
 
 
 
@@ -422,17 +419,20 @@ echo '</pre>';
 
 
 // print_r($_REQUEST);
-if($_REQUEST['thing'] === 'true'){
-    $mpdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/', 'm~ode' => 'utf-8',
-        // 'format' => [960, 300],
-        'orientation' => 'P'
-    ]);
-    $mpdf->WriteHTML($html);
-    $mpdf->AddPage(); //equivalents e.g. <pagebreak /> and AddPage():
-    $mpdf->Output();
-}
+if(isset($_REQUEST['thing'])){
 
-if($_REQUEST['thing'] != 'true'){
-    // echo a tag with link
-    echo '<a href="test.php?thing=true" target="_blank">runf php</a>';
+    if($_REQUEST['thing'] === 'true'){
+        $mpdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/', 'mode' => 'utf-8',
+            // 'format' => [960, 300],
+            'orientation' => 'P'
+        ]);
+        $mpdf->WriteHTML($html);
+        $mpdf->AddPage(); //equivalents e.g. <pagebreak /> and AddPage():
+        $mpdf->Output();
+    }
+    
+    if($_REQUEST['thing'] != 'true'){
+        // echo a tag with link
+        echo '<a href="test.php?thing=true" target="_blank">runf php</a>';
+    }
 }
