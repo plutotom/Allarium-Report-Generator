@@ -1,150 +1,91 @@
 <?php
 
+
+
 function agf_short_code_pdf_print($atts){
-    // ob_start();
-   
+
+    if($_REQUEST['pdf_print'] != 'true'){  
+        
+        $post_id = $atts['id'];
+        $post = get_post($post_id);
+        $post_meta = get_post_meta($post_id);
+        $scored_data = get_post_meta($post_id, 'scored_entries', true);
+        // $user_id = get_current_user_id();
+        $categories_names = array();
+        $current_logged_user_id = get_current_user_id();
+        $current_logged_user_data = get_user_by('id', $current_logged_user_id);
+        $current_logged_user_email = $current_logged_user_data->data->user_email;
+
+        // Get all forms that are in scored data
+        $category_names = Agf_Helper_Class::get_category_names($scored_data);
+        
+        // returns array of all selected forms ids
+        $all_form_ids = Agf_Helper_Class::get_current_post_selected_forms();
+        
+        // get gravity form form
+        $forms_list = Agf_Helper_Class::get_form_questions($all_form_ids);
+        // Agf_Helper_Class::console_log($forms_list);
+
+
+        // foreach questions put into html list
+        $html_question_list = '<select name="selected_question[]">';
+        foreach($forms_list as $form_questions){
+            foreach($form_questions as $question){
+                $html_question_list .= '<option>'.$question['label'].'</option>';
+            }
+        }
+        $html_question_list .= '</select>';
+        
+        ob_start();
+        echo '<div class="agf_pdf_print">';
+
+        echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#print_pdf_modal">Print PDF</button>
+        <div class="modal fade" id="print_pdf_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">New message</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form id="agf_print_pdf_form" target="_blank" action="'.get_permalink().'?pdf_print=true"
+                    method="post">
+                  <div class="form-group">
+                    <label for="recipient-name" class="col-form-label">Client Name</label>
+                    <input type="text" class="form-control" id="recipient-name" value="here is name">
+                  </div>';
+                  echo $html_question_list;
+                  echo '<div class="form-group">
+                    <label for="message-text" class="col-form-label">Message:</label>
+                    <textarea name="testing-text" class="form-control" id="message-text" placeholder="Put Quote Here"></textarea>
+                  </div>
+                  <button type="submit">Print submit PDF</button>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>';
+      echo '</div>';
+
+        return ob_get_clean();
+    }
 
     
     if($_REQUEST['pdf_print'] == 'true'){
-        ob_clean();
-        // flush();
-        // header("Content-type:application/pdf");
-        // header("Content-Disposition:attachment;filename=downloaded.pdf"); 
+        Agf_Helper_Class::console_log($_POST["testing-text"]);
+        Agf_Helper_Class::console_log($_REQUEST);
         
+        ob_clean();
         
         $post_meta = get_post_meta(243);
         $post_meta = maybe_unserialize($post_meta['scored_entries'][0]);
         ob_clean();
         ob_start();
-        $obj = '{
-            "plutotom@live.com": {
-              "forms": [
-                {
-                  "entries": [
-                    {
-                      "categories": {
-                        "Foundations": 6.82,
-                        "Organization": 5.38,
-                        "Systems": 2.25
-                      },
-                      "entry_id": "317"
-                    },
-                    {
-                      "categories": {
-                        "Foundations": 2.24,
-                        "Organization": 2.13,
-                        "Systems": 2.25
-                      },
-                      "entry_id": "316"
-                    }
-                  ],
-                  "form_id": "8"
-                },
-                {
-                  "entries": [
-                    {
-                      "categories": {
-                        "Foundations": 4
-                      },
-                      "entry_id": "360"
-                    },
-                    {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "359"
-                    }
-                  ],
-                  "form_id": "11"
-                }
-              ]
-            },
-            "isaiah.proctor@allarium.com": {
-              "forms": [
-                {
-                  "entries": {
-                    "2": {
-                      "categories": {
-                        "Foundations": 2.24,
-                        "Organization": 2.13,
-                        "Systems": 2.25
-                      },
-                      "entry_id": "315"
-                    },
-                    "3": {
-                      "categories": {
-                        "Foundations": 2.24,
-                        "Organization": 2.13,
-                        "Systems": 2.25
-                      },
-                      "entry_id": "314"
-                    }
-                  },
-                  "form_id": "8"
-                },
-                {
-                  "entries": {
-                    "2": {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "358"
-                    },
-                    "3": {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "357"
-                    },
-                    "4": {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "356"
-                    },
-                    "5": {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "355"
-                    },
-                    "6": {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "354"
-                    },
-                    "7": {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "353"
-                    },
-                    "8": {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "352"
-                    },
-                    "9": {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "351"
-                    },
-                    "10": {
-                      "categories": {
-                        "Foundations": 2.18
-                      },
-                      "entry_id": "350"
-                    }
-                  },
-                  "form_id": "11"
-                }
-              ]
-            }
-        }';
-        $obj = json_decode($obj, true);
         $html = '<!-- <title>Capability Assessment Results</title> -->
                 <style>        
                     /* example of use:
@@ -332,6 +273,7 @@ function agf_short_code_pdf_print($atts){
                 }
             }    
         }
+        
         $table_results = null;
         // append each category and score to the table
         foreach ($entry_to_print['categories'] as $category => $score) {
@@ -389,7 +331,7 @@ function agf_short_code_pdf_print($atts){
                     </tr>';
             }
         }
-
+        
         $html .= $table_results;
         $html .= '</table>
             </div>
@@ -406,15 +348,7 @@ function agf_short_code_pdf_print($atts){
         // echo '<pre>';
         // print_r($html);
         // echo '</pre>';
-
-        // flush();
-        // ob_clean();
-
-
-         // ob_clean();
-        // header("Content-type:application/pdf");
-        // header("Content-Disposition:attachment;filename=downloaded.pdf"); 
-        
+        $html .= $_POST['selected_question'][0];
         $mpdf = new \Mpdf\Mpdf([ 
             // 'mode' => 'utf-8',
             // 'format' => [960, 300],
@@ -425,15 +359,7 @@ function agf_short_code_pdf_print($atts){
         $mpdf->WriteHTML($html);
         // $mpdf->AddPage(); //equivalents e.g. <pagebreak /> and AddPage():
         $mpdf->Output();
-    
         return ob_get_clean();
         }
-
-    if($_REQUEST['pdf_print'] != 'true'){    
-        echo '<a href="'.get_permalink().'?pdf_print=true" class="button button-primary button-large" target="_blank">Print PDF</a>';
-        return ob_get_clean();
-    }
-        
     return ob_get_clean();
-
 }

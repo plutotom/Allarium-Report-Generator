@@ -11,31 +11,7 @@ function agf_short_code_score($atts, $content = null){
         'entry_id' => null,
     ), $atts );
 
-
-    // if($_REQUEST['pdf_print'] != 'true'){    
-    //     echo '<a href="'.get_permalink().'?pdf_print=true" class="button button-primary button-large" target="_blank">Print PDF</a>';
-    //     // return ob_get_clean();
-    // }
-    
-    // if($_REQUEST['pdf_print'] == 'true'){
-    //     Agf_Helper_Class::console_log('pdf_print');
-
-    //  $mpdf = new \Mpdf\Mpdf([ 
-    //         // 'mode' => 'utf-8',
-    //         // 'format' => [960, 300],
-    //         'orientation' => 'P',
-    //         'debug' => true,
-    //         'allow_output_buffering' => true
-    //     ]);
-    //     $mpdf->WriteHTML("<h1>Hello World!</h1>");
-    //     // $mpdf->AddPage(); //equivalents e.g. <pagebreak /> and AddPage():
-    //     $mpdf->Output();
-    
-    //     return ob_get_clean();
-    // }
-
     if($_REQUEST['pdf_print'] != 'true'){
-        Agf_Helper_Class::console_log('not pdf_print');
         if($a["id"] === null){
             return "Error: No Schema id given";
         }elseif($a["current"] === "true"){

@@ -11,8 +11,11 @@ function agf_enqueue_frontend_scripts(){
             wp_enqueue_script('html2canvas', 'http://html2canvas.hertzen.com/dist/html2canvas.min.js', ['jPDF', 'jquery']);
             wp_enqueue_script('agf_handle_pdf_print', plugin_dir_url(__FILE__) . '../js/agf_pdf_print.js', ['jquery']);            
             // enqueue styles
+            // Bootstrap Script
+            wp_enqueue_script('agf_bootstrap_v4_script', "https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js");
             // Bootstrap styles
-            wp_enqueue_style('agf_bootstrap_style', "https://s3.amazonaws.com/dynatable-docs-assets/css/bootstrap-2.3.2.min.css");
+            wp_enqueue_style('agf_bootstrap_v4_style', "https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css");
+            // wp_enqueue_style('agf_bootstrap_style', "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css");
             // dynatable styles
             wp_enqueue_style('agf_dynatable_style', "https://s3.amazonaws.com/dynatable-docs-assets/css/jquery.dynatable.css");
             // Dynatable Script

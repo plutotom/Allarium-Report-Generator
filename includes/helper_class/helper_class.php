@@ -15,6 +15,82 @@ class Agf_Helper_Class
         echo $js_code;
     }
 
+    /**
+     * For each form id passed given, will return an array of arrays and 
+     * each array will be all questions that are in the form.
+     * @param array $form_ids
+     * @param array $field_types - array of field types to filter by.
+     * @return array $form_questions
+     */
+    public static function get_form_questions($form_ids, $field_type = null){
+        $form_questions = array();
+        foreach($form_ids as $form_id){
+            $form_questions[$form_id] = self::get_form_questions_by_form_id($form_id, $field_type);
+        }
+        return $form_questions;
+    }
+
+    /**
+     * Gets gravity form by form id and returns an array of all questions
+     * @param int $form_id
+     * @param array $field_types - array of field types to filter by.
+     * @return array $form_questions
+     */
+
+    public static function get_form_questions_by_form_id($form_id, $field_type = null){
+        if($field_type == []){
+            $field_type = null;
+        }
+        $form_questions = array();
+        $form = GFAPI::get_form($form_id);
+        foreach($form['fields'] as $field){
+            if($field_type == null ){
+                $form_questions[] = $field;
+            }else{
+                if (in_array($field['type'], $field_type)) {
+                    $form_questions[] = $field;
+                }
+            }
+            
+        }
+        return $form_questions;
+    }
+
+    /**
+     * Gets current post selected forms and returns array of their ids
+     * @param int optional $post_id option to get a specific post selected forms.
+     * @return array of unique form ids
+     */
+
+    public static function get_current_post_selected_forms($post_id = null){
+        if(!$post_id){
+            $post_id = get_the_ID();
+        }
+        $post_meta = get_post_meta($post_id);
+        $selected_forms = $post_meta['multi_selected_forms_ids'];
+        $selected_forms = maybe_unserialize($selected_forms[0]);
+        return $selected_forms;
+    }
+
+    /**
+     * Returns an array of category names
+     * @param {array} $scored_data - array of category objects
+     * @return {array} - array of unique category names
+     */
+
+    public static function get_category_names($scored_data){
+        $categories_names = array();
+        foreach($scored_data as $user_key => &$user){
+            foreach($user['forms'] as $form_key => &$form){
+                foreach($form['entries'] as $entry_key => &$entry){
+                    foreach($entry['categories'] as $category_key => &$category){
+                        !in_array($category_key, $categories_names) ? $categories_names[] = $category_key : null;
+                    }
+                }
+            }
+        }
+        return $categories_names;
+    }
 
     /**
      * Searchers all categories to find what category the current question belongs too.
