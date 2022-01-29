@@ -15,6 +15,36 @@ class Agf_Helper_Class
         echo $js_code;
     }
 
+
+    /**
+     * Takes scored object and returns the average of all scores
+     * @param  array $scored_data
+     * @return object of category names (keys) with average scores as values
+     */
+
+    public static function get_average_scores($scored_data){
+        if(empty($scored_data)){
+            return null;
+        }
+        $average_scores = array();
+        foreach($scored_data as $user_key => &$user){
+            foreach($user['forms'] as $form_key => &$form){
+                foreach($form['entries'] as $entry_key => &$entry){
+                    foreach($entry['categories'] as $category_key => &$category){
+                        $average_scores[$category_key]['score'] += $category;
+                        $average_scores[$category_key]['count'] += 1;
+                    }
+                }
+            }
+        }
+        foreach($average_scores as $category_key => &$category){
+            $average_scores[$category_key]['score'] = $category['score'] / $category['count'];
+            $average_scores[$category_key] = round($average_scores[$category_key]['score'], 2);
+        }
+        return $average_scores;
+    }
+
+
     /**
      * For each form id passed given, will return an array of arrays and 
      * each array will be all questions that are in the form.

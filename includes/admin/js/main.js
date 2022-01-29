@@ -189,6 +189,7 @@ function agf_load_categories($, question_list) {
           if (agf_is_checked(category.category_questions, question["label"])) {
             checked = "checked";
           } else checked = "";
+          load_category_html += `<div class="class='row-md-6">`;
           load_question_list_html += `<label name="question-label" id="${category.category_id}" class="d-block agf-question-label">
               <input ${checked} name="question-checkbox[]" id="${category.category_id}" class="question-checkbox form_id=${question["formId"]} field_id=${question["id"]}"
                 type="checkbox">&nbsp</input>
@@ -203,8 +204,10 @@ function agf_load_categories($, question_list) {
             ${question["label"]}</label>`;
         });
       }
-
-      var load_category_html = `<div id="${category.category_id}" class="col-12 col-md-8 container category-container">
+      var load_category_html = "";
+      load_category_html += `<div class="class='row-md-6 border h-50 d-inline-block">`;
+      // load_category_html += `<div class="col-sm-7 ">`;
+      load_category_html += `<div id="${category.category_id}" class="col-12 col-md-8 container category-container">
         <input name="category-title[]" type="text" id="${category.category_id}" class="category-title"  placeholder="Category Name" value="${category.category_title}"/>
 
             <div class="category-${category.category_id} ${category.category_id}" id="category-${category.category_id} ${category.category_id}">
@@ -225,7 +228,7 @@ function agf_load_categories($, question_list) {
             </div>
             </div>
             </div>
-        </div>`;
+          </div></div>`;
       $("#list-question-category-container").append(load_category_html);
     }); // end category loop
   }
@@ -262,7 +265,7 @@ function agf_get_unique_questions(unique) {
 
   if (unique === true) {
     //* removing duplicate questions based on the questions label's last 12 characters.
-    //* This is done because each question has a clients name in it therefor making all questions unique.
+    //* This is done because each question has a clients name at the beginning therefor making all questions unique.
     //* Getting the last 12 characters of the label is enough to tell if it is unique most of the time.
     const unique_question_list = [
       ...new Map(
@@ -271,7 +274,6 @@ function agf_get_unique_questions(unique) {
     ];
     return unique_question_list;
   }
-
   return question_list;
 }
 
@@ -387,6 +389,7 @@ function agf_score_entries($, form_questions_list = []) {
       var question_list_html = "";
       agf_list_questions_metabox_obj.question_list.forEach(function (question) {
         question_uid = agf_uid();
+        question_list_html += "<div class='col-md-6'>";
         question_list_html += `<label name="question-label" id="${category_uid}" class="d-block agf-question-label">
             <input name="question-checkbox[]" id="${category_uid}" class="question-checkbox form_id=${question["formId"]} field_id=${question["id"]}" type="checkbox">&nbsp</input>
             ${question["label"]}</label>`;
@@ -414,6 +417,7 @@ function agf_score_entries($, form_questions_list = []) {
               </div>
             </div>
           </div>
+        </div>
         </div>`;
       $("#list-question-category-container").append(category_html);
       agf_prepare_category_data(event, $);

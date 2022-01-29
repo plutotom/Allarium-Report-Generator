@@ -28,6 +28,7 @@ include(AGFR__PLUGIN_DIR . "includes/metaboxes/short_code_hint_metabox.php");
 // include(AGFR__PLUGIN_DIR . "includes/short_codes/short_code_table.php");
 include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_allarium_score.php");
 include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_short_code_pdf_print.php");
+include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_average_score_code.php");
 
 // include helper 
 include(AGFR__PLUGIN_DIR . "includes/helper_class/helper_class.php");
@@ -42,6 +43,8 @@ include(AGFR__PLUGIN_DIR . "process/process_scoring_categories.php");
 include(AGFR__PLUGIN_DIR . "process/agf_process_pdf_print.php");
 //include custom actions
 include_once(AGFR__PLUGIN_DIR . "includes/custom_actions/agf_gform_after_submission.php");
+
+require_once __DIR__ . '/vendor/autoload.php';
 
 // Hooks
 register_deactivation_hook(__FILE__, 'agf_deactivate');
@@ -74,7 +77,4 @@ add_action('wp_footer', 'agf_enqueue_frontend_scripts');
 // Short_Code
 add_shortcode('allarium_score', 'agf_short_code_score');
 add_shortcode('allarium_score_print', 'agf_short_code_pdf_print');
-
-
-
-require_once __DIR__ . '/vendor/autoload.php';
+add_shortcode('allarium_score_average', 'agf_average_score_short_code');

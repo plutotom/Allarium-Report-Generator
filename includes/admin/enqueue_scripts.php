@@ -11,6 +11,7 @@ function agf_get_post_data_list_questions_metabox_script()
         // enqueue only for specific post types
         if (in_array($screen->post_type, [ 'agfreport'])) {
             // enqueue script
+            wp_enqueue_script('agf_main_js_bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', ['jquery']);
             wp_enqueue_script('agf_main_js', plugin_dir_url(__FILE__) . 'js/main.js', ['jquery']);
             $post_data = get_post_meta(get_the_id());
             $post_data['multi_selected_forms_ids'] = maybe_unserialize($post_data["multi_selected_forms_ids"][0]);
