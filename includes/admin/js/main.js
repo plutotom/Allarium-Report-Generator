@@ -389,7 +389,7 @@ function agf_score_entries($, form_questions_list = []) {
       var question_list_html = "";
       agf_list_questions_metabox_obj.question_list.forEach(function (question) {
         question_uid = agf_uid();
-        question_list_html += "<div class='col-md-6'>";
+        // question_list_html += "<div class='col-md-6'>";
         question_list_html += `<label name="question-label" id="${category_uid}" class="d-block agf-question-label">
             <input name="question-checkbox[]" id="${category_uid}" class="question-checkbox form_id=${question["formId"]} field_id=${question["id"]}" type="checkbox">&nbsp</input>
             ${question["label"]}</label>`;
@@ -417,7 +417,7 @@ function agf_score_entries($, form_questions_list = []) {
               </div>
             </div>
           </div>
-        </div>
+        
         </div>`;
       $("#list-question-category-container").append(category_html);
       agf_prepare_category_data(event, $);

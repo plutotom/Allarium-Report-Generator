@@ -1,11 +1,7 @@
 <?php
-
-
-
 function agf_short_code_pdf_print($atts){
-
     if($_REQUEST['pdf_print'] != 'true'){  
-        
+        Agf_Helper_Class::console_log('pdf_print not true');
         $post_id = $atts['id'];
         $post = get_post($post_id);
         $post_meta = get_post_meta($post_id);
@@ -18,15 +14,11 @@ function agf_short_code_pdf_print($atts){
 
         // Get all forms that are in scored data
         $category_names = Agf_Helper_Class::get_category_names($scored_data);
-        
         // returns array of all selected forms ids
         $all_form_ids = Agf_Helper_Class::get_current_post_selected_forms();
-        
         // get gravity form form
         $forms_list = Agf_Helper_Class::get_form_questions($all_form_ids);
-        // Agf_Helper_Class::console_log($forms_list);
-
-
+      
         // foreach questions put into html list
         $html_question_list = '<select name="selected_question[]">';
         foreach($forms_list as $form_questions){
@@ -38,7 +30,7 @@ function agf_short_code_pdf_print($atts){
         
         ob_start();
         echo '<div class="agf_pdf_print">';
-
+        // Pop up box for selecting questions before printing
         echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#print_pdf_modal">Print PDF</button>
         <div class="modal fade" id="print_pdf_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -71,21 +63,26 @@ function agf_short_code_pdf_print($atts){
           </div>
         </div>';
       echo '</div>';
-
         return ob_get_clean();
     }
 
     
     if($_REQUEST['pdf_print'] == 'true'){
-        Agf_Helper_Class::console_log($_POST["testing-text"]);
-        Agf_Helper_Class::console_log($_REQUEST);
-        
         ob_clean();
+        Agf_Helper_Class::console_log("pdf print true");
+        $post_id = $atts['id'];
+        $post_meta = get_post_meta($post_id);
+        $scored_entries = maybe_unserialize($post_meta['scored_entries'][0]);
         
-        $post_meta = get_post_meta(243);
-        $post_meta = maybe_unserialize($post_meta['scored_entries'][0]);
         ob_clean();
         ob_start();
+        $mpdf = new \Mpdf\Mpdf([ 
+            // 'mode' => 'utf-8',
+            // 'format' => [960, 300],
+            'orientation' => 'P',
+            'debug' => true,
+            'allow_output_buffering' => true
+        ]);
         $html = '<!-- <title>Capability Assessment Results</title> -->
                 <style>        
                     /* example of use:
@@ -247,12 +244,11 @@ function agf_short_code_pdf_print($atts){
 
                         
         $user_email = "plutotom@Live.com";
-        $entry_id = "317";
+        $entry_id = $atts['entry_id'];
         $entry_to_print = "";
         $entry_user_email = "";
-        // Agf_Helper_Class::console_log($post_meta);
         // Get user email from obj
-        foreach ($post_meta as $user => $data) {
+        foreach ($scored_entries as $user => $data) {
             // loop though each entry
             foreach ($data['forms'] as $form) {
                 // loop though each entry
@@ -336,28 +332,74 @@ function agf_short_code_pdf_print($atts){
         $html .= '</table>
             </div>
             <!-- End Table -->
-
-
-
             <div class="logo-row">
                 <img src="https://www.measured.com/wp-content/uploads/2021/04/measured-logotext.svg">
             </div>
             </div> <!-- End Container -->
-          <div class="gradient-bottom"></div>';
-            
-        // echo '<pre>';
-        // print_r($html);
-        // echo '</pre>';
-        $html .= $_POST['selected_question'][0];
-        $mpdf = new \Mpdf\Mpdf([ 
-            // 'mode' => 'utf-8',
-            // 'format' => [960, 300],
-            'orientation' => 'P',
-            'debug' => true,
-            'allow_output_buffering' => true
-        ]);
+        <div class="gradient-bottom"></div>';
         $mpdf->WriteHTML($html);
-        // $mpdf->AddPage(); //equivalents e.g. <pagebreak /> and AddPage():
+        
+
+        // End Page One
+        
+        // ***********************Creating Chart**********************************
+            // Creating Chart
+            // $qc = new QuickChart(array(
+            //     'width' => 600,
+            //     'height' => 300,
+            // ));
+    
+            // $qc->setConfig('{type: "bar",
+                //     data: {
+                //     labels: [
+                //         "Contender",
+                //         "Challenger",
+                //         "Leader",
+                //         "Champion"
+                //     ],
+                //     datasets: [
+                //         {
+                //         label: "# of Votes",
+                //         data: [12, 19, 3, 5],
+                //         backgroundColor: [
+                //             "rgb(244,171,50)",
+                //             "rgb(236,113,118)",
+                //             "rgb(91,99,162)",
+                //             "rgb(26,78,106)",
+                //         ],
+                //         borderColor: [
+                //             "rgb(244,171,50)",
+                //             "rgb(236,113,118)",
+                //             "rgb(91,99,162)",
+                //             "rgb(26,78,106)",
+                //         ],
+                //         borderWidth: 1,
+                //         },
+                //     ],
+                //     },
+                //     options: {
+                //     scales: {
+                //         y: {
+                //         beginAtZero: true,
+                //         },
+                //     },
+                // }}');
+            // // getting url that will create the chart.        
+            // $url_res = $qc->getUrl();
+            // // url returns image file that can be inserted into html.
+            // $html .= '<img src="data:image/png;base64,'.base64_encode(file_get_contents($url_res)).'">';
+        // *********************************************************
+      
+        // Start Page Two
+        $mpdf->AddPage(); //equivalents e.g. <pagebreak /> and AddPage():
+        
+        //includes $page_6_styles, and $page_6_body
+        include_once __DIR__ . '/../templates/measured/page6_measured_template.php';
+
+        // Agf_Helper_Class::console_log(gettype($page_6_styles));
+        $mpdf->WriteHTML($page_6_styles);
+        $mpdf->WriteHTML($page_6_body);
+        
         $mpdf->Output();
         return ob_get_clean();
         }

@@ -44,6 +44,7 @@ include(AGFR__PLUGIN_DIR . "process/agf_process_pdf_print.php");
 //include custom actions
 include_once(AGFR__PLUGIN_DIR . "includes/custom_actions/agf_gform_after_submission.php");
 
+// requiring MPDF
 require_once __DIR__ . '/vendor/autoload.php';
 
 // Hooks

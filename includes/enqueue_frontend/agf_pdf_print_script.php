@@ -7,8 +7,13 @@
 function agf_enqueue_frontend_scripts(){
     if (get_post_type() == "agfreport") {
         if(is_single()){
-            wp_enqueue_script('jPDF', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.debug.js');
-            wp_enqueue_script('html2canvas', 'http://html2canvas.hertzen.com/dist/html2canvas.min.js', ['jPDF', 'jquery']);
+            $post_data = get_post_meta(get_the_id());
+            // $post_data['multi_selected_forms_ids'] = maybe_unserialize($post_data["multi_selected_forms_ids"][0]);
+            $scored_entries = maybe_unserialize($post_data["scored_entries"][0]);
+            $post_id = get_the_id();
+
+            // wp_enqueue_script('jsPDF', 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.debug.js');
+            // wp_enqueue_script('html2canvas', 'http://html2canvas.hertzen.com/dist/html2canvas.min.js', ['jPDF', 'jquery']);
             wp_enqueue_script('agf_handle_pdf_print', plugin_dir_url(__FILE__) . '../js/agf_pdf_print.js', ['jquery']);            
             // enqueue styles
             // Bootstrap Script
@@ -22,18 +27,20 @@ function agf_enqueue_frontend_scripts(){
             wp_enqueue_script('agf_dynatable_script', "https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js", ['jquery']);
             // Script for Dynatable Table
             wp_enqueue_script('agf_dynatable_script_custom', plugin_dir_url(__FILE__) . '../js/agf_dynatable_script.js', ['jquery']);
-        
-            $post_data = get_post_meta(get_the_id());
-            // $post_data['multi_selected_forms_ids'] = maybe_unserialize($post_data["multi_selected_forms_ids"][0]);
-            $scored_entries = maybe_unserialize($post_data["scored_entries"][0]);
-            $post_id = get_the_id();
-            // $forms = GFAPI::get_forms();
-            // $entries = [];
-            // foreach($forms as $form ){
-            //     $form_id = $form['id'];
-            //     $entries[$form['title']] = GFAPI::get_entries( $form_id );
-            // }
-            // $agf_nonce = wp_create_nonce('agf_category_nonce');
+            // Script for charts.js 
+            wp_enqueue_script( "Chart.min.js", "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js",['jquery'], 9, false);
+            wp_enqueue_script('agf_charts_average', plugin_dir_url(__FILE__) . '../js/agf_charts_average.js', ['jquery']);
+            $average_score = Agf_Helper_Class::get_average_scores($scored_entries);
+            wp_localize_script(
+                'agf_charts_average',
+                'agf_charts_average', // name of javascript variable that url will be append to.
+                    [
+                        'ajax_url'         => admin_url('admin-ajax.php'),
+                        'scored_entries'   => $scored_entries,
+                        'average_score'    => $average_score,
+                        'post_id'          => $post_id,
+                    ]
+                );
             // localize script, create a custom js object
             // this will enqueue the script and append the url to a javascript variable named agf_list_questions_metabox_obj
             wp_localize_script(
@@ -41,13 +48,14 @@ function agf_enqueue_frontend_scripts(){
                 'agf_handle_pdf_print', // name of javascript variable that url will be append to.
                     [
                         // 'nonce'         => $agf_nonce,
-                        'ajax_url'      => admin_url('admin-ajax.php'),
-                        'scored_entries'     => $scored_entries,
-                        'post_id'       => $post_id,
+                        'ajax_url'         => admin_url('admin-ajax.php'),
+                        'scored_entries'   => $scored_entries,
+                        'post_id'          => $post_id,
                         // 'all_forms'     => $forms,
                         // 'all_entries'   => $entries,
                     ]
             );
+            
         }
     }
 }
