@@ -7,9 +7,9 @@ function agf_get_post_data_list_questions_metabox_script()
     // get current admin screen, or null
     $screen = get_current_screen();
     // verify admin screen object
-    if (is_object($screen)) {
+    // if (is_object($screen)) {
         // enqueue only for specific post types
-        if (in_array($screen->post_type, [ 'agfreport'])) {
+        // if (in_array($screen->post_type, [ 'agfreport'])) {
             // enqueue script
             wp_enqueue_script('agf_main_js_bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', ['jquery']);
             wp_enqueue_script('agf_main_js', plugin_dir_url(__FILE__) . 'js/main.js', ['jquery']);
@@ -40,5 +40,5 @@ function agf_get_post_data_list_questions_metabox_script()
             );
             
         }
-    }
-}
+//     }
+// }

@@ -3,7 +3,7 @@ class Agf_Helper_Class
 {
     public function __construct()
     {
-        echo '<p>The class "', __CLASS__, '" was initiated!</p>';
+        // echo '<p>The class "', __CLASS__, '" was initiated!</p>';
     }
 
     public static function console_log($output, $with_script_tags = true) {
@@ -14,7 +14,6 @@ class Agf_Helper_Class
         }
         echo $js_code;
     }
-
 
     /**
      * Takes scored object and returns the average of all scores
@@ -42,6 +41,10 @@ class Agf_Helper_Class
             $average_scores[$category_key] = round($average_scores[$category_key]['score'], 2);
         }
         return $average_scores;
+    }
+
+    public static function alert_message($message){
+        echo '<script>alert("'.$message.'");</script>';
     }
 
 
@@ -176,5 +179,33 @@ class Agf_Helper_Class
         } // end category loop
         } // end if categories is not empty
     return $category_name_to_return;
+    }
+
+
+    /**
+	 * Helper function to send error messages
+	 *
+	 */
+    public function display_notices() {
+		?>
+<div class="error">
+    <?php $this->notice_body_content(); ?>
+</div>
+<?php
+	}
+
+
+    public static function gf_activation_check() {
+        ?>
+<?php
+        if(!class_exists('GFForms')){
+        ?>
+<div class="error">
+    <p><strong>Allarium Report Generation Installation Problem</strong></p>
+    <p><?php _e('Gravity Forms is not installed or activated. Please install and activate Gravity Forms to use this plugin.', 'agf_gform_admin_notice'); ?>
+    </p>
+</div>
+<?php
+        }
     }
 }

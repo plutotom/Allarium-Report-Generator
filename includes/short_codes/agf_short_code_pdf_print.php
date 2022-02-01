@@ -1,5 +1,25 @@
 <?php
 function agf_short_code_pdf_print($atts){
+    $atts = shortcode_atts( array(
+        'id' => null,
+        'entry_id' => null,
+    ), $atts );
+
+    if($atts["id"] == null){
+        Agf_Helper_Class::alert_message("Please provide a form id for pdf print shortcode.");
+        return;
+    }elseif($atts["entry_id"] == null){
+        Agf_Helper_Class::alert_message("Please provide a entry id for pdf print shortcode.");
+        return;
+    }
+    $post_id = $atts['id'];
+    $post = get_post($post_id);
+    $post_meta = get_post_meta($post_id);
+    $scored_data = get_post_meta($post_id, 'scored_entries', true);
+    if(empty($scored_data)){
+        Agf_Helper_Class::alert_message("No scored data found for this form. Please set up scoring schema first.");
+        return;
+    }
     if($_REQUEST['pdf_print'] != 'true'){  
         Agf_Helper_Class::console_log('pdf_print not true');
         $post_id = $atts['id'];
@@ -69,6 +89,7 @@ function agf_short_code_pdf_print($atts){
     
     if($_REQUEST['pdf_print'] == 'true'){
         ob_clean();
+
         Agf_Helper_Class::console_log("pdf print true");
         $post_id = $atts['id'];
         $post_meta = get_post_meta($post_id);
@@ -391,7 +412,7 @@ function agf_short_code_pdf_print($atts){
         // *********************************************************
       
         // Start Page Two
-        $mpdf->AddPage(); //equivalents e.g. <pagebreak /> and AddPage():
+        // $mpdf->AddPage(); //equivalents e.g. <pagebreak /> and AddPage():
         
         //includes $page_6_styles, and $page_6_body
         include_once __DIR__ . '/../templates/measured/page6_measured_template.php';

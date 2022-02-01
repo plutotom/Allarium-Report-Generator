@@ -2,18 +2,20 @@
 
 /*
 Plugin Name: Form Report Generator - Allarium
-Plugin URI: https://github.com/plutotom/Allarium-Gravity-Forms-Validation
-Description: Creates exportable reports for suers after taking survey.
+Plugin URI: https://github.com/plutotom/Allarium-Report-Generator
+Description: Creates exportable reports for users after taking survey.
 Version: 1.0
-Author: Allarium
-Author URI: https://www.allarium.com/
+Author: Allarium - Isaiah Proctor
+Author URI: https://www.allarium.com/ github.com/plutotom
 License: GPLv2 or later
-Text Domain: Gravity Forms Validation
+Text Domain: Gravity Forms PDF Reports
 */
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 define('AGFR__PLUGIN_DIR', plugin_dir_path(__FILE__));
+
+
 
 // include_once(AGFR__PLUGIN_DIR . "class.agfr.php");
 include_once(AGFR__PLUGIN_DIR . "includes/deactivate.php");
@@ -47,14 +49,25 @@ include_once(AGFR__PLUGIN_DIR . "includes/custom_actions/agf_gform_after_submiss
 // requiring MPDF
 require_once __DIR__ . '/vendor/autoload.php';
 
+
+
+
+
 // Hooks
 register_deactivation_hook(__FILE__, 'agf_deactivate');
 add_action('init', 'agf_init');
 // add_action('init', 'agf_register_taxonomy');
 // add_action('init', 'Agf_Helper_Class');
 // add_action( 'init', array( 'Agf_Helper_Class', 'init' ) );
-
 // add_action('admin_menu', 'agf_register_settings');
+
+add_action('init', 'check_gf_active');
+
+
+function check_gf_active() {
+    $gf_active_check = Agf_Helper_Class::gf_activation_check();
+    return;
+}
 
 //Hooks for metaboxes
 // add_action('add_meta_boxes', 'agf_register_reporting_metabox');

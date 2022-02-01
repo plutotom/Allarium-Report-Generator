@@ -18,7 +18,9 @@ function agf_render_list_form_metabox($post){
     }
 
     // get the list of selected forms.
-    $current_selected_forms = unserialize($post_meta["multi_selected_forms_ids"][0]);
+    if(isset($post_meta['multi_selected_forms_ids'])){
+        $current_selected_forms = maybe_unserialize($post_meta['multi_selected_forms_ids'][0]);
+    }
 
     include "list_forms_questions_view/list_forms.php";
     include "list_forms_questions_view/list_questions.php";

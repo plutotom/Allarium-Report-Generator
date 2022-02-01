@@ -36,10 +36,10 @@ function agf_short_code_score_current($atts){
         }
         ?>
             <th>Email</th>
-            <th>User Id</th>
-            <th>Form Id</th>
+            <!-- <th>User Id</th> -->
+            <!-- <th>Form Id</th> -->
             <th>Form Name</th>
-            <th>Entry Id</th>
+            <!-- <th>Entry Id</th> -->
             <?php  foreach($categories_names as $category_name){
             echo "<th>".$category_name."</th>";
         } ?>
@@ -50,25 +50,25 @@ function agf_short_code_score_current($atts){
 
     
 
-    foreach($scored_data as $user_key => &$user){
-        if(strtoupper($current_logged_user_email) == strtoupper($user_key)){
+    foreach($scored_data as $user_email => &$user){
+        if(strtoupper($current_logged_user_email) == strtoupper($user_email)){
             foreach($user['forms'] as $form_key => &$form){
                 foreach($form['entries'] as $entry_key => &$entry){  
                     echo "<tr>";
-                    echo "<td>".$user_key."</td>";
-                    if(!empty($user_key)){
-                        $user_id = get_user_by('email', $user_key)->ID;
-                        if(!empty($user_id)){
-                            echo "<td>".$user_id."</td>";
-                        }else{
-                            echo "<td></td>";
-                        }
-                    }
-                    echo "<td>".$form["form_id"]."</td>";
+                    echo "<td>".$user_email."</td>";
+                    // if(!empty($user_email)){
+                    //     $user_id = get_user_by('email', $user_email)->ID;
+                    //     if(!empty($user_id)){
+                    //         echo "<td>".$user_id."</td>";
+                    //     }else{
+                    //         echo "<td></td>";
+                    //     }
+                    // }
+                    // echo "<td>".$form["form_id"]."</td>";
                     // get gravity form by id
                     $form_name = GFAPI::get_form( $form["form_id"] )['title'];
                     echo "<td>".$form_name."</td>";
-                    echo "<td>".$entry["entry_id"]."</td>";
+                    // echo "<td>".$entry["entry_id"]."</td>";
                     foreach($categories_names as $category_name){
                         if(isset($entry['categories'][$category_name])){
                             echo "<td>".$entry['categories'][$category_name]."</td>";

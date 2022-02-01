@@ -14,9 +14,10 @@ global $post;
             class="code widefat" />
         <input type="text" readonly="readonly" value="[allarium_score current=true id=<?php echo $post->ID; ?>]"
             class="code widefat" />
-        <input type="text" readonly="readonly" value="[allarium_score entry_id={enter id} id=<?php echo $post->ID; ?>"
+        <input type="text" readonly="readonly" value="[allarium_score entry_id={enter id} id=<?php echo $post->ID; ?>]"
             class="code widefat" />
-        <input type="text" readonly="readonly" value="[allarium_score_print]" class="code widefat" />
+        <input type="text" readonly="readonly" value="[allarium_score_print id=<?php echo $post->ID; ?> entry_id=317]"
+            class="code widefat" />
         <input type="text" readonly="readonly" value="[allarium_score_average]" class="code widefat" />
         <span
             class="howto"><?php esc_html_e( 'Add this shortcode to a post or page to embed this view.', 'gravityview' ); ?></span>

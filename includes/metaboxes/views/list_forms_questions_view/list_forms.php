@@ -1,11 +1,11 @@
 <div id="agf-multi-select-forms-div">
 
-    <label
-        for="agf-multi-select-forms"><?php esc_html_e('What forms would you like to make this schema for?', 'agf'); ?></label>
+    <strong> <label
+            for="agf-multi-select-forms"><?php esc_html_e('What forms would you like to make this schema for?', 'agf'); ?></label></strong>
 
     <?php
             // if no forms are selected, then only show 
-            if($current_selected_forms !== '' || $current_selected_forms !== []){ 
+            if($current_selected_forms != '' || $current_selected_forms != []){ 
                 ?><select size='8' name="agf-multi-select-forms[]" id="agf-multi-select-forms" multiple><?php
                 foreach ($forms as $form) {
                     if (in_array($form['id'], $current_selected_forms)) {  
@@ -18,8 +18,6 @@
         <option value="<?php esc_html_e($form['id']) ?>"><?php esc_html_e($form['title']) ?></option>
         <?php
                     }
-                           
-    
         } //endforeach
     } else { Agf_Helper_Class::console_log("running?"); ?>
         <p style="color:red"><?php esc_html_e('Start with creating a form first.', 'agf'); ?></p>

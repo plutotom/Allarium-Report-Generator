@@ -9,7 +9,7 @@
 <h1>List Questions</h1>
 <button class="button button-primary button-large" id="add-question-category">Add Category</button>
 
-<h3>name of category goes here</h3>
+
 <div class="container">
     <div class="col mb-2" id="list-question-category-container">
     </div>

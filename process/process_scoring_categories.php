@@ -28,6 +28,7 @@ function agf_score_entries(){
     ];
     $scored_obj = [];
     $form_index = 0;
+    Agf_Helper_Class::console_log($form_ids);
     foreach($form_ids as $form_id){
         $entry_index = 0;
         // get entries and append to array

@@ -138,7 +138,7 @@ function agf_prepare_category_data(event, $) {
 function agf_update_post_meta(event, $, category_data) {
   event.preventDefault();
   console.log("Running update post meta");
-  console.log(category_data);
+  // console.log(category_data);
 
   //   making ajax request to update post meta
   $.ajax({
@@ -152,13 +152,13 @@ function agf_update_post_meta(event, $, category_data) {
     },
     success: function (response) {
       // update post meta data
-      console.log(response);
+      // console.log(response);
       console.log("positive response");
       agf_score_entries($); // update scoring after category post meta is updated.
       return response;
     },
     error: function (response) {
-      console.log(response);
+      // console.log(response);
       console.log("negative response");
       return response;
     },
@@ -173,6 +173,10 @@ function agf_update_post_meta(event, $, category_data) {
 function agf_load_categories($, question_list) {
   var category_data = agf_list_questions_metabox_obj.post_data.category_data;
   let checked = "";
+  // check if question_list is empty or not.
+  if (!question_list) {
+    return;
+  }
   function agf_is_checked(cq_arr, question_label) {
     const { length } = cq_arr;
     const id = length + 1;
@@ -180,6 +184,7 @@ function agf_load_categories($, question_list) {
     // if (!found) cq_arr.push({ id, username: question });
     return found; // found will be weather or not the question is in the array, i.e. if question should be checked.
   }
+
   // loading saved categories
   if (category_data) {
     Object.values(category_data).forEach((category, index, array) => {
@@ -242,7 +247,15 @@ function agf_load_categories($, question_list) {
 
 function agf_get_unique_questions(unique) {
   var all_forms = agf_list_questions_metabox_obj.all_forms;
-
+  // TODO this needs to be updated to a better safe guard agents empty arrays.
+  if (
+    !agf_list_questions_metabox_obj.post_data.multi_selected_forms_ids ||
+    !all_forms ||
+    agf_list_questions_metabox_obj.post_data.multi_selected_forms_ids == "’" ||
+    all_forms == "’"
+  ) {
+    return;
+  }
   // converting array of ids from strings to ints
   var selected_forms_ids =
     agf_list_questions_metabox_obj.post_data.multi_selected_forms_ids.map(
@@ -251,7 +264,6 @@ function agf_get_unique_questions(unique) {
   var filtered_forms = all_forms.filter((form) =>
     selected_forms_ids.includes(form.id)
   );
-
   // for each question in the response, put it in the question_list
   // creating one big list of questions to filter through later.
   var question_list = [];
@@ -349,8 +361,8 @@ function agf_score_entries($, form_questions_list = []) {
       post_id: agf_list_questions_metabox_obj.post_id,
     },
     success: function (response) {
-      // console.log("success");
-      console.log(response);
+      console.log("success");
+      // console.log(response);
       agf_list_questions_metabox_obj.scored_entries = response;
     },
     error: function (error) {
@@ -376,7 +388,7 @@ function agf_score_entries($, form_questions_list = []) {
       glikertcol25156cc64: null, // N/A
     };
     agf_list_questions_metabox_obj.question_list = questions_list;
-    console.log(agf_list_questions_metabox_obj);
+    // console.log(agf_list_questions_metabox_obj);
     agf_load_categories($, questions_list);
     agf_score_entries($);
 
@@ -384,7 +396,12 @@ function agf_score_entries($, form_questions_list = []) {
     $("#add-question-category").on("click", function (event) {
       event.preventDefault();
       const category_uid = agf_uid();
-
+      if (!agf_list_questions_metabox_obj.question_list) {
+        // send alart to user that no questions are available.
+        alert(
+          'No forms are selected, please select a form and click "Update Form Selection" first.'
+        );
+      }
       // Put all questions in to html
       var question_list_html = "";
       agf_list_questions_metabox_obj.question_list.forEach(function (question) {
