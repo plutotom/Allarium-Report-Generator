@@ -269,7 +269,13 @@ function agf_get_unique_questions(unique) {
   var question_list = [];
   filtered_forms.forEach(function (form) {
     form["fields"].forEach(function (field) {
-      if (field["type"] === "survey" || field["type"] === "select") {
+      if (
+        field["type"] === "survey" ||
+        field["type"] === "select" ||
+        field["type"] === "radio" ||
+        field["type"] === "checkbox" ||
+        field["type"] === "checkbox_and_select"
+      ) {
         question_list.push(field);
       }
     });
@@ -367,7 +373,7 @@ function agf_score_entries($, form_questions_list = []) {
     },
     error: function (error) {
       console.log("error");
-      // console.log(error);
+      console.log(error);
     },
   });
 }

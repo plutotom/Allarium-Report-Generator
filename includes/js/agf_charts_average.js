@@ -2,19 +2,19 @@
 
 // Take scored_entries and put each key into an array of labels
 var labels = [];
-for (var key in agf_charts_average.average_score) {
-  labels.push(key);
-}
+// for (var key in agf_charts_average.average_score) {
+//   labels.push(key);
+// }
 
 var ctx = document.getElementById("myChart").getContext("2d");
 var myChart = new Chart(ctx, {
   type: "bar",
   data: {
-    labels: labels,
+    labels: ["Foundations", "Organization", "Systems", "Marketing Scale"],
     datasets: [
       {
         label: "# of Votes",
-        data: agf_charts_average.average_score,
+        data: [45, 77, 95, 23],
         backgroundColor: [
           "rgb(244,171,50)",
           "rgb(236,113,118)",

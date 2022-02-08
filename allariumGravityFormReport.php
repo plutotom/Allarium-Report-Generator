@@ -49,25 +49,26 @@ include_once(AGFR__PLUGIN_DIR . "includes/custom_actions/agf_gform_after_submiss
 // requiring MPDF
 require_once __DIR__ . '/vendor/autoload.php';
 
+// add_action('init', 'agf_check_gf_activation');
 
 
+if (!in_array('gravityforms/gravityforms.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+    $mes = "<p><strong>Allarium Report Generation Installation Problem</strong></p>
+    <p>Gravity Forms is not installed or activated. Please install and activate Gravity Forms to use this plugin.
+    </p>";
+    Agf_Helper_Class::display_notices($mes);
+    return;
+}
 
 
 // Hooks
 register_deactivation_hook(__FILE__, 'agf_deactivate');
 add_action('init', 'agf_init');
-// add_action('init', 'agf_register_taxonomy');
-// add_action('init', 'Agf_Helper_Class');
-// add_action( 'init', array( 'Agf_Helper_Class', 'init' ) );
-// add_action('admin_menu', 'agf_register_settings');
 
-add_action('init', 'check_gf_active');
+// check if gravity forms is activated, if it is activated then it calls all hooks to activate plugin.
+// add_action('admin_init', ['Agf_Helper_Class', 'gf_activation_check']);
 
 
-function check_gf_active() {
-    $gf_active_check = Agf_Helper_Class::gf_activation_check();
-    return;
-}
 
 //Hooks for metaboxes
 // add_action('add_meta_boxes', 'agf_register_reporting_metabox');
@@ -86,7 +87,7 @@ add_action('wp_ajax_agf_score_entries', 'agf_score_entries');
 add_action('admin_enqueue_scripts', 'agf_enqueue_styles');
 add_action('admin_enqueue_scripts', 'agf_get_post_data_list_questions_metabox_script');
 //* Enqueue scripts for html to pdf print.
-add_action('wp_footer', 'agf_enqueue_frontend_scripts'); 
+add_action('wp_footer', 'agf_enqueue_frontend_scripts');
 
 // Short_Code
 add_shortcode('allarium_score', 'agf_short_code_score');

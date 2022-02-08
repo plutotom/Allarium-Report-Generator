@@ -35,56 +35,57 @@ echo '
 
 
 
-//! this is a temp way of making the graph work.
-// TODO this should change in future.
-?>
-<script>
-console.log("script started loading before onload")
-window.onload = function() {
-    console.log("script started laoding onload");
-    var average_score = <?php echo json_encode($average_score, JSON_NUMERIC_CHECK); ?>
+// //! this is a temp way of making the graph work.
+// // TODO this should change in future.
+//     var average_score = <?php echo json_encode($average_score, JSON_NUMERIC_CHECK); 
 
-    // Take scored_entries and put each key into an array of labels
-    var labels = [];
-    for (var key in average_score) {
-        labels.push(key);
-    }
+// <script>
+// console.log("script started loading before onload")
+// window.onload = function() {
+//     console.log("script started laoding onload");
 
-    var ctx = document.getElementById("myChart").getContext("2d");
-    var myChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: labels,
-            datasets: [{
-                label: "# of Votes",
-                data: average_score,
-                backgroundColor: [
-                    "rgb(244,171,50)",
-                    "rgb(236,113,118)",
-                    "rgb(91,99,162)",
-                    "rgb(26,78,106)",
-                ],
-                borderColor: [
-                    "rgb(244,171,50)",
-                    "rgb(236,113,118)",
-                    "rgb(91,99,162)",
-                    "rgb(26,78,106)",
-                ],
-                borderWidth: 1,
-            }, ],
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                },
-            },
-        },
-    });
-}
-console.log("script loaded end js")
-</script>
-<?php
+//     // Take scored_entries and put each key into an array of labels
+//     var labels = [];
+//     for (var key in average_score) {
+//         labels.push(key);
+//     }
+
+//     var ctx = document.getElementById("myChart").getContext("2d");
+//     var myChart = new Chart(ctx, {
+//         type: "bar",
+//         data: {
+//             labels: labels,
+//             datasets: [{
+//                 label: "# of Votes",
+//                 data: average_score,
+//                 backgroundColor: [
+//                     "rgb(244,171,50)",
+//                     "rgb(236,113,118)",
+//                     "rgb(91,99,162)",
+//                     "rgb(26,78,106)",
+//                 ],
+//                 borderColor: [
+//                     "rgb(244,171,50)",
+//                     "rgb(236,113,118)",
+//                     "rgb(91,99,162)",
+//                     "rgb(26,78,106)",
+//                 ],
+//                 borderWidth: 1,
+//             }, ],
+//         },
+//         options: {
+//             scales: {
+//                 y: {
+//                     beginAtZero: true,
+//                 },
+//             },
+//         },
+//     });
+// }
+// console.log("script loaded end js")
+// 
+
+// <?php
 
 return ob_get_clean();
 }
