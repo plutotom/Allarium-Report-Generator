@@ -82,12 +82,6 @@ function agf_short_code_pdf_print($atts)
         }
 
 
-        // $html_search_bar = '<div id="${category_uid}" style="padding: 10px;" class="d-none shadow rounded agf-menu agf-question-list-div-with-search">
-        //     <input onkeyup="agf_handel_search(event)" type="text" id="${category_uid}" class="agf-question-list-search" placeholder="Search Questions.." title="Type a question">
-        //     <div class="question-list-div" id="${category_uid}">
-        //   ${question_list_html}
-        // </div>';
-
         ob_start();
         echo '<div class="agf_pdf_print">';
         // Pop up box for selecting questions before printing
