@@ -384,6 +384,8 @@ function agf_score_entries($, form_questions_list = []) {
   $(document).ready(function () {
     const questions_list = agf_get_unique_questions(false);
 
+    console.log(agf_list_questions_metabox_obj);
+
     agf_list_questions_metabox_obj.scoring_values_schema = {
       glikertcol2079ce3b4: 0, // completely disagree
       glikertcol2afb99d83: 1, // Mostly disagree

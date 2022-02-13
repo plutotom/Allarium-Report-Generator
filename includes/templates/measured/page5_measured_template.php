@@ -2,7 +2,7 @@
 
 
 
-$bi_score = $entry_to_print_pg_1['categories']['Data-Driven Decision Making'];
+$bi_score = $entry_to_print_pg_1_assessment['categories']['Data-Driven Decision Making'];
 $bi_score = round($bi_score / 4 * 100, 2);
 
 $Contender = null;

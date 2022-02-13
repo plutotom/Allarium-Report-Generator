@@ -43,8 +43,6 @@ include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_styles.php");
 include(AGFR__PLUGIN_DIR . "process/process_form_metabox_ajax.php");
 include(AGFR__PLUGIN_DIR . "process/process_scoring_categories.php");
 include(AGFR__PLUGIN_DIR . "process/agf_process_pdf_print.php");
-//include custom actions
-include_once(AGFR__PLUGIN_DIR . "includes/custom_actions/agf_gform_after_submission.php");
 
 // requiring MPDF
 require_once __DIR__ . '/vendor/autoload.php';
@@ -81,7 +79,6 @@ add_action('save_post', 'agf_save_metabox', 10, 2);
 add_action('wp_ajax_add_question_category', 'agf_add_question_category_process');
 add_action('wp_ajax_agf_update_post_meta', 'agf_update_post_meta_process');
 add_action('wp_ajax_agf_score_entries', 'agf_score_entries');
-
 
 // enqueue scripts and styles
 add_action('admin_enqueue_scripts', 'agf_enqueue_styles');

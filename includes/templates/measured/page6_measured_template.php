@@ -16,7 +16,7 @@ $page_6_body = '<div class="container">
         </div>
       </div>';
 
-$entry_to_print = $entry_to_print_pg_6['categories'];
+$entry_to_print = $entry_to_print_pg_6_prioritization['categories'];
 
 // for each category, add the score as a percentage in a new bar-row
 foreach ($entry_to_print as $key => $value) {

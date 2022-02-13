@@ -262,7 +262,7 @@ $page_1_body = '<div class="container">
 
 $table_results = null;
 // append each category and score to the table
-foreach ($entry_to_print_pg_1['categories'] as $category => $score) {
+foreach ($entry_to_print_pg_1_assessment['categories'] as $category => $score) {
     $score = round($score / 4 * 100, 0);
     // if the score is less than 40
     if ($score <= 40) {

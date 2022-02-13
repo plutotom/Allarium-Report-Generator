@@ -1,7 +1,7 @@
 <?php
 
 
-$bi_score = $entry_to_print_pg_1['categories']['Marketing Experimentation'];
+$bi_score = $entry_to_print_pg_1_assessment['categories']['Marketing Experimentation'];
 $bi_score = round($bi_score / 4 * 100, 2);
 
 $Contender = null;

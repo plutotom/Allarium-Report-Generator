@@ -1,7 +1,7 @@
 <?php
 
 
-// foreach ($entry_to_print_pg_1['categories'] as $category => $score) {
+// foreach ($entry_to_print_pg_1_assessment['categories'] as $category => $score) {
 //     $score = round($score / 4 * 100, 2);
 //     // return only the highest score
 //     $highest_score = null;

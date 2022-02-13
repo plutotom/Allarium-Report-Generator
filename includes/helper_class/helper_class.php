@@ -44,6 +44,7 @@ class Agf_Helper_Class
 
     /**
      * search's the entry for a email address
+     * searches for @ symbol and . in the string, if both are found then assumes it is an email address
      * @param  array $entry
      * @return string email address
      */
@@ -63,7 +64,6 @@ class Agf_Helper_Class
      * @param  array $form_ids
      * @return array of entries
      */
-
     public static function get_entries_for_form($form_ids = null)
     {
         if (!is_array($form_ids)) {
@@ -83,7 +83,6 @@ class Agf_Helper_Class
      * @param  array $scored_data
      * @return object of category names (keys) with average scores as values
      */
-
     public static function get_average_scores($scored_data)
     {
         if (empty($scored_data)) {
@@ -114,8 +113,8 @@ class Agf_Helper_Class
 
 
     /**
-     * For each form id passed given, will return an array of arrays and 
-     * each array will be all questions that are in the form.
+     * For each form id given, gets all questions and returns an array with 
+     * form_ids as keys for each form's questions.
      * @param array $form_ids
      * @param array $field_types - array of field types to filter by.
      * @return array $form_questions
@@ -160,7 +159,6 @@ class Agf_Helper_Class
      * @param int Id of post with selected forms.
      * @return array of unique form ids
      */
-
     public static function get_current_post_selected_forms($post_id)
     {
         if (!$post_id) {
@@ -178,7 +176,6 @@ class Agf_Helper_Class
      * @param form_id the id of the form to search for
      * @return string company name
      */
-
     public static function get_company_name($entry_id, $form_id)
     {
         $entry = GFAPI::get_entry($entry_id);
@@ -231,6 +228,106 @@ class Agf_Helper_Class
             }
         }
         return $categories_names;
+    }
+
+    /**
+     * Updates post meta with new scored entries.
+     * The schema for this is stored in the post data. Pass the post id and that will get 
+     * all the needed data from the post using the post id, then get all entries (new and old) 
+     * and update the scored data object.
+     * @param {array} $scored_data - array of category objects
+     * @param {int} $post_id - id of post to update
+     * @return {array} - array of unique category names
+     * 
+     */
+    public static function update_post_scored_data($post_id = "default")
+    {
+        // get post meta data
+        $category_data  = get_post_meta($post_id, 'category_data', true);
+        $form_ids  = get_post_meta($post_id, 'multi_selected_forms_ids', true);
+        $scored_entries  = get_post_meta($post_id, 'scored_entries', true);
+
+        $scoring_schema = [
+            "glikertcol2079ce3b4" => 0, // completely disagree
+            "glikertcol2afb99d83" => 1, // Mostly disagree
+            "glikertcol2c8b03172" => 2, // Somewhat Disagree
+            "glikertcol2705122be" => 3, // Somewhat Agree
+            "glikertcol297044e96" => 4, // Mostly Agree
+            "glikertcol25100bcbb" => 5, // Completely Agree
+            "glikertcol25156cc64" => null, // N/A
+        ];
+        $scored_obj = [];
+        $form_index = 0;
+
+        foreach ($form_ids as $form_id) {
+            $entry_index = 0;
+            // get entries and append to array
+            $current_form_entries = GFAPI::get_entries($form_id);
+            foreach ($current_form_entries as $entry) {
+                $user_email = "";
+                $personal_score = [];
+                $entry_id = $entry['id'];
+                // getting email address
+
+                foreach ($entry as $field_id => $entry_value) {
+                    // returns the names of the categories the question belongs too if the field_id and the form_id match. 
+                    // if the question belongs to a category then add the question value to the category array to be scored.
+                    $category_names = Agf_Helper_Class::sort_by_categories($field_id, $form_id, $category_data);
+
+                    // [cat_name_1, cat_name_2]
+                    if ($category_names != []) {
+
+                        foreach ($entry as $field_id => $val) {
+                            if (strpos($val, '@')) {
+                                $user_email = $val;
+                            }
+                        }
+                        if (empty($user_email)) {
+                            $user_email = get_user_by('id', $entry["created_by"])->user_email;
+                        }
+
+                        foreach ($category_names as $category_name) {
+                            // if scoring_schema includes entry value then add to array
+                            // This is only for survey questions, they have a value  that looks like this: "glikertcol2079ce3b4" 
+                            // and that value represents a score. See $scoring_schema.
+                            if (array_key_exists($entry_value, $scoring_schema)) {
+                                $entry_value = $scoring_schema[$entry_value];
+                                $personal_score[$category_name][] = $entry_value;
+                            } else {
+                                $personal_score[$category_name][] = $entry_value;
+                            }
+                        }
+                    }
+                }
+                if ($user_email != "" || !empty($user_email)) {
+                    $scored_obj[$user_email]["forms"][$form_index]["entries"][$entry_index]["categories"] = $personal_score;
+                    $scored_obj[$user_email]["forms"][$form_index]["entries"][$entry_index]["entry_id"] = $entry_id;
+                    $scored_obj[$user_email]["forms"][$form_index]["form_id"] = $form_id;
+                    $entry_index += 1;
+                }
+            } // end foreach entry
+            if ($user_email != "" || !empty($user_email)) {
+                $scored_obj[$user_email]["forms"][$form_index]["form_id"] = $form_id;
+                $form_index += 1;
+            }
+        } // end loop for each form id
+
+        foreach ($scored_obj as $user_key => &$user) {
+            foreach ($user['forms'] as $form_key => &$form) {
+                if (!empty($form['entries'])) {
+                    foreach ($form['entries'] as $entry_key => &$entry) {
+                        foreach ($entry['categories'] as $category_key => &$category) {
+                            // $entry['categories'][$category_key] = array_sum($category);
+                            $scored_obj[$user_key]["forms"][$form_key]["entries"][$entry_key]["categories"][$category_key] = round(array_sum($category) / count($category), 2);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        // update post meta data
+        update_post_meta($post_id, 'scored_entries', $scored_obj);
     }
 
     /**
@@ -296,11 +393,10 @@ class Agf_Helper_Class
      * 
      */
     public static function display_notices($mes = null)
-    { ?>
-        <div class="error">
+    {
+        echo '<div class="error">
             <?php echo $mes ?>
-        </div>
-<?php
+        </div>';
     }
 
     public static function send_error_message($mes)

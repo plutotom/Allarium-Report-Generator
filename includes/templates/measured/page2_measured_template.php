@@ -1,7 +1,7 @@
 <?php
 
 
-// foreach ($entry_to_print_pg_1['categories'] as $category => $score) {
+// foreach ($entry_to_print_pg_1_assessment['categories'] as $category => $score) {
 //     $score = round($score / 4 * 100, 2);
 //     // return only the highest score
 //     $highest_score = null;
@@ -11,7 +11,7 @@
 //     }
 // }
 // Centralized Data and BI Reporting
-$bi_score = $entry_to_print_pg_1['categories']['Centralized Data and BI Reporting'];
+$bi_score = $entry_to_print_pg_1_assessment['categories']['Centralized Data and BI Reporting'];
 $bi_score = round($bi_score / 4 * 100, 2);
 
 $Contender = null;

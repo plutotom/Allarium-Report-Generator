@@ -1,4 +1,5 @@
 <?php
+
 function agf_short_code_pdf_print($atts)
 {
     $atts = shortcode_atts(array(
@@ -16,6 +17,11 @@ function agf_short_code_pdf_print($atts)
         Agf_Helper_Class::alert_message("Please provide a entry id for pdf print shortcode.");
         return;
     }
+
+    // This updates the scored data for the post. 
+    // If a new form is submitted this must be called first before that entry will be in the post data.
+    Agf_Helper_Class::update_post_scored_data($atts['id']);
+
     // strip spaces from form ids
     $form_ids = str_replace(" ", "", $atts["form_ids"]);
     $form_ids = explode(',', $form_ids);
@@ -142,10 +148,10 @@ function agf_short_code_pdf_print($atts)
                     $entry = GFAPI::get_entry($entry_id);
                     // if entry form_id === form_id then echo it
                     if ($entry['form_id'] == $form_id) {
-                        $page_1_entry = $entry;
+                        $page_1_entry_assessment = $entry;
                     }
                 } else {
-                    $page_6_entry = GFAPI::get_entry($entry_id);
+                    $page_6_entry_prioritization = GFAPI::get_entry($entry_id);
                 }
             }
         }
@@ -154,7 +160,7 @@ function agf_short_code_pdf_print($atts)
         // return ob_get_clean();
 
         $entry_id = $atts['entry_id'];
-        $entry_to_print_pg_1 = "";
+        $entry_to_print_pg_1_assessment = "";
         // Get user email from obj
         foreach ($scored_entries as $user => $data) {
             // loop though each entry
@@ -165,11 +171,11 @@ function agf_short_code_pdf_print($atts)
                     foreach ($entry['categories'] as $category => $score) {
                         // loop though each entry
                         // if entry id matches the entry id in the obj
-                        if ($entry['entry_id'] == $page_1_entry['id']) {
-                            // set the entry_to_print_pg_1 to the entry
-                            $entry_to_print_pg_1 = $entry;
+                        if ($entry['entry_id'] == $page_1_entry_assessment['id']) {
+                            // set the entry_to_print_pg_1_assessment to the entry
+                            $entry_to_print_pg_1_assessment = $entry;
                             // set the entry_user_email to the user email
-                            $entry_to_print_pg_1_user_email = $user;
+                            $entry_to_print_pg_1_assessment_user_email = $user;
                             // get form name 
                             $form_id = $form['form_id'];
                         }
@@ -188,9 +194,9 @@ function agf_short_code_pdf_print($atts)
                     foreach ($entry['categories'] as $category => $score) {
                         // loop though each entry
                         // if entry id matches the entry id in the obj
-                        if ($entry['entry_id'] == $page_6_entry['id']) {
-                            // set the entry_to_print_pg_1 to the entry
-                            $entry_to_print_pg_6 = $entry;
+                        if ($entry['entry_id'] == $page_6_entry_prioritization['id']) {
+                            // set the entry_to_print_pg_1_assessment to the entry
+                            $entry_to_print_pg_6_prioritization = $entry;
                             // set the entry_user_email to the user email
                             $entry_to_print_pg_6_user_email = $user;
                             // get form name 
@@ -287,25 +293,131 @@ function agf_short_code_pdf_print($atts)
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 370mm" />'); // page 7 page size
         // $mpdf->WriteHTML($page_7_body);
 
-        // ? add footers and end of html here
-        $mpdf->WriteHTML('</body></html>');
-        // echo $page_title_body;
-        // echo '<style>' . file_get_contents($styles_file_dir) . '</style>';
-        // echo $page_1_body;
-        // echo $page_2_body;
-        // echo $page_3_body;
-        // echo $page_4_body;
-        // echo $page_5_body;
-        // echo $page_6_body;
+
+        $mpdf->WriteHTML('<pagebreak sheet-size="254mm 410mm" />'); // Prioritization page table.
+        // Getting the full entry object to get its form id to get all the forms question labels.
+        $prioritization_table_print = GFAPI::get_entry($entry_to_print_pg_6_prioritization['entry_id']);
+        $prioritization_form = GFAPI::get_form($prioritization_table_print['form_id']);
+        $prioritization_res = null;
+        $prioritization_res .= "<h1>Assessment Results</h1>";
+        $prioritization_res .= "<p>Here are the answers to the questions asked during the prioritization.</p>";
+        // section text
+        $prioritization_res .= "<h1><u><b>Prioritization</b></u></h1>";
+        $prioritization_res .= "<table class='table_res'>";
+        foreach ($prioritization_form["fields"] as $field) {
+            // if field type is section make a new page and table 
+            if ($field['type'] == 'section') {
+                // add each to prioritization results 
+                $prioritization_res .= "<tr>";
+                $prioritization_res .= "<td style='background-color: #EDEEEE;'>";
+                $prioritization_res .= "<p class='section_header'>" . $field['label'] . "</p>";
+                $prioritization_res .= "</td>";
+                $prioritization_res .= "</tr>";
+            }
+
+            if ($field['type'] == 'select' || $field['type'] == 'radio') {
+                // The field id is the index of the entry_to_print entry value.
+                $field_value = $prioritization_table_print[$field['id']];
+                $field_choices = $field['choices'];
+                if (is_array($field_choices)) {
+                    $field_choice_values = array_column($field_choices, 'value');
+                    $field_choice_labels = array_column($field_choices, 'text');
+                }
+
+                if (in_array($field_value, $field_choice_values)) {
+                    $field_value_index = array_search($field_value, $field_choice_values);
+
+                    $prioritization_res .= "<tr>";
+                    $prioritization_res .= "<td>";
+                    $prioritization_res .= "<p class='field_label' style='font-size: .5em;'><b>" . $field['label'] . "</b></p>";
+                    $prioritization_res .= "</td>";
+                    $prioritization_res .= "</tr>";
+
+                    $prioritization_res .= "<tr>";
+                    $prioritization_res .= "<td>";
+                    $prioritization_res .= "<p class='field_value'>" . $field_choice_labels[$field_value_index] . "</p>";
+                    $prioritization_res .= "</td>";
+                    $prioritization_res .= "</tr>";
+                } else {
+                    echo "N/A";
+                }
+            }
+        }
+        $prioritization_res .= '</table>';
+        $mpdf->WriteHTML($prioritization_res);
+
+
+        // Creating Assessment Results Table and adding it to PDF.
+        // Getting the full entry object to get its form id to get all the forms question labels.
+        $assessment_table_print = GFAPI::get_entry($entry_to_print_pg_1_assessment['entry_id']);
+        $form_to_print_pg_1_assessment = GFAPI::get_form($assessment_table_print['form_id']);
+        // Agf_Helper_Class::console_log($form_to_print_pg_1_assessment);
+        $assessment_res_started = false;
+
+
+        foreach ($form_to_print_pg_1_assessment["fields"] as $field) {
+
+            // if field type is section make a new page and table 
+            if ($field['type'] == 'section') {
+                if ($assessment_res_started) {
+                    $assessment_res .= '</table>';
+                    $mpdf->WriteHTML($assessment_res);
+                }
+                // Adding page for new section.
+                $mpdf->WriteHTML('<pagebreak sheet-size="254mm 280mm" />');
+                $assessment_res_started = true;
+                $assessment_res = null;
+                $assessment_res .= "<h1 >Assessment Results</h1>";
+                $assessment_res .= "<p>Here are the answers to the questions asked during the assessment.</p>";
+                // section text
+                $assessment_res .= "<h1><u>" . $field['label'] . "<u></h1>";
+
+                // add each to assessment results 
+                $assessment_res .= "<table class='table_res'>";
+                $assessment_res .= "<tr>";
+                $assessment_res .= "<td style='background-color: #EDEEEE;'>";
+                $assessment_res .= "<p class='section_header'>" . $field['label'] . "</p>";
+                $assessment_res .= "</td>";
+                $assessment_res .= "</tr>";
+            }
+
+            if ($field['type'] == 'radio') {
+                // The field id is the index of the entry_to_print entry value.
+                $field_value = $assessment_table_print[$field['id']];
+                $field_choices = $field['choices'];
+                if (is_array($field_choices)) {
+                    $field_choice_values = array_column($field_choices, 'value');
+                    $field_choice_labels = array_column($field_choices, 'text');
+                }
+
+                if (in_array($field_value, $field_choice_values)) {
+                    $field_value_index = array_search($field_value, $field_choice_values);
+
+                    $assessment_res .= "<tr>";
+                    $assessment_res .= "<td>";
+                    $assessment_res .= "<p class='field_label' style='font-size: .5em;'><b>" . $field['label'] . "</b></p>";
+                    $assessment_res .= "</td>";
+                    $assessment_res .= "</tr>";
+
+                    $assessment_res .= "<tr>";
+                    $assessment_res .= "<td>";
+                    $assessment_res .= "<p class='field_value'>" . $field_choice_labels[$field_value_index] . "</p>";
+                    $assessment_res .= "</td>";
+                    $assessment_res .= "</tr>";
+                } else {
+                    echo "N/A";
+                }
+            }
+        }
+        $assessment_res .= '</table>';
+        // echo $assessment_res;
+        $mpdf->WriteHTML($assessment_res);
 
         $mpdf->output();
         return ob_get_clean();
     }
     return ob_get_clean();
 }
-
-
-
 
 // This uses an api to create a chart. It will return an image file. That file must be 
 // bse64 decoded and placed into an image tag.
