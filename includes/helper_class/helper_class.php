@@ -394,15 +394,20 @@ class Agf_Helper_Class
      */
     public static function display_notices($mes = null)
     {
-        echo '<div class="error">
-            <?php echo $mes ?>
+        $message_full = '<div class="error">
+             <p>' . $mes . '</p>
         </div>';
+        return $message_full;
     }
 
     public static function send_error_message($mes)
     {
         if ($mes && is_admin()) {
-            Agf_Helper_Class::display_notices($mes);
+            return  Agf_Helper_Class::display_notices($mes);
+        } else {
+            return '<div class="error">
+                <p>' . $mes . '</p>
+            </div>';
         }
     }
 

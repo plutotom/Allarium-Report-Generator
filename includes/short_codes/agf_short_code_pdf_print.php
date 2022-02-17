@@ -13,6 +13,8 @@ function agf_short_code_pdf_print($atts)
     if ($atts["id"] == null) {
         Agf_Helper_Class::alert_message("Please provide a form id for pdf print shortcode.");
         return;
+    } elseif (!current_user_can("view_agf_report")) {
+        return Agf_Helper_Class::send_error_message("You do not have permission to Print report.");
     } elseif ($atts["form_ids"] == null) {
         Agf_Helper_Class::alert_message("Please provide a entry id for pdf print shortcode.");
         return;
@@ -38,7 +40,6 @@ function agf_short_code_pdf_print($atts)
     // display button and form to select entires if pdf_print != true. 
     // if pdf_print == true, Will print pdf.
     if ($_REQUEST['pdf_print'] != 'true') {
-        Agf_Helper_Class::console_log('pdf_print not true');
         $post_id = $atts['id'];
         $post_meta = get_post_meta($post_id);
         $scored_data = get_post_meta($post_id, 'scored_entries', true);
@@ -125,8 +126,6 @@ function agf_short_code_pdf_print($atts)
     //! PDF PRINT START
     if ($_REQUEST['pdf_print'] == 'true') {
         ob_clean();
-
-        Agf_Helper_Class::console_log("pdf print true");
         $post_id = $atts['id'];
         $post_meta = get_post_meta($post_id);
         $scored_entries = maybe_unserialize($post_meta['scored_entries'][0]);
@@ -207,10 +206,7 @@ function agf_short_code_pdf_print($atts)
             }
         }
 
-
         // $mpdf->AddPage(254, 450); //equivalents e.g. <pagebreak /> and AddPage():
-
-        //includes $page_6_styles, and $page_6_body
         include_once __DIR__ . '/../templates/measured/page_title_measured_template.php';
         include_once __DIR__ . '/../templates/measured/page1_measured_template.php';
         include_once __DIR__ . '/../templates/measured/page2_measured_template.php';
@@ -232,10 +228,10 @@ function agf_short_code_pdf_print($atts)
             //         'BI' => 'OpenSans-BoldItalic.ttf',
             //     ],
             // ],
-            // 'default_font' => 'opensans',
+            'default_font' => 'opensans',
             'collapseBlockMargins ' => false,
-            'margin_left' => 10,
-            'margin_right' => 10,
+            'margin_left' => 5,
+            'margin_right' => 5,
             'margin_top' => 5,
             'margin_bottom' => 2,
             'margin_header' => 0,
@@ -243,10 +239,9 @@ function agf_short_code_pdf_print($atts)
             'mode' => 'utf-8',
             // 'format' => [254, 300],
             'format' => 'Letter',
-            // 'sheet-size' => "Letter",
-            // 'orientation' => 'P',
+            'sheet-size' => "Letter",
+            'orientation' => 'P',
             'autoPageBreak' => false,
-            'progressBar' => true,
             'debug' => true,
             'allow_output_buffering' => true,
             'use_kwt' => true, // Keep with Table. This will try and make tables fit pages but it looks not great.
@@ -263,44 +258,48 @@ function agf_short_code_pdf_print($atts)
         //? Add all bodies to pdf here.
         $mpdf->WriteHTML('<body>');
 
-        //page title
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 450mm" />'); // page title page size
+        //page title
         $mpdf->WriteHTML($page_title_body);
 
         // page 1
-        // $mpdf->WriteHTML('<pagebreak />'); // page 1 page size
-        $mpdf->WriteHTML('<pagebreak sheet-size="254mm 280mm" />'); // page 1 page size
+        $mpdf->WriteHTML('<pagebreak />'); // page 1 page size
+        // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 280mm" />'); // page 1 page size
         $mpdf->WriteHTML($page_1_body);
 
         // page 6
-        // $mpdf->WriteHTML('<pagebreak />');
-        $mpdf->WriteHTML('<pagebreak sheet-size="254mm 345mm" />'); // page 6 page size
+        $mpdf->WriteHTML('<pagebreak />');
+        // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 345mm" />'); // page 6 page size
         // $mpdf->WriteHTML($page_6_styles, \Mpdf\HTMLParserMode::HEADER_CSS);
         $mpdf->WriteHTML($page_6_body);
 
-        $mpdf->WriteHTML('<pagebreak sheet-size="254mm 235mm" />'); // page 2 page size
+        $mpdf->WriteHTML('<pagebreak />');
+        // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 235mm" />'); // page 2 page size
         $mpdf->WriteHTML($page_2_body);
-
-        $mpdf->WriteHTML('<pagebreak sheet-size="254mm 265mm" />'); // page 3 page size
+        $mpdf->WriteHTML('<pagebreak />');
+        // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 265mm" />'); // page 3 page size
         $mpdf->WriteHTML($page_3_body);
-
-        $mpdf->WriteHTML('<pagebreak sheet-size="254mm 215mm" />'); // page 4 page size
+        $mpdf->WriteHTML('<pagebreak />');
+        // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 215mm" />'); // page 4 page size
         $mpdf->WriteHTML($page_4_body);
-
-        $mpdf->WriteHTML('<pagebreak sheet-size="254mm 290mm" />'); // page 5 page size
+        $mpdf->WriteHTML('<pagebreak />');
+        // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 290mm" />'); // page 5 page size
         $mpdf->WriteHTML($page_5_body);
-
+        $mpdf->WriteHTML('<pagebreak />');
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 370mm" />'); // page 7 page size
         // $mpdf->WriteHTML($page_7_body);
 
 
-        $mpdf->WriteHTML('<pagebreak sheet-size="254mm 410mm" />'); // Prioritization page table.
+        // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 410mm" />'); // Prioritization page table.
         // Getting the full entry object to get its form id to get all the forms question labels.
         $prioritization_table_print = GFAPI::get_entry($entry_to_print_pg_6_prioritization['entry_id']);
         $prioritization_form = GFAPI::get_form($prioritization_table_print['form_id']);
+
+        // Agf_Helper_Class::console_log($prioritization_form);
+
         $prioritization_res = null;
         $prioritization_res .= "<h1>Assessment Results</h1>";
-        $prioritization_res .= "<p>Here are the answers to the questions asked during the prioritization.</p>";
+        $prioritization_res .= "<p style='padding-top: -25px; padding-bottom: -25px;'>Here are the answers to the questions asked during the prioritization.</p>";
         // section text
         $prioritization_res .= "<h1><u><b>Prioritization</b></u></h1>";
         $prioritization_res .= "<table class='table_res'>";
@@ -309,7 +308,7 @@ function agf_short_code_pdf_print($atts)
             if ($field['type'] == 'section') {
                 // add each to prioritization results 
                 $prioritization_res .= "<tr>";
-                $prioritization_res .= "<td style='background-color: #EDEEEE;'>";
+                $prioritization_res .= "<td style='background-color: #EDEEEE; padding-top: 5px; padding-bottom: 5px;'>";
                 $prioritization_res .= "<p class='section_header'>" . $field['label'] . "</p>";
                 $prioritization_res .= "</td>";
                 $prioritization_res .= "</tr>";
@@ -328,13 +327,13 @@ function agf_short_code_pdf_print($atts)
                     $field_value_index = array_search($field_value, $field_choice_values);
 
                     $prioritization_res .= "<tr>";
-                    $prioritization_res .= "<td>";
+                    $prioritization_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
                     $prioritization_res .= "<p class='field_label' style='font-size: .5em;'><b>" . $field['label'] . "</b></p>";
                     $prioritization_res .= "</td>";
                     $prioritization_res .= "</tr>";
 
                     $prioritization_res .= "<tr>";
-                    $prioritization_res .= "<td>";
+                    $prioritization_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
                     $prioritization_res .= "<p class='field_value'>" . $field_choice_labels[$field_value_index] . "</p>";
                     $prioritization_res .= "</td>";
                     $prioritization_res .= "</tr>";
@@ -364,7 +363,9 @@ function agf_short_code_pdf_print($atts)
                     $mpdf->WriteHTML($assessment_res);
                 }
                 // Adding page for new section.
-                $mpdf->WriteHTML('<pagebreak sheet-size="254mm 280mm" />');
+                // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 280mm" />');
+                $mpdf->WriteHTML('<pagebreak/>');
+
                 $assessment_res_started = true;
                 $assessment_res = null;
                 $assessment_res .= "<h1 >Assessment Results</h1>";
@@ -410,10 +411,10 @@ function agf_short_code_pdf_print($atts)
             }
         }
         $assessment_res .= '</table>';
-        // echo $assessment_res;
         $mpdf->WriteHTML($assessment_res);
 
-        $mpdf->output();
+        $mpdf->SetTitle($_POST["company_name"] . " Report.pdf");
+        $mpdf->output($_POST["company_name"] . " Report.pdf", 'I');
         return ob_get_clean();
     }
     return ob_get_clean();

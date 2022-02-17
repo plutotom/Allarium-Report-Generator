@@ -54,29 +54,41 @@ function agf_init()
     register_post_type('agfreport', $args);
 }
 
+function adding_capabilities()
+{
+    // adding capabilities to the admin
+    get_role('administrator')->add_cap('view_agf_report');
+
+    // if the role exists, add the capabilities to it.
+    if (wp_roles()->is_role('group_leader')) {
+        get_role('group_leader')->add_cap('view_agf_report');
+    }
+}
+
+
 function agf_register_taxonomy()
 {
-    $labels = array(
-        'name'              => _x('Question Category', 'taxonomy general name'),
-        'singular_name'     => _x('Category', 'taxonomy singular name'),
-        'search_items'      => __('Search Question Category'),
-        'all_items'         => __('All Question Category'),
-        'parent_item'       => __('Parent Question Category'),
-        'parent_item_colon' => __('Parent Question Category:'),
-        'edit_item'         => __('Edit Question Category'),
-        'update_item'       => __('Update Question Category'),
-        'add_new_item'      => __('Add New Question Category'),
-        'new_item_name'     => __('New Question Category Name'),
-        'menu_name'         => __('Question Category'),
-    );
-    $args   = array(
-        'hierarchical'      => true, // make it hierarchical (like categories)
-        'labels'            => $labels,
-        'show_ui'           => true,
-        'show_admin_column' => true,
-        'query_var'         => true,
-        'show_in_rest'        => true,
-        'rewrite'           => ['slug' => 'question_category'],
-    );
-    register_taxonomy('question_category', array('agfreport'), $args);
+    // $labels = array(
+    //     'name'              => _x('Question Category', 'taxonomy general name'),
+    //     'singular_name'     => _x('Category', 'taxonomy singular name'),
+    //     'search_items'      => __('Search Question Category'),
+    //     'all_items'         => __('All Question Category'),
+    //     'parent_item'       => __('Parent Question Category'),
+    //     'parent_item_colon' => __('Parent Question Category:'),
+    //     'edit_item'         => __('Edit Question Category'),
+    //     'update_item'       => __('Update Question Category'),
+    //     'add_new_item'      => __('Add New Question Category'),
+    //     'new_item_name'     => __('New Question Category Name'),
+    //     'menu_name'         => __('Question Category'),
+    // );
+    // $args   = array(
+    //     'hierarchical'      => true, // make it hierarchical (like categories)
+    //     'labels'            => $labels,
+    //     'show_ui'           => true,
+    //     'show_admin_column' => true,
+    //     'query_var'         => true,
+    //     'show_in_rest'        => true,
+    //     'rewrite'           => ['slug' => 'question_category'],
+    // );
+    // register_taxonomy('question_category', array('agfreport'), $args);
 }

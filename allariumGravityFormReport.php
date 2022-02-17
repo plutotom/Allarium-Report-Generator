@@ -47,8 +47,6 @@ include(AGFR__PLUGIN_DIR . "process/agf_process_pdf_print.php");
 // requiring MPDF
 require_once __DIR__ . '/vendor/autoload.php';
 
-// add_action('init', 'agf_check_gf_activation');
-
 
 if (!in_array('gravityforms/gravityforms.php', apply_filters('active_plugins', get_option('active_plugins')))) {
     $mes = "<p><strong>Allarium Report Generation Installation Problem</strong></p>
@@ -62,11 +60,6 @@ if (!in_array('gravityforms/gravityforms.php', apply_filters('active_plugins', g
 // Hooks
 register_deactivation_hook(__FILE__, 'agf_deactivate');
 add_action('init', 'agf_init');
-
-// check if gravity forms is activated, if it is activated then it calls all hooks to activate plugin.
-// add_action('admin_init', ['Agf_Helper_Class', 'gf_activation_check']);
-
-
 
 //Hooks for metaboxes
 // add_action('add_meta_boxes', 'agf_register_reporting_metabox');

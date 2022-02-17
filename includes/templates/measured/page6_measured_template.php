@@ -2,12 +2,12 @@
 
 
 $page_6_body = '<div class="container">
-      <div class="row">
-        <h3>Initial Capability Prioritization
+      <div style="margin: 0; padding: 0;" class="row">
+        <h3 style="margin: 0; padding: 0;">Initial Capability Prioritization
         </h3>
       </div>
-      <div class="row">
-        <div class="intro-para" style="margin: -2em 0;">
+      <div style="margin-top: -2em; margin-bottom: 0;" class="row">
+        <div class="intro-para" style="margin-bottom: 0;">
           <p>
             Prioritization helps your team stay focused on your achieving your
             in-house capability goals. Measured will revisit these priorities
@@ -42,7 +42,7 @@ foreach ($entry_to_print as $key => $value) {
   }
 
   $page_6_body .= '
-    <div class="bar-row">
+    <div style="margin: 25px 0" class="bar-row">
         <div class="rowleft">
           <h4 class="color1">' . $value_percent . '%</h4>
           <h4>' . $key . '</h4>
@@ -86,8 +86,8 @@ $page_6_body .= '
 </div> <!-- End Container -->
 
 <div id="logo-row">
-    <img src="' . __DIR__ . '/measured_icon.jpg" style="width: 32mm; height: 7mm; margin: 0;" />
 </div>
 
 <div class="gradient-bottom">
 </div>';
+// <img src="' . __DIR__ . '/measured_icon.jpg" style="width: 32mm; height: 7mm; margin: 0;" />

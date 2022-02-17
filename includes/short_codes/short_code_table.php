@@ -37,7 +37,6 @@ function agf_short_code_table($atts)
             </thead>
             <tbody>
             <?php
-            Agf_Helper_Class::console_log($scored_data);
             foreach ($scored_data as $user_email => &$user) {
                 foreach ($user['forms'] as $form_key => &$form) {
                     foreach ($form['entries'] as $entry_key => &$entry) {
