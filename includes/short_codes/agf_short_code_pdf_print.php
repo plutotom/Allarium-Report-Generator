@@ -13,7 +13,7 @@ function agf_short_code_pdf_print($atts)
     if ($atts["id"] == null) {
         Agf_Helper_Class::alert_message("Please provide a form id for pdf print shortcode.");
         return;
-    } elseif (!current_user_can("view_agf_report")) {
+    } elseif (!current_user_can("agf_view_report")) {
         return Agf_Helper_Class::send_error_message("You do not have permission to Print report.");
     } elseif ($atts["form_ids"] == null) {
         Agf_Helper_Class::alert_message("Please provide a entry id for pdf print shortcode.");
@@ -246,7 +246,6 @@ function agf_short_code_pdf_print($atts)
             'allow_output_buffering' => true,
             'use_kwt' => true, // Keep with Table. This will try and make tables fit pages but it looks not great.
         ]);
-
 
         // ? Add Headers all headers to pdf here
         $mpdf->WriteHTML('<html>');

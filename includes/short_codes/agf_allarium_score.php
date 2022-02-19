@@ -23,7 +23,7 @@ function agf_short_code_score($atts, $content = null)
         if ($atts["id"] === null) {
             Agf_Helper_Class::alert_message("Please provide a post id for short code table.");
             return;
-        } elseif (!current_user_can("view_agf_report")) {
+        } elseif (!current_user_can("agf_view_report")) {
             
             return Agf_Helper_Class::send_error_message("You do not have permission to view this table.");
         } elseif ($atts["current"] === "true") {

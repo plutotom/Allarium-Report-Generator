@@ -57,11 +57,11 @@ function agf_init()
 function adding_capabilities()
 {
     // adding capabilities to the admin
-    get_role('administrator')->add_cap('view_agf_report');
+    get_role('administrator')->add_cap('agf_view_report');
 
     // if the role exists, add the capabilities to it.
     if (wp_roles()->is_role('group_leader')) {
-        get_role('group_leader')->add_cap('view_agf_report');
+        get_role('group_leader')->add_cap('agf_view_report');
     }
 }
 

@@ -300,30 +300,22 @@ td:not(:nth-child(1)) {
 .marginbottomclear {
   margin-bottom: 0 !important;
 }
+
 .overview-bottom {
   /* margin-top: -50px; */
   background-color: #e9f2fd;
   border-top-left-radius: 30px;
   width: 75%;
   padding: 1.5em;
-  /* float: right; */
+  float: right;
   padding-bottom: 2em;
-
-  position: absolute;
-  bottom: 10px;
-  right: 0;
-  /* display: table; */
 }
 
 .col {
-  vertical-align: middle;
-  text-align: center;
   width: 48%;
   float: left;
 }
-
 .col p {
-  border: 1px solid;
   line-height: 1.4em;
   width: 85%;
   font-size: 0.9em;

@@ -60,6 +60,7 @@ if (!in_array('gravityforms/gravityforms.php', apply_filters('active_plugins', g
 // Hooks
 register_deactivation_hook(__FILE__, 'agf_deactivate');
 add_action('init', 'agf_init');
+add_action('init', 'adding_capabilities');
 
 //Hooks for metaboxes
 // add_action('add_meta_boxes', 'agf_register_reporting_metabox');
