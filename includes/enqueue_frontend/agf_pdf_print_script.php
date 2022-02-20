@@ -30,19 +30,19 @@ function agf_enqueue_frontend_scripts()
     wp_enqueue_script('agf_dynatable_script_custom', plugin_dir_url(__FILE__) . '../js/agf_dynatable_script.js', ['jquery']);
     // Script for charts.js 
     wp_enqueue_script("Chart.min.js", "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js", ['jquery'], 1);
-    wp_enqueue_script('agf_charts_average', plugin_dir_url(__FILE__) . '../js/agf_charts_average.js', ['jquery'], 10, false);
+    // wp_enqueue_script('agf_charts_average', plugin_dir_url(__FILE__) . '../js/agf_charts_average.js', ['jquery'], 10, false);
     wp_enqueue_script('agf_table_to_csv', plugin_dir_url(__FILE__) . '../js/agf_table_to_csv.js', ['jquery'], 10, false);
     $average_score = Agf_Helper_Class::get_average_scores($scored_entries);
-    wp_localize_script(
-        'agf_charts_average',
-        'agf_charts_average', // name of javascript variable that url will be append to.
-        [
-            'ajax_url'         => admin_url('admin-ajax.php'),
-            'scored_entries'   => $scored_entries,
-            'average_score'    => $average_score,
-            'post_id'          => $post_id,
-        ]
-    );
+    // wp_localize_script(
+    //     'agf_charts_average',
+    //     'agf_charts_average', // name of javascript variable that url will be append to.
+    //     [
+    //         'ajax_url'         => admin_url('admin-ajax.php'),
+    //         'scored_entries'   => $scored_entries,
+    //         'average_score'    => $average_score,
+    //         'post_id'          => $post_id,
+    //     ]
+    // );
     // localize script, create a custom js object
     // this will enqueue the script and append the url to a javascript variable named agf_list_questions_metabox_obj
     wp_localize_script(

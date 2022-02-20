@@ -83,6 +83,7 @@ class Agf_Helper_Class
      * @param  array $scored_data
      * @return object of category names (keys) with average scores as values
      */
+
     public static function get_average_scores($scored_data)
     {
         if (empty($scored_data)) {
@@ -110,7 +111,6 @@ class Agf_Helper_Class
     {
         echo '<script>alert("' . $message . '");</script>';
     }
-
 
     /**
      * For each form id given, gets all questions and returns an array with 
