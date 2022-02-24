@@ -48,6 +48,7 @@ include(AGFR__PLUGIN_DIR . "process/agf_process_pdf_print.php");
 require_once __DIR__ . '/vendor/autoload.php';
 
 
+// Check if Gravity Forms is installed and activated.
 if (!in_array('gravityforms/gravityforms.php', apply_filters('active_plugins', get_option('active_plugins')))) {
     $mes = "<p><strong>Allarium Report Generation Installation Problem</strong></p>
     <p>Gravity Forms is not installed or activated. Please install and activate Gravity Forms to use this plugin.
