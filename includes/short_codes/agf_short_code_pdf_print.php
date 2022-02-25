@@ -61,12 +61,15 @@ function agf_short_code_pdf_print($atts)
 
         // foreach entry_list get entry date_created and add to html select
         $html_select_entries = '';
+        $searchable_dropdown = '';
         // entries_list looks like [32 => [val1: score, val2:score], 489=>[val1: score, val2:score]]
         // Agf_Helper_Class::console_log($entry_list);
         foreach ($entry_list as $form_id => $form_entries) {
             $html_select_entries .= '<label class="select-entry-label" for=selected_entry_for_print_id:' . $form_id . '>Select entry for ' . GFAPI::get_form($form_id)['title'] . '</label>';
-            $html_select_entries .= '<select required style="width: 100%" name="selected_entry_for_print_id:' . $form_id . '" id="selected_entry_for_print' . $form_id . '">';
-            $html_select_entries .= '<option disabled selected value="">Select entry</option>';
+            $html_select_entries .= '<select required style="width: 100%" class="agf-searchable-dropdown" name="selected_entry_for_print_id:' . $form_id . '" id="selected_entry_for_print' . $form_id . '">';
+            $html_select_entries_options = '';
+            $html_select_entries_options .= '<option disabled selected value="">Select entry</option>';
+
 
             // this would be [val1: score, val2:score]
             foreach ($form_entries as $entry_key => $entry_whole) {
@@ -82,18 +85,27 @@ function agf_short_code_pdf_print($atts)
                         $user_email_1 .= ' (' . $user_email_2 . ')';
                     }
                 }
+
+                $company_name = Agf_Helper_Class::get_company_name($entry_whole["id"], $form_id);
                 // put each entry date into html select
-                $html_select_entries .= '<option value="' . $entry_whole["id"] . '">' . $entry_whole['date_created'] . ' - ' . $user_email_1 . '</option>';
+                // if company name is not null then add company name to the list
+                if ($company_name != '') {
+                    $html_select_entries_options .= '<option value="' . $entry_whole["id"] . '">' . $entry_whole['date_created'] . ' - ' . $user_email_1 . ' - ' . $company_name . '</option>';
+                } else {
+                    $html_select_entries_options .= '<option value="' . $entry_whole["id"] . '">' . $entry_whole['date_created'] . ' - ' . $user_email_1 . '</option>';
+                }
             }
+
+            $html_select_entries .= $html_select_entries_options;
             $html_select_entries .= '</select>';
         }
 
-
         ob_start();
         echo '<div class="agf_pdf_print">';
+        echo '<div class="d-none" id="overlay" onclick="agf_close_menu(event)"></div>';
         // Pop up box for selecting questions before printing
         echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#print_pdf_modal">Print PDF</button>
-        <div class="modal fade" id="print_pdf_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade bd-example-modal-lg" id="print_pdf_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
@@ -109,6 +121,8 @@ function agf_short_code_pdf_print($atts)
                         ' . $html_select_entries . '
                         <label for="company_name">Company Name</label>
                         <input type="text" class="form-control" id="company_name" name="company_name" placeholder="Enter Company Name">
+                        
+
                     </div>
                   <button type="submit">Print PDF</button>
                 </form>
@@ -137,8 +151,6 @@ function agf_short_code_pdf_print($atts)
             if (strpos($key, 'selected_entry_for_print_id') !== false) {
                 // get value after : from key
                 $form_id = substr($key, strpos($key, ':') + 1);
-                // Agf_Helper_Class::console_log($form_id);
-                // Agf_Helper_Class::console_log($entry_id);
                 // get gravity forms form
                 $form_title = GFAPI::get_form($form_id)['title'];
                 //if form_title has Assessment in it then echo it
@@ -155,8 +167,6 @@ function agf_short_code_pdf_print($atts)
             }
         }
 
-
-        // return ob_get_clean();
 
         $entry_id = $atts['entry_id'];
         $entry_to_print_pg_1_assessment = "";
@@ -206,7 +216,6 @@ function agf_short_code_pdf_print($atts)
             }
         }
 
-        // $mpdf->AddPage(254, 450); //equivalents e.g. <pagebreak /> and AddPage():
         include_once __DIR__ . '/../templates/measured/page_title_measured_template.php';
         include_once __DIR__ . '/../templates/measured/page1_measured_template.php';
         include_once __DIR__ . '/../templates/measured/page2_measured_template.php';

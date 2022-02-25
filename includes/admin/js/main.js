@@ -226,10 +226,10 @@ function agf_load_categories($, question_list) {
             
             <div id="${category.category_id}" style="padding: 10px;" class="d-none shadow rounded agf-menu agf-question-list-div-with-search">
 
-            <input onkeyup="agf_handel_search(event)" type="text" id="${category.category_id}"            class="agf-question-list-search" placeholder="Search Questions.." title="Type a question">
-            <div class="question-list-div" id="${category.category_id}">
-            ${load_question_list_html}
-            </div>
+              <input onkeyup="agf_handel_search(event)" type="text" id="${category.category_id}"            class="agf-question-list-search" placeholder="Search Questions.." title="Type a question">
+                <div class="question-list-div" id="${category.category_id}">
+                  ${load_question_list_html}
+                </div>
             </div>
             </div>
             </div>
@@ -373,7 +373,7 @@ function agf_score_entries($, form_questions_list = []) {
     },
     error: function (error) {
       console.log("error");
-      console.log(error);
+      // console.log(error);
     },
   });
 }
@@ -384,7 +384,7 @@ function agf_score_entries($, form_questions_list = []) {
   $(document).ready(function () {
     const questions_list = agf_get_unique_questions(false);
 
-    console.log(agf_list_questions_metabox_obj);
+    // console.log(agf_list_questions_metabox_obj);
 
     agf_list_questions_metabox_obj.scoring_values_schema = {
       glikertcol2079ce3b4: 0, // completely disagree
