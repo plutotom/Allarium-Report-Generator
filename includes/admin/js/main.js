@@ -213,7 +213,7 @@ function agf_load_categories($, question_list) {
       load_category_html += `<div class="class='row-md-6 border h-50 d-inline-block">`;
       // load_category_html += `<div class="col-sm-7 ">`;
       load_category_html += `<div id="${category.category_id}" class="col-12 col-md-8 container category-container">
-        <input name="category-title[]" type="text" id="${category.category_id}" class="category-title"  placeholder="Category Name" value="${category.category_title}"/>
+        <input onChange="agf_prepare_category_data(event, $);" name="category-title[]" type="text" id="${category.category_id}" class="category-title"  placeholder="Category Name" value="${category.category_title}"/>
 
             <div class="category-${category.category_id} ${category.category_id}" id="category-${category.category_id} ${category.category_id}">
 
@@ -420,8 +420,8 @@ function agf_score_entries($, form_questions_list = []) {
             ${question["label"]}</label>`;
       });
       var category_html = `<div id="${category_uid}" class="col-12 col-md-8 container category-container">
-          <input name="category-title[]" type="text" id="${category_uid}" class="category-title"  placeholder="Category Name"/>
-        
+          <input onChange="agf_prepare_category_data(event, $);" name="category-title[]" type="text" id="${category_uid}" class="category-title"  placeholder="Category Name"/>
+
           <div class="category-div ${category_uid}" id="${category_uid}">
         
             
