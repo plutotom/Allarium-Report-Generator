@@ -19,8 +19,7 @@
 <!-- <button onClick="agf_js_pdf_print(event, jQuery)" class="button button-primary button-large"
     id="ajax-request-button-print">print res</button>
 
-<?php 
-
+<?php
 
 
     // <div class="col-md-6">
@@ -38,4 +37,3 @@
     //     </div>
     //   </div>
     // </div>
-    

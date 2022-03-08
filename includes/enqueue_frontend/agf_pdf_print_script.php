@@ -38,7 +38,6 @@ function agf_enqueue_frontend_scripts()
     wp_enqueue_style('agf_select2_style', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css');
     wp_enqueue_script('agf_select2_script_custom', plugin_dir_url(__FILE__) . '../js/agf_select2_script_custom.js', ['jquery', 'agf_select2_script'], 10, false);
 
-
     $average_score = Agf_Helper_Class::get_average_scores($scored_entries);
     // wp_localize_script(
     //     'agf_charts_average',

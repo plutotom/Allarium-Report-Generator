@@ -1,5 +1,5 @@
 <?php
-function agf_average_score_short_code($atts, $content = null)
+function agf_average_graph_score_short_code($atts, $content = null)
 {
     $a = shortcode_atts(array(
         'id' => null,

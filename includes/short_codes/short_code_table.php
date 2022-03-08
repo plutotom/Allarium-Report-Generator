@@ -1,5 +1,5 @@
 <?php
-function agf_short_code_table($atts)
+function agf_short_code_table_render($atts)
 {
     // * ################################# Getting meta data and entries #################################
     ob_start();
@@ -9,6 +9,7 @@ function agf_short_code_table($atts)
     $post_meta = get_post_meta($post_id);
     $scored_data = get_post_meta($post_id, 'scored_entries', true);
     $categories_names = array();
+    Agf_Helper_Class::console_log($scored_data)
 ?>
     <div id="agf_html_table">
         <table class=" table table-striped table-bordered table-hover" id="html-table">

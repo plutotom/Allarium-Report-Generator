@@ -17,6 +17,11 @@ function agf_get_post_data_list_questions_metabox_script()
     $screen = get_current_screen();
     if (in_array($screen->post_type, ['agfreport'])) {
 
+        // this is the dropdown that list all form questions in each category.
+        wp_enqueue_script('agf_select2_script', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', ['jquery'], 10, false);
+        wp_enqueue_style('agf_select2_style', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css');
+        wp_enqueue_script('agf_select2_script_admin', plugin_dir_url(__FILE__) . 'js/agf_select2_script_admin', ['jquery']);
+
         $post_data = get_post_meta(get_the_id());
         $post_data['multi_selected_forms_ids'] = maybe_unserialize($post_data["multi_selected_forms_ids"][0]);
         $post_data['category_data'] = maybe_unserialize($post_data["category_data"][0]);

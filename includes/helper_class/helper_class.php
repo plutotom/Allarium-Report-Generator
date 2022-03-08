@@ -43,6 +43,35 @@ class Agf_Helper_Class
 
 
     /**
+     * Organizes an entry values into an array based on categories.
+     * @param  string or int The id of the desired gravity forms entry to sort.
+     * @param  string or int The form_id that the entry id will be found in.
+     * @param  array $category data generated from schema page.
+     * @return array 
+     */
+
+    public static function organize_entry_values_by_category_name($entry_id, $form_id, array $category_data)
+    {
+        $organized_data = array();
+        // organizing entry values into catagories.
+        foreach ($category_data as $category_key => $category_obj) {
+            // for each category question get the question_name
+            // if category title has the word priority in it then set the priority to true
+            foreach ($category_obj["category_questions"] as $category_question) {
+                $val = self::get_value_by_field_label($category_question['question_name'], $entry_id, $form_id);
+                $organized_data[$category_obj['category_title']][] = [
+                    "entry_value" => $val,
+                    "category_title" => $category_obj['category_title'],
+                    "question_title" => $category_question['question_name'],
+                    "field_id" => $category_question['field_id'],
+                    "form_id" => $category_question['form_id']
+                ];
+            }
+        }
+        return $organized_data;
+    }
+
+    /**
      * search's the entry for a email address
      * searches for @ symbol and . in the string, if both are found then assumes it is an email address
      * @param  array $entry
@@ -64,7 +93,7 @@ class Agf_Helper_Class
      * @param  array $form_ids
      * @return array of entries
      */
-    public static function get_entries_for_form($form_ids = null)
+    public static function get_entries_for_form(array $form_ids = null)
     {
         if (!is_array($form_ids)) {
             Agf_Helper_Class::console_log('Please pass an array of form ids');
@@ -189,18 +218,17 @@ class Agf_Helper_Class
     }
 
     /**
-     * Gets the value of of an entry by field label
+     * Gets the value of an entry by field label
      * @param string_to_sort_by the label of the field to search for
      * @param entry_id the id of an entry to search for
      * @param form_id the id of the form to search for
      * @return string company name
      */
 
-    public static function get_value_by_field_label($string_to_sort_by, $entry_id, $form_id)
+    public static function get_value_by_field_label(string $string_to_sort_by, $entry_id, $form_id)
     {
         $entry = GFAPI::get_entry($entry_id);
         $form = GFAPI::get_form($form_id);
-        self::console_log($entry);
         foreach ($form['fields'] as $field) {
             if (strtoupper($field['label']) == strtoupper($string_to_sort_by)) {
                 $value = $entry[$field['id']];

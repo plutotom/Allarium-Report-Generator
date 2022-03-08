@@ -26,19 +26,20 @@ include(AGFR__PLUGIN_DIR . "includes/metaboxes/graph_metabox.php");
 include(AGFR__PLUGIN_DIR . "includes/metaboxes/save_functions/agf_save_metabox.php");
 include(AGFR__PLUGIN_DIR . "includes/metaboxes/list_forms_metabox.php");
 include(AGFR__PLUGIN_DIR . "includes/metaboxes/short_code_hint_metabox.php");
-// include short code 
+// include shortcode 
 // include(AGFR__PLUGIN_DIR . "includes/short_codes/short_code_table.php");
-include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_allarium_score.php");
+include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_table.php");
 include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_short_code_pdf_print.php");
-include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_average_score_code.php");
+include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_short_code_pdf_print_v2.php");
+include(AGFR__PLUGIN_DIR . "includes/short_codes/allarium_graph_average.php");
 
 // include helper 
 include(AGFR__PLUGIN_DIR . "includes/helper_class/helper_class.php");
 // include enqueue scripts file
-include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_scripts.php");
+include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_admin/enqueue_scripts.php");
 include(AGFR__PLUGIN_DIR . "includes/enqueue_frontend/agf_pdf_print_script.php");
 //include enqueue styles file
-include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_styles.php");
+include(AGFR__PLUGIN_DIR . "includes/admin/enqueue_admin/enqueue_styles.php");
 // include ajax processes
 include(AGFR__PLUGIN_DIR . "process/process_form_metabox_ajax.php");
 include(AGFR__PLUGIN_DIR . "process/process_scoring_categories.php");
@@ -82,6 +83,7 @@ add_action('admin_enqueue_scripts', 'agf_get_post_data_list_questions_metabox_sc
 add_action('wp_footer', 'agf_enqueue_frontend_scripts');
 
 // Short_Code
-add_shortcode('allarium_score', 'agf_short_code_score');
+add_shortcode('allarium_table', 'agf_short_code_table');
+add_shortcode('allarium_graph_average', 'agf_average_graph_score_short_code');
 add_shortcode('allarium_score_print', 'agf_short_code_pdf_print');
-add_shortcode('allarium_score_average', 'agf_average_score_short_code');
+add_shortcode('allarium_score_print_v2', 'agf_short_code_pdf_print_v2');

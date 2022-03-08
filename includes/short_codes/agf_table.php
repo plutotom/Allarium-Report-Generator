@@ -1,10 +1,10 @@
 <?php
 include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_short_code_user_score.php");
-include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_short_code_user_scoring_current.php");
+include(AGFR__PLUGIN_DIR . "includes/short_codes/agf_table_current_score.php");
 include(AGFR__PLUGIN_DIR . "includes/short_codes/short_code_table.php");
 
 
-function agf_short_code_score($atts, $content = null)
+function agf_short_code_table($atts, $content = null)
 {
     $atts = shortcode_atts(array(
         'id' => null, // the id of the post with the scoring schema on it
@@ -24,14 +24,13 @@ function agf_short_code_score($atts, $content = null)
             Agf_Helper_Class::alert_message("Please provide a post id for short code table.");
             return;
         } elseif (!current_user_can("agf_view_report")) {
-            
             return Agf_Helper_Class::send_error_message("You do not have permission to view this table.");
         } elseif ($atts["current"] === "true") {
             return agf_short_code_score_current($atts);
         } elseif ($atts["entry_id"] !== null) {
             return agf_short_code_user_score($atts);
         } else {
-            return agf_short_code_table($atts);
+            return agf_short_code_table_render($atts);
         }
     }
 }
