@@ -46,7 +46,7 @@ class Agf_Helper_Class
      * Organizes an entry values into an array based on categories.
      * @param  string or int The id of the desired gravity forms entry to sort.
      * @param  string or int The form_id that the entry id will be found in.
-     * @param  array $category data generated from schema page.
+     * @param  array $category data generated from schema page. This is maybe_unserialize(get_post_meta($post_id)['category_data'][0]); Must be passed unserialized.
      * @return array 
      */
 
@@ -58,7 +58,7 @@ class Agf_Helper_Class
             // for each category question get the question_name
             // if category title has the word priority in it then set the priority to true
             foreach ($category_obj["category_questions"] as $category_question) {
-                $val = self::get_value_by_field_label($category_question['question_name'], $entry_id, $form_id);
+                $val = self::get_value_by_field_label($category_question['question_name'], $entry_id);
                 $organized_data[$category_obj['category_title']][] = [
                     "entry_value" => $val,
                     "category_title" => $category_obj['category_title'],
@@ -222,19 +222,24 @@ class Agf_Helper_Class
      * @param string_to_sort_by the label of the field to search for
      * @param entry_id the id of an entry to search for
      * @param form_id the id of the form to search for
-     * @return string company name
+     * @return string The users entry value for the provided field label.
      */
 
-    public static function get_value_by_field_label(string $string_to_sort_by, $entry_id, $form_id)
+    public static function get_value_by_field_label(string $string_to_sort_by, $entry_id, $form_id = null)
     {
         $entry = GFAPI::get_entry($entry_id);
-        $form = GFAPI::get_form($form_id);
+        // $form = GFAPI::get_form($form_id);
+        if (isset($form_id)) {
+            $form = GFAPI::get_form($form_id);
+        } else {
+            $form = GFAPI::get_form($entry['form_id']);
+        }
         foreach ($form['fields'] as $field) {
             if (strtoupper($field['label']) == strtoupper($string_to_sort_by)) {
-                $value = $entry[$field['id']];
+                return $value = $entry[$field['id']];
             }
         }
-        return $value;
+        // return $value;
     }
 
     /**

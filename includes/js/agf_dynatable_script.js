@@ -16,9 +16,9 @@ jQuery(document).ready(function ($) {
     })
     .dynatable({
       features: {
-        paginate: false,
+        paginate: true,
         recordCount: false,
-        sorting: false,
+        sorting: true,
         search: true,
       },
       inputs: {

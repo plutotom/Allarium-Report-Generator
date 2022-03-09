@@ -186,7 +186,9 @@ function agf_short_code_pdf_print_v2($atts)
         }
 
 
+
         // Agf_Helper_Class::console_log($assessment_value_average);
+        // Agf_Helper_Class::console_log($prioritization_values);
         // Agf_Helper_Class::console_log($prioritization_values_average);
 
 
@@ -280,7 +282,7 @@ function agf_short_code_pdf_print_v2($atts)
 
         // ? Add Headers all headers to pdf here
         $mpdf->WriteHTML('<html>');
-        $styles_file_dir = __DIR__ . '/../templates/measured/styles.css';
+        $styles_file_dir = __DIR__ . '/../templates/measured_v2/styles.css';
         $stylesheet_for_all_pages = ('<style>' . file_get_contents($styles_file_dir) . '</style>');
         $mpdf->WriteHTML($stylesheet_for_all_pages, \Mpdf\HTMLParserMode::HEADER_CSS);
 
@@ -314,103 +316,38 @@ function agf_short_code_pdf_print_v2($atts)
         $mpdf->WriteHTML('<pagebreak />');
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 290mm" />'); // page 5 page size
         $mpdf->WriteHTML($page_5_body);
-        $mpdf->WriteHTML('<pagebreak />');
+        // $mpdf->WriteHTML('<pagebreak />');
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 370mm" />'); // page 7 page size
         // $mpdf->WriteHTML($page_7_body);
 
 
-        // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 410mm" />'); // Prioritization page table.
-        // Getting the full entry object to get its form id to get all the forms question labels.
-        $prioritization_table_print = GFAPI::get_entry($entry_id);
-        $prioritization_form = GFAPI::get_form($form_id);
-        $prioritization_res = null;
-        $prioritization_res .= "<h1>Assessment Results</h1>";
-        $prioritization_res .= "<p style='padding-top: -25px; padding-bottom: -25px;'>Here are the answers to the questions asked during the Assessment.</p>";
-        // section text
-        $prioritization_res .= "<h1><u><b>" . $prioritization_form["title"] . "</b></u></h1>";
-        $prioritization_res .= "<table class='table_res'>";
-        foreach ($prioritization_form["fields"] as $field) {
-            // if field type is section make a new page and table 
-            if ($field['type'] == 'section') {
-                // add each to prioritization results 
-                $prioritization_res .= "<tr>";
-                $prioritization_res .= "<td style='background-color: #EDEEEE; padding-top: 5px; padding-bottom: 5px;'>";
-                $prioritization_res .= "<p class='section_header'>" . $field['label'] . "</p>";
-                $prioritization_res .= "</td>";
-                $prioritization_res .= "</tr>";
-            }
-
-            if ($field['type'] == 'select' || $field['type'] == 'radio') {
-                // The field id is the index of the entry_to_print entry value.
-                $field_value = $prioritization_table_print[$field['id']];
-                $field_choices = $field['choices'];
-                if (is_array($field_choices)) {
-                    $field_choice_values = array_column($field_choices, 'value');
-                    $field_choice_labels = array_column($field_choices, 'text');
-                }
-
-                if (in_array($field_value, $field_choice_values)) {
-                    $field_value_index = array_search($field_value, $field_choice_values);
-
-                    $prioritization_res .= "<tr>";
-                    $prioritization_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
-                    $prioritization_res .= "<p class='field_label' style='font-size: .5em;'><b>" . $field['label'] . "</b></p>";
-                    $prioritization_res .= "</td>";
-                    $prioritization_res .= "</tr>";
-
-                    $prioritization_res .= "<tr>";
-                    $prioritization_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
-                    $prioritization_res .= "<p class='field_value'>" . $field_choice_labels[$field_value_index] . "</p>";
-                    $prioritization_res .= "</td>";
-                    $prioritization_res .= "</tr>";
-                } else {
-                    echo "N/A";
-                }
-            }
-        }
-        $prioritization_res .= '</table>';
-        $mpdf->WriteHTML($prioritization_res);
-
-
-        // // Creating Assessment Results Table and adding it to PDF.
+        // // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 410mm" />'); // Prioritization page table.
         // // Getting the full entry object to get its form id to get all the forms question labels.
-        // $assessment_table_print = GFAPI::get_entry($entry_to_print_pg_1_assessment['entry_id']);
-        // $form_to_print_pg_1_assessment = GFAPI::get_form($assessment_table_print['form_id']);
-        // // Agf_Helper_Class::console_log($form_to_print_pg_1_assessment);
-        // $assessment_res_started = false;
+        // $prioritization_table_print = GFAPI::get_entry($entry_id);
+        // $prioritization_form = GFAPI::get_form($form_id);
+        // $prioritization_res = null;
 
 
-        // foreach ($form_to_print_pg_1_assessment["fields"] as $field) {
 
+        // $prioritization_res .= "<h1>Assessment Results</h1>";
+        // $prioritization_res .= "<p style='padding-top: -25px; padding-bottom: -25px;'>Here are the answers to the questions asked during the Assessment.</p>";
+        // // section text
+        // $prioritization_res .= "<h1><u><b>" . $prioritization_form["title"] . "</b></u></h1>";
+        // $prioritization_res .= "<table class='table_res'>";
+        // foreach ($prioritization_form["fields"] as $field) {
         //     // if field type is section make a new page and table 
         //     if ($field['type'] == 'section') {
-        //         if ($assessment_res_started) {
-        //             $assessment_res .= '</table>';
-        //             $mpdf->WriteHTML($assessment_res);
-        //         }
-        //         // Adding page for new section.
-        //         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 280mm" />');
-        //         $mpdf->WriteHTML('<pagebreak/>');
-
-        //         $assessment_res_started = true;
-        //         $assessment_res = null;
-        //         $assessment_res .= "<h1 >Assessment Results</h1>";
-        //         $assessment_res .= "<p>Here are the answers to the questions asked during the assessment.</p>";
-        //         // section text
-        //         $assessment_res .= "<h1><u>" . $field['label'] . "<u></h1>";
-
-        //         // add each to assessment results 
-        //         $assessment_res .= "<table class='table_res'>";
-        //         $assessment_res .= "<tr>";
-        //         $assessment_res .= "<td style='background-color: #EDEEEE;'>";
-        //         $assessment_res .= "<p class='section_header'>" . $field['label'] . "</p>";
-        //         $assessment_res .= "</td>";
-        //         $assessment_res .= "</tr>";
+        //         // add each to prioritization results 
+        //         $prioritization_res .= "<tr>";
+        //         $prioritization_res .= "<td style='background-color: #EDEEEE; padding-top: 5px; padding-bottom: 5px;'>";
+        //         $prioritization_res .= "<p class='section_header'>" . $field['label'] . "</p>";
+        //         $prioritization_res .= "</td>";
+        //         $prioritization_res .= "</tr>";
         //     }
 
-        //     if ($field['type'] == 'radio') {
+        //     if ($field['type'] == 'select' || $field['type'] == 'radio') {
         //         // The field id is the index of the entry_to_print entry value.
-        //         $field_value = $assessment_table_print[$field['id']];
+        //         $field_value = $prioritization_table_print[$field['id']];
         //         $field_choices = $field['choices'];
         //         if (is_array($field_choices)) {
         //             $field_choice_values = array_column($field_choices, 'value');
@@ -420,24 +357,186 @@ function agf_short_code_pdf_print_v2($atts)
         //         if (in_array($field_value, $field_choice_values)) {
         //             $field_value_index = array_search($field_value, $field_choice_values);
 
-        //             $assessment_res .= "<tr>";
-        //             $assessment_res .= "<td>";
-        //             $assessment_res .= "<p class='field_label' style='font-size: .5em;'><b>" . $field['label'] . "</b></p>";
-        //             $assessment_res .= "</td>";
-        //             $assessment_res .= "</tr>";
+        //             $prioritization_res .= "<tr>";
+        //             $prioritization_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
+        //             $prioritization_res .= "<p class='field_label' style='font-size: .5em;'><b>" . $field['label'] . "</b></p>";
+        //             $prioritization_res .= "</td>";
+        //             $prioritization_res .= "</tr>";
 
-        //             $assessment_res .= "<tr>";
-        //             $assessment_res .= "<td>";
-        //             $assessment_res .= "<p class='field_value'>" . $field_choice_labels[$field_value_index] . "</p>";
-        //             $assessment_res .= "</td>";
-        //             $assessment_res .= "</tr>";
+        //             $prioritization_res .= "<tr>";
+        //             $prioritization_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
+        //             $prioritization_res .= "<p class='field_value'>" . $field_choice_labels[$field_value_index] . "</p>";
+        //             $prioritization_res .= "</td>";
+        //             $prioritization_res .= "</tr>";
         //         } else {
         //             echo "N/A";
         //         }
         //     }
         // }
-        // $assessment_res .= '</table>';
-        // $mpdf->WriteHTML($assessment_res);
+        // $prioritization_res .= '</table>';
+        // $mpdf->WriteHTML($prioritization_res);
+
+
+
+        // Creating Assessment Results Table and adding it to PDF.
+        // Getting the full entry object to get its form id to get all the forms question labels.
+        $assessment_table_print = GFAPI::get_entry($entry_id);
+        $form_to_print_pg_1_assessment = GFAPI::get_form($form_id);
+        // Agf_Helper_Class::console_log($form_to_print_pg_1_assessment);
+        $assessment_res_started = false;
+        $prioritization_started = false;
+
+        foreach ($form_to_print_pg_1_assessment["fields"] as $key => $field) {
+
+            if ($prioritization_started == true && $field['type'] == 'section') {
+                $assessment_res .= "<tr>";
+                $assessment_res .= "<td style='background-color: #EDEEEE; padding-top: 5px; padding-bottom: 5px;'>";
+                $assessment_res .= "<p class='section_header'>" . $field['label'] . "</p>";
+                $assessment_res .= "</td>";
+                $assessment_res .= "</tr>";
+            }
+
+            // if field type is section make a new page and table 
+            if ($field['type'] == 'section' && $prioritization_started == false) {
+                // Agf_Helper_Class::console_log($form_to_print_pg_1_assessment["fields"][$key + 1]);
+                // Agf_Helper_Class::console_log($form_to_print_pg_1_assessment["fields"]);
+                // Agf_Helper_Class::console_log($key);
+                if ($assessment_res_started) {
+                    $assessment_res .= '</table>';
+                    $mpdf->WriteHTML($assessment_res);
+                }
+
+                if ($form_to_print_pg_1_assessment["fields"][$key + 1]["type"] == 'select') {
+                    // this is done so the prioritization table is only added once. 
+                    $prioritization_started = true;
+                    // Adding page for new section.
+                    // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 280mm" />');
+                    $mpdf->WriteHTML('<pagebreak/>');
+
+                    $assessment_res_started = true;
+                    $assessment_res = null;
+                    $assessment_res .= "<h1 >Assessment Results</h1>";
+                    $assessment_res .= "<p>Here are the answers to the questions asked during the assessment.</p>";
+                    // section text
+                    $assessment_res .= "<h1><u>Prioritization<u></h1>";
+
+                    // add each to assessment results 
+                    $assessment_res .= "<table class='table_res'>";
+                    $assessment_res .= "<tr>";
+                    $assessment_res .= "<td style='background-color: #EDEEEE; padding-top: 5px; padding-bottom: 5px;'>";
+                    $assessment_res .= "<p class='section_header'>" . $field['label'] . "</p>";
+                    $assessment_res .= "</td>";
+                    $assessment_res .= "</tr>";
+                } else {
+                    // Adding page for new section.
+                    // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 280mm" />');
+                    $mpdf->WriteHTML('<pagebreak/>');
+
+                    $assessment_res_started = true;
+                    $assessment_res = null;
+                    $assessment_res .= "<h1 >Assessment Results</h1>";
+                    $assessment_res .= "<p>Here are the answers to the questions asked during the assessment.</p>";
+                    // section text
+                    $assessment_res .= "<h1><u>" . $field['label'] . "<u></h1>";
+
+                    // add each to assessment results 
+                    $assessment_res .= "<table class='table_res'>";
+                    $assessment_res .= "<tr>";
+                    $assessment_res .= "<td style='background-color: #EDEEEE;'>";
+                    $assessment_res .= "<p class='section_header'>" . $field['label'] . "</p>";
+                    $assessment_res .= "</td>";
+                    $assessment_res .= "</tr>";
+                }
+            }
+
+            if ($field['type'] == 'radio') {
+                // if there are less then 4 field choices then render the field label and value
+                if (count($field['choices']) < 4) {
+                    // The field id is the index of the entry_to_print entry value.
+                    $field_value = $assessment_table_print[$field['id']];
+                    $field_choices = $field['choices'];
+                    if (is_array($field_choices)) {
+                        $field_choice_values = array_column($field_choices, 'value');
+                        $field_choice_labels = array_column($field_choices, 'text');
+                    }
+
+                    if (in_array($field_value, $field_choice_values)) {
+                        $field_value_index = array_search($field_value, $field_choice_values);
+
+                        $assessment_res .= "<tr>";
+                        $assessment_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
+                        $assessment_res .= "<p class='field_label' style='font-size: .5em;'><b>" . $field['label'] . "</b></p>";
+                        $assessment_res .= "</td>";
+                        $assessment_res .= "</tr>";
+
+                        $assessment_res .= "<tr>";
+                        $assessment_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
+                        $assessment_res .= "<p class='field_value'>" . $field_choice_labels[$field_value_index] . "</p>";
+                        $assessment_res .= "</td>";
+                        $assessment_res .= "</tr>";
+                    } else {
+                        echo "N/A";
+                    }
+                } else {
+                    // if($field['choices'])
+                    // The field id is the index of the entry_to_print entry value.
+                    $field_value = $assessment_table_print[$field['id']];
+                    $field_choices = $field['choices'];
+                    if (is_array($field_choices)) {
+                        $field_choice_values = array_column($field_choices, 'value');
+                        $field_choice_labels = array_column($field_choices, 'text');
+                    }
+
+                    if (in_array($field_value, $field_choice_values)) {
+                        $field_value_index = array_search($field_value, $field_choice_values);
+
+                        $assessment_res .= "<tr>";
+                        $assessment_res .= "<td>";
+                        $assessment_res .= "<p class='field_label' style='font-size: .5em;'><b>" . $field['label'] . "</b></p>";
+                        $assessment_res .= "</td>";
+                        $assessment_res .= "</tr>";
+
+                        $assessment_res .= "<tr>";
+                        $assessment_res .= "<td>";
+                        $assessment_res .= "<p class='field_value'>" . $field_choice_labels[$field_value_index] . "</p>";
+                        $assessment_res .= "</td>";
+                        $assessment_res .= "</tr>";
+                    } else {
+                        echo "N/A";
+                    }
+                }
+            }
+
+            if ($field['type'] == 'select') {
+                // The field id is the index of the entry_to_print entry value.
+                $field_value = $assessment_table_print[$field['id']];
+                $field_choices = $field['choices'];
+                if (is_array($field_choices)) {
+                    $field_choice_values = array_column($field_choices, 'value');
+                    $field_choice_labels = array_column($field_choices, 'text');
+                }
+
+                if (in_array($field_value, $field_choice_values)) {
+                    $field_value_index = array_search($field_value, $field_choice_values);
+
+                    $assessment_res .= "<tr>";
+                    $assessment_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
+                    $assessment_res .= "<p class='field_label' style='font-size: .5em;'><b>" . $field['label'] . "</b></p>";
+                    $assessment_res .= "</td>";
+                    $assessment_res .= "</tr>";
+
+                    $assessment_res .= "<tr>";
+                    $assessment_res .= "<td style='padding-top: 4px; padding-bottom: 4px;'>";
+                    $assessment_res .= "<p class='field_value'>" . $field_choice_labels[$field_value_index] . "</p>";
+                    $assessment_res .= "</td>";
+                    $assessment_res .= "</tr>";
+                } else {
+                    echo "N/A";
+                }
+            }
+        }
+        $assessment_res .= '</table>';
+        $mpdf->WriteHTML($assessment_res);
 
         $mpdf->SetTitle($_POST["company_name"] . " Report.pdf");
         $mpdf->output($_POST["company_name"] . " Report.pdf", 'I');

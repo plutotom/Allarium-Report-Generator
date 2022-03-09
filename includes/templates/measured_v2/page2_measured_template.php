@@ -116,7 +116,7 @@ $page_2_body = '
     <div id="logo-row">
         <img src="' . __DIR__ . '/measured_icon.jpg" style="width: 32mm; height: 7mm; margin: 0;" />
     </div>
-    <div class="overview-bottom" style="margin-top: 230px;">
+    <div class="overview-bottom" style="margin-top: 180px;">
         <div class="col">
             <!-- <div class="orangecir"></div> -->
             <p>Teams that have mastered Centralized Data and  BI Reporting benefit from consistent quality control, less hours spent manually aggregating data and use reporting to create uniformity/alignment across departments.</p>

@@ -114,7 +114,7 @@ $page_5_body = '
 <div id="logo-row">
 <img src="' . __DIR__ . '/measured_icon.jpg" style="width: 32mm; height: 7mm; margin: 0;" />
 </div>
-<div class="overview-bottom" style="margin-top: 80px; font-size: .9em; padding-bottom: 3em;">
+<div class="overview-bottom" style="margin-top: 135px; font-size: .9em; padding-bottom: 3em;">
             <div class="col">
                 <!-- <div class="orangecir"></div> -->
                 <p>Teams that have mastered Marketing for Scale and Growth have been able to scale with Facebook, Google, as well as additional channels with at least 35% of their efforts going towards other channels. 

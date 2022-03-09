@@ -273,14 +273,13 @@ td:not(:nth-child(1)) {
   font-weight: bold;
   color: #ff764a;
   padding: 0.6em 1em;
-
   border-left: 1px solid white;
   width: 25%;
 }
 .overview-table tr td {
-  padding: 1em;
+  padding: 0.5em;
   border-bottom: 1px solid white;
-  font-size: 0.75em;
+  font-size: 1em;
   line-height: 1.2em;
   text-align: left;
   vertical-align: top;

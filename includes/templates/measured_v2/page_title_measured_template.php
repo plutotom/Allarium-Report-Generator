@@ -5,7 +5,7 @@ $page_title_body = null;
 
 
 // get todays date
-$today = date("m-d-Y");
+$today = date("m.d.Y");
 
 // make a html title page with image at the top, company name in the middle and the date at the bottom
 $page_title_body = '
