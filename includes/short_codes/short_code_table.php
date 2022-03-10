@@ -15,7 +15,9 @@ function agf_short_code_table_render($atts)
     <style>
         @media (min-width: 1200px) {
             .agf_table {
-                margin-left: -50%;
+                margin-left: -25%;
+                max-width: 80%;
+                overflow-x: auto;
             }
         }
 
