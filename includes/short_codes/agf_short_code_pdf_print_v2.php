@@ -249,19 +249,32 @@ function agf_short_code_pdf_print_v2($atts)
         include_once __DIR__ . '/../templates/measured_v2/page6_measured_template.php';
         include_once __DIR__ . '/../templates/measured_v2/page7_measured_template.php';
 
+
+        if (file_exists(AGFR__PLUGIN_DIR . 'includes/templates/measured_v2/fonts/inter')) {
+            echo "<h1>Fonts are installed</h1>";
+        }
         $mpdf = new \Mpdf\Mpdf([
-            // 'fontDir' => [
-            //     __DIR__ . '/../templates/measured/OpenSans',
-            // ],
-            // 'fontdata' => [
-            //     'opensans' => [
-            //         'R' => 'OpenSans-Regular.ttf',
-            //         'B' => 'OpenSans-Bold.ttf',
-            //         'I' => 'OpenSans-Italic.ttf',
-            //         'BI' => 'OpenSans-BoldItalic.ttf',
-            //     ],
-            // ],
-            'default_font' => 'opensans',
+            'fontDir' => [
+                AGFR__PLUGIN_DIR . 'includes/templates/measured_v2/fonts/inter',
+            ],
+            'fontdata' => [
+                // 'opensans' => [
+                //     'R' => 'OpenSans-Regular.ttf',
+                //     'B' => 'OpenSans-Bold.ttf',
+                //     'I' => 'OpenSans-Italic.ttf',
+                //     'BI' => 'OpenSans-BoldItalic.ttf',
+                // ],
+                'inter' => [
+                    'R' => 'Inter-Regular.ttf',
+                    'B' => 'inter-Bold.ttf',
+                    'I' => 'inter-Italic.ttf',
+                    'BI' => 'inter-BoldItalic.ttf',
+                ],
+            ],
+
+
+
+            'default_font' => 'inter',
             'collapseBlockMargins ' => false,
             'margin_left' => 5,
             'margin_right' => 5,

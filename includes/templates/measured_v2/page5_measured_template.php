@@ -65,16 +65,16 @@ $page_5_body = '
             /* Row 1 */
                 <tr>
                     <td>Marketing Attribution</td>
-                    <td class="' . $Contender . '">GA and/or vendor platforms taken as truth with specific window “rules” used to determine attribution, e.g. Google DDA or 7d click/1d view in FB AdsManager.</td>
-                    <td class="' . $Challenger . '">Relies on GA and Vendor platforms for attribution, but ad hoc adjustments are made to accounts for things like funnel position and new vs. existing customers.</td>
-                    <td class="' . $Leader . '">Uses either an internally built attribution model (e.g., MTA, MMM) or actively adjusts GA/Vendor Reporting with results from in-market testing.</td>
+                    <td class="' . $Contender . '">Google Analytics and/or vendor platforms taken as truth with specific window “rules” used to determine attribution, e.g. Google DDA or 7d click/1d view in FB Ads Manager.</td>
+                    <td class="' . $Challenger . '">Relies on Google Analytics and Vendor platforms for attribution, but ad hoc adjustments are made to accounts for things like funnel position and new vs. existing customers.</td>
+                    <td class="' . $Leader . '">Uses either an internally built attribution model (e.g. MTA, MMM) or actively adjusts Google Analytics/Vendor Reporting with results from in-market testing.</td>
                     <td class="' . $Champion . '">Uses regular incrementality testing to train attribution models (e.g. MMM or MTA).</td>
                 </tr>
 
             /* Row 2 */
                 <tr>
                     <td>Cross-Channel Budget Allocation</td>
-                    <td class="' . $Contender . '">Budgets are done ad hoc, some combo of “What did we do last year?” and “What are our goals this year?”.</td>
+                    <td class="' . $Contender . '">Budgets are done ad hoc; some combo of “What did we do last year?” and “What are our goals this year?”.</td>
                     <td class="' . $Challenger . '">Budgets based on metrics driven by finance targets like CAC (total spend/total new customers) or % of total revenue.</td>
                     <td class="' . $Leader . '">Budgets are fluid if hitting efficiency targets allowing money to flow into high performing tactics. Consideration made for seasonality and pacing to goals.</td>
                     <td class="' . $Champion . '">Marketing budgets are fluid but progress to goal is carefully tracked via weekly forecasts  and assessments are made as to how budget changes will impact goal achievement.</td>
@@ -84,7 +84,7 @@ $page_5_body = '
                 <tr>
                     <td>Channel Level Campaign Management</td>
                     <td class="' . $Contender . '">Targets set at the channel level with adjustments to daily campaign budgets based on performance, experience and seasonality.</td>
-                    <td class="' . $Challenger . '">Targets are adjusted to account for funnel position or new vs. existing.  Budgets are adjust weekly based on combination of performance and pacing to goals.</td>
+                    <td class="' . $Challenger . '">Targets are adjusted to account for funnel position or new vs. existing. Budgets are adjust weekly based on combination of performance and pacing to goals.</td>
                     <td class="' . $Leader . '">CPA/ROAS targets set at the tactic level inclusive of incrementality. Bids/Budgets adjusted weekly based on pacing to goals and always-on testing.</td>
                     <td class="' . $Champion . '">CPA/ROAS targets at the campaign level inclusive of incrementality.  Bids/Budgets adjusted based on forecasting, always-on testing or automated bidding.</td>
                 

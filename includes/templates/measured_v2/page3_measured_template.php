@@ -70,7 +70,7 @@ $page_3_body = '
                 <tr>
                     <td>Experimental Approaches</td>
                     <td class="' . $Contender . '">None or possibly a dated lift study.</td>
-                    <td class="' . $Challenger . '">Runs periodic lift studies with key vendors partners but has done little independent incrementality measurement or has little faith in test outputs.</td>
+                    <td class="' . $Challenger . '">Runs periodic lift studies with key vendor partners but has done little independent incrementality measurement or has little faith in test outputs.</td>
                     <td class="' . $Leader . '">Regularly conducts incrementality testing across both first party audience splits and geo matched market testing. Has executed structured scale test to explore upside in a key tactic.</td>
                     <td class="' . $Champion . '">Has a comprehensive testing program including platform side audience splits, site-side testing, CRM testing, scale testing and rotating geo experimentation.</td>
                 </tr>

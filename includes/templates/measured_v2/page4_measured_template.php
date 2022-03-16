@@ -62,28 +62,28 @@ $page_4_body = '
 
             /* Row 1 */
                 <tr>
-                    <td>Google/FB Scale</td>
+                    <td>Google/Facebook Scale</td>
                     <td class="' . $Contender . '">We would like to spend more on Facebook, but can’t seem to generate cost effective volume, still in “growth hacking” mode.</td>
                     <td class="' . $Challenger . '">Have achieved some scale on Facebook and Google but are finding limited success in other channels.</td>
-                    <td class="' . $Leader . '">Have achieved scale on FB/Google PPC and at least one other channel (>10% of mix).</td>
-                    <td class="' . $Champion . '">Have achieved scale on FB/Google PPC and at least multiple other channels (>10% of mix).</td>
+                    <td class="' . $Leader . '">Have achieved scale on Facebook/Google PPC and at least one other channel (>10% of mix).</td>
+                    <td class="' . $Champion . '">Have achieved scale on Facebook/Google PPC and at least multiple other channels (>10% of mix).</td>
                 </tr>
 
             /* Row 2 */
                 <tr>
                     <td>Google/FB Concentration</td>
                     <td class="' . $Contender . '">90%+ of marketing spend concentrated in Google PPC/Facebook. Facebook is volume or CPA constrained i.e. </td>
-                    <td class="' . $Challenger . '">Still have 85%+ in Google PPC/Facebook but are starting to dabble in other channels -></td>
-                    <td class="' . $Leader . '">Google PPC/FB are 65%-85% of mix, dabbling in other marketing channels.</td>
-                    <td class="' . $Champion . '">Google PPC/FB are <65%of mix.</td>
+                    <td class="' . $Challenger . '">Still have 85%+ in Google PPC/Facebook but are starting to dabble in other channels.</td>
+                    <td class="' . $Leader . '">Google PPC/Facebook are 65%-85% of mix, dabbling in other marketing channels.</td>
+                    <td class="' . $Champion . '">Google PPC/Facebook are <65%of mix.</td>
                 </tr>
             
             /* Row 3 */
                 <tr>
                     <td>Channel Mix</td>
                     <td class="' . $Contender . '">Few channels outside of affiliate, email, Google PPC and Facebook.</td>
-                    <td class="' . $Challenger . '">Direct Mail, Podcast, OTT, influencer or other social channels are being explored as part of mix.</td>
-                    <td class="' . $Leader . '">Usually, 5+ marketing channels including some mix of Podcast, Audio, Influencer, DM, display, social media, OTT and/or Linear.</td>
+                    <td class="' . $Challenger . '">Direct Mail, Podcast, OTT, Influencer or other social channels are being explored as part of mix.</td>
+                    <td class="' . $Leader . '">Usually, 5+ marketing channels including some mix of Podcast, Audio, Influencer, DM, Display, Social Media, OTT and/or Linear.</td>
                     <td class="' . $Champion . '">Have mature scaled marketing programs across numerous channels and vendors and a diverse marketing mix.</td>
                 
                 </tr>

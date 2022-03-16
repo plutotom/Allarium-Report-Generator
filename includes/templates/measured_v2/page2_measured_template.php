@@ -91,8 +91,8 @@ $page_2_body = '
                     <tr>
                         <td>Reporting Automation</td>
                         <td class="' . $Contender . '" >Most reporting ad hoc or done across key vendor platforms.</td>
-                        <td class="' . $Challenger . '">Report format is automated but still created manually in excel or ppt.</td>
-                        <td class="' . $Leader . '">Most reporting is standardized in excel and/or ppt but some level of data automation has been achieved.</td>
+                        <td class="' . $Challenger . '">Report format is automated but still created manually in Excel or Ppt.</td>
+                        <td class="' . $Leader . '">Most reporting is standardized in Excel and/or Ppt but some level of data automation has been achieved.</td>
                         <td class="' . $Champion . '">Reporting automated through a BI tool built on top of a comprehensive marketing data lake.</td>
                     
                     </tr>

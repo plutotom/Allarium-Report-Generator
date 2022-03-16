@@ -20,7 +20,7 @@ $page_6_body = '<div class="container">
 foreach ($prioritization_values_average as $key => $value) {
   $value_percent = $value / 9; // this is the max of the scoring schema
   $value_percent = $value_percent * 100;
-  $value_percent = round($value_percent, 2);
+  $value_percent = round($value_percent, 0);
   $display_val = null;
 
 
