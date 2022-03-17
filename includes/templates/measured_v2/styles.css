@@ -194,6 +194,16 @@ td:not(:nth-child(1)) {
 }
 /*--------------Table Cell Color Specifics end Here----------*/
 
+/* A container is required for the icons. mPDF does not support svgs, thus the svgs must be loaded into image tags.
+To get image tags to be on the top border negative margin-top is used. if this is done on the image tag
+its self it will change the image detentions, thus the use of #plus_minus_icon_parent. */
+#plus_minus_icon_parent {
+  margin-top: -40px;
+}
+#plus_minus_icons {
+  height: 15%;
+}
+
 #logo-row {
   width: 100px;
   position: fixed;

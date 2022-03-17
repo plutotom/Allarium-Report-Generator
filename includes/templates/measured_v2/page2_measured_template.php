@@ -118,11 +118,16 @@ $page_2_body = '
     </div>
     <div class="overview-bottom" style="margin-top: 180px;">
         <div class="col">
-            <!-- <div class="orangecir"></div> -->
+            <!-- <div class="orangecir"></div> -->                
+            <div id="plus_minus_icon_parent">
+                <img id="plus_minus_icons" src="' . __DIR__ . '/plus_svg.svg" />
+            </div>
             <p>Teams that have mastered Centralized Data and  BI Reporting benefit from consistent quality control, less hours spent manually aggregating data and use reporting to create uniformity/alignment across departments.</p>
         </div>
         <div class="col">
-
+        <div id="plus_minus_icon_parent">
+            <img id="plus_minus_icons" src="' . __DIR__ . '/minus_svg.svg" />
+        </div>
             <p>Teams who rely on manual reporting lack the ability to efficiently assess data quality as well as struggle to speak the same language across departments within the organization.</p>
         </div>
     </div>

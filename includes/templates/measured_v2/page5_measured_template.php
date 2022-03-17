@@ -114,15 +114,21 @@ $page_5_body = '
 <div id="logo-row">
 <img src="' . __DIR__ . '/measured_icon.jpg" style="width: 32mm; height: 7mm; margin: 0;" />
 </div>
-<div class="overview-bottom" style="margin-top: 135px; font-size: .9em; padding-bottom: 3em;">
+<div class="overview-bottom" style="margin-top: 126px; font-size: .9em; padding-bottom: 3em;">
             <div class="col">
                 <!-- <div class="orangecir"></div> -->
-                <p>Teams that have mastered Marketing for Scale and Growth have been able to scale with Facebook, Google, as well as additional channels with at least 35% of their efforts going towards other channels. 
+                <div id="plus_minus_icon_parent">
+                <img id="plus_minus_icons" src="' . __DIR__ . '/plus_svg.svg" />
+            </div>
+                <p>Teams that have mastered Data-Driven Decision Making have always-on testing that provides a direct link between results and planning so that actionable decisions can be optimized. 
                 </p>
             </div>
             <div class="col">
+            <div id="plus_minus_icon_parent">
+            <img id="plus_minus_icons" src="' . __DIR__ . '/minus_svg.svg" />
+        </div>
                 
-                <p>Teams who haven’t yet been able to plan for Scale and Growth are not seeing a return that allows them to invest more in a particular channel. These teams usually are focused on one or few popular channels.</p>
+                <p>Teams who take GA reports as the whole truth may be lacking in effective strategy ands could suffer from heavy assumptions leading planning rather than concrete data.</p>
             </div>
         </div>
 <div class="gradient-bottom">

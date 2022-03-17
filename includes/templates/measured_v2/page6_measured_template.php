@@ -3,7 +3,7 @@
 
 $page_6_body = '<div class="container">
       <div style="margin: 0; padding: 0;" class="row">
-        <h3 style="margin: 0; padding: 0;">Initial Capability Prioritization
+        <h3 style="margin: 0; padding: 0;">Capability Prioritization
         </h3>
       </div>
       <div style="margin-top: -2em; margin-bottom: 0;" class="row">

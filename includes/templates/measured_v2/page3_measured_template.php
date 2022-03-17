@@ -110,9 +110,15 @@ $page_3_body = '
         <div class="overview-bottom" style="margin-top: 15px;">
             <div class="col">
                 <!-- <div class="orangecir"></div> -->
+                <div id="plus_minus_icon_parent">
+                <img id="plus_minus_icons" src="' . __DIR__ . '/plus_svg.svg" />
+            </div>
                 <p>Teams that have mastered Marketing Experimentation have diversified their outreach and use ongoing testing to ensure that results drive decisions.</p>
             </div>
             <div class="col">
+            <div id="plus_minus_icon_parent">
+            <img id="plus_minus_icons" src="' . __DIR__ . '/minus_svg.svg" />
+        </div>
                 <p>Teams who do not utilize Marketing Experimentation to drive decisions may be missing out on opportunities to scale within various channels.</p>
             </div>
         </div>

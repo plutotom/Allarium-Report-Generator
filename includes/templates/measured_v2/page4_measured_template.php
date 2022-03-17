@@ -115,10 +115,16 @@ $page_4_body = '
 <div class="overview-bottom" style="margin-top: 200px;">
             <div class="col">
                 <!-- <div class="orangecir"></div> -->
+                <div id="plus_minus_icon_parent">
+                <img id="plus_minus_icons" src="' . __DIR__ . '/plus_svg.svg" />
+            </div>
                 <p>Teams that have mastered Marketing for Scale and Growth have been able to scale with Facebook, Google, as well as additional channels with at least 35% of their efforts going towards other channels. 
                 </p>
             </div>
             <div class="col">  
+            <div id="plus_minus_icon_parent">
+            <img id="plus_minus_icons" src="' . __DIR__ . '/minus_svg.svg" />
+        </div>
                 <p>Teams who haven\'t yet been able to plan for Scale and Growth are not seeing a return that allows them to invest more in a particular channel. These teams usually are focused on one or few popular channels.</p>
             </div>
         </div>

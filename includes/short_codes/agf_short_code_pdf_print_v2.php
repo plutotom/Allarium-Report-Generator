@@ -254,27 +254,27 @@ function agf_short_code_pdf_print_v2($atts)
             echo "<h1>Fonts are installed</h1>";
         }
         $mpdf = new \Mpdf\Mpdf([
-            'fontDir' => [
-                AGFR__PLUGIN_DIR . 'includes/templates/measured_v2/fonts/inter',
-            ],
-            'fontdata' => [
-                // 'opensans' => [
-                //     'R' => 'OpenSans-Regular.ttf',
-                //     'B' => 'OpenSans-Bold.ttf',
-                //     'I' => 'OpenSans-Italic.ttf',
-                //     'BI' => 'OpenSans-BoldItalic.ttf',
-                // ],
-                'inter' => [
-                    'R' => 'Inter-Regular.ttf',
-                    'B' => 'inter-Bold.ttf',
-                    'I' => 'inter-Italic.ttf',
-                    'BI' => 'inter-BoldItalic.ttf',
-                ],
-            ],
+            // 'fontDir' => [
+            //     AGFR__PLUGIN_DIR . 'includes/templates/measured_v2/fonts/inter',
+            // ],
+            // 'fontdata' => [
+            //     // 'opensans' => [
+            //     //     'R' => 'OpenSans-Regular.ttf',
+            //     //     'B' => 'OpenSans-Bold.ttf',
+            //     //     'I' => 'OpenSans-Italic.ttf',
+            //     //     'BI' => 'OpenSans-BoldItalic.ttf',
+            //     // ],
+            //     'inter' => [
+            //         'R' => 'Inter-Regular.ttf',
+            //         'B' => 'inter-Bold.ttf',
+            //         'I' => 'inter-Italic.ttf',
+            //         'BI' => 'inter-BoldItalic.ttf',
+            //     ],
+            // ],
 
 
 
-            'default_font' => 'inter',
+            'default_font' => 'opensans',
             'collapseBlockMargins ' => false,
             'margin_left' => 5,
             'margin_right' => 5,
@@ -315,9 +315,7 @@ function agf_short_code_pdf_print_v2($atts)
         $mpdf->WriteHTML('<pagebreak />');
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 345mm" />'); // page 6 page size
         // $mpdf->WriteHTML($page_6_styles, \Mpdf\HTMLParserMode::HEADER_CSS);
-        $mpdf->WriteHTML($page_6_body);
 
-        $mpdf->WriteHTML('<pagebreak />');
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 235mm" />'); // page 2 page size
         $mpdf->WriteHTML($page_2_body);
         $mpdf->WriteHTML('<pagebreak />');
@@ -329,6 +327,9 @@ function agf_short_code_pdf_print_v2($atts)
         $mpdf->WriteHTML('<pagebreak />');
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 290mm" />'); // page 5 page size
         $mpdf->WriteHTML($page_5_body);
+        $mpdf->WriteHTML($page_6_body);
+
+
         // $mpdf->WriteHTML('<pagebreak />');
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 370mm" />'); // page 7 page size
         // $mpdf->WriteHTML($page_7_body);
