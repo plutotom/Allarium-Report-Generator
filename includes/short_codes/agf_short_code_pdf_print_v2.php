@@ -307,7 +307,9 @@ function agf_short_code_pdf_print_v2($atts)
         $mpdf->WriteHTML($page_title_body);
 
         // page 1
-        $mpdf->WriteHTML('<pagebreak />'); // page 1 page size
+        $mpdf->WriteHTML('<pagebreak />');
+        $mpdf->WriteHTML($page_6_body);
+        $mpdf->WriteHTML('<pagebreak />');
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 280mm" />'); // page 1 page size
         $mpdf->WriteHTML($page_1_body);
 
@@ -327,7 +329,7 @@ function agf_short_code_pdf_print_v2($atts)
         $mpdf->WriteHTML('<pagebreak />');
         // $mpdf->WriteHTML('<pagebreak sheet-size="254mm 290mm" />'); // page 5 page size
         $mpdf->WriteHTML($page_5_body);
-        $mpdf->WriteHTML($page_6_body);
+
 
 
         // $mpdf->WriteHTML('<pagebreak />');
