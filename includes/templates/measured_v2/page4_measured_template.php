@@ -71,7 +71,7 @@ $page_4_body = '
 
             /* Row 2 */
                 <tr>
-                    <td>Google/FB Concentration</td>
+                    <td>Google/Facebook Concentration</td>
                     <td class="' . $Contender . '">90%+ of marketing spend concentrated in Google PPC/Facebook. Facebook is volume or CPA constrained i.e. </td>
                     <td class="' . $Challenger . '">Still have 85%+ in Google PPC/Facebook but are starting to dabble in other channels.</td>
                     <td class="' . $Leader . '">Google PPC/Facebook are 65%-85% of mix, dabbling in other marketing channels.</td>
@@ -112,7 +112,7 @@ $page_4_body = '
 <div id="logo-row">
 <img src="' . __DIR__ . '/measured_icon.jpg" style="width: 32mm; height: 7mm; margin: 0;" />
 </div>
-<div class="overview-bottom" style="margin-top: 200px;">
+<div class="overview-bottom" style="margin-top: 210px;">
             <div class="col">
                 <!-- <div class="orangecir"></div> -->
                 <div id="plus_minus_icon_parent">

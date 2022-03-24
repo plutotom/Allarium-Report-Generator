@@ -65,7 +65,7 @@ $page_5_body = '
             /* Row 1 */
                 <tr>
                     <td>Marketing Attribution</td>
-                    <td class="' . $Contender . '">Google Analytics and/or vendor platforms taken as truth with specific window “rules” used to determine attribution, e.g. Google DDA or 7d click/1d view in FB Ads Manager.</td>
+                    <td class="' . $Contender . '">Google Analytics and/or vendor platforms taken as truth with specific window “rules” used to determine attribution, e.g. Google DDA or 7d click/1d view in Facebook Ads Manager.</td>
                     <td class="' . $Challenger . '">Relies on Google Analytics and Vendor platforms for attribution, but ad hoc adjustments are made to accounts for things like funnel position and new vs. existing customers.</td>
                     <td class="' . $Leader . '">Uses either an internally built attribution model (e.g. MTA, MMM) or actively adjusts Google Analytics/Vendor Reporting with results from in-market testing.</td>
                     <td class="' . $Champion . '">Uses regular incrementality testing to train attribution models (e.g. MMM or MTA).</td>

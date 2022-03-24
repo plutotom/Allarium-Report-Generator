@@ -38,6 +38,8 @@ foreach ($prioritization_values_average as $key => $value) {
     $value_percent_width = $value_percent;
   }
 
+  //  remove "- priorty" string from $key
+  $key = str_replace(" - Priority", "", $key);
   $page_6_body .= '
     <div style="margin: 25px 0" class="bar-row">
         <div class="rowleft">

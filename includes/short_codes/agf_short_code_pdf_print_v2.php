@@ -250,12 +250,21 @@ function agf_short_code_pdf_print_v2($atts)
         include_once __DIR__ . '/../templates/measured_v2/page7_measured_template.php';
 
 
-        if (file_exists(AGFR__PLUGIN_DIR . 'includes/templates/measured_v2/fonts/inter')) {
-            echo "<h1>Fonts are installed</h1>";
-        }
+        // if (file_exists(AGFR__PLUGIN_DIR . 'includes/templates/measured_v2/fonts/inter')) {
+        //     echo "<h1>Fonts are installed</h1>";
+        // }
+        // if (!defined('_MPDF_PATH')) define('_MPDF_PATH', AGFR__PLUGIN_DIR . 'libraries/mpdf/');
+
+        $defaultConfig = (new Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+
+        $defaultFontConfig = (new Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
+
         $mpdf = new \Mpdf\Mpdf([
             // 'fontDir' => [
-            //     AGFR__PLUGIN_DIR . 'includes/templates/measured_v2/fonts/inter',
+            //     __DIR__ . '/../templates/measured_v2/fonts/inter',
             // ],
             // 'fontdata' => [
             //     // 'opensans' => [
@@ -273,12 +282,23 @@ function agf_short_code_pdf_print_v2($atts)
             // ],
 
 
+            'fontDir' => array_merge($fontDirs, [
+                __DIR__ . '/../templates/measured_v2/fonts/inter',
+            ]),
+            'fontdata' => $fontData + [
+                'inter' => [
+                    'R' => 'Inter-Regular.ttf',
+                    'B' => 'Inter-Bold.ttf',
+                    'I' => 'Inter-Italic.ttf',
+                    'BI' => 'Inter-BoldItalic.ttf',
+                ],
+            ],
+            'default_font' => 'inter',
 
-            'default_font' => 'opensans',
             'collapseBlockMargins ' => false,
-            'margin_left' => 5,
-            'margin_right' => 5,
-            'margin_top' => 5,
+            'margin_left' => 2,
+            'margin_right' => 2,
+            'margin_top' => 2,
             'margin_bottom' => 2,
             'margin_header' => 0,
             'margin_footer' => 0,

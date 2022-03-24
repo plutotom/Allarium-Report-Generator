@@ -107,7 +107,7 @@ $page_3_body = '
     <div id="logo-row">
     <img src="' . __DIR__ . '/measured_icon.jpg" style="width: 32mm; height: 7mm; margin: 0;" />
     </div>
-        <div class="overview-bottom" style="margin-top: 15px;">
+        <div class="overview-bottom" style="margin-top: 0px;">
             <div class="col">
                 <!-- <div class="orangecir"></div> -->
                 <div id="plus_minus_icon_parent">
