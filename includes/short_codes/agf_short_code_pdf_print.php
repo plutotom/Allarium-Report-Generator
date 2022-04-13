@@ -8,8 +8,6 @@ function agf_short_code_pdf_print($atts)
         "form_ids" => null,
     ), $atts);
 
-
-
     if ($atts["id"] == null) {
         Agf_Helper_Class::alert_message("Please provide a form id for pdf print shortcode.");
         return;
@@ -59,11 +57,11 @@ function agf_short_code_pdf_print($atts)
         // list ann entries from forms selected
         $entry_list = Agf_Helper_Class::get_entries_for_form($form_ids);
 
+
         // foreach entry_list get entry date_created and add to html select
         $html_select_entries = '';
         $searchable_dropdown = '';
         // entries_list looks like [32 => [val1: score, val2:score], 489=>[val1: score, val2:score]]
-        // Agf_Helper_Class::console_log($entry_list);
         foreach ($entry_list as $form_id => $form_entries) {
             $html_select_entries .= '<label class="select-entry-label" for=selected_entry_for_print_id:' . $form_id . '>Select entry for ' . GFAPI::get_form($form_id)['title'] . '</label>';
             $html_select_entries .= '<select required style="width: 100%" class="agf-searchable-dropdown" name="selected_entry_for_print_id:' . $form_id . '" id="selected_entry_for_print' . $form_id . '">';

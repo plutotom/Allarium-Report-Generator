@@ -102,7 +102,14 @@ class Agf_Helper_Class
         // for each form id get all entries
         $entries = array();
         foreach ($form_ids as $form_id) {
-            $entries[$form_id] = GFAPI::get_entries($form_id);
+            // https://docs.gravityforms.com/api-functions/#get-entries
+            // each entry must be passed.
+            // 'page_size' defalut is 20. Setting page_size to 0 to return all entries.
+            // This may become a problem in the future if their are more then 200 entries.
+            $search_criteria    = array();
+            $sorting            = array();
+            $paging             = array('offset' => 0, 'page_size' => 0);
+            $entries[$form_id]  = GFAPI::get_entries($form_id, $search_criteria, $sorting, $paging);
         }
         return $entries;
     }
