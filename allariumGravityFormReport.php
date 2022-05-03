@@ -2,11 +2,10 @@
 
 /*
 Plugin Name: Form Report Generator - Allarium
-Plugin URI: https://github.com/plutotom/Allarium-Report-Generator
-Description: Creates exportable reports for users after taking survey.
+Description: Automatically creates Pdf Reports.
 Version: 1.0
 Author: Allarium - Isaiah Proctor
-Author URI: https://www.allarium.com/ github.com/plutotom
+Author URI: https://www.allarium.com/
 License: GPLv2 or later
 Text Domain: Gravity Forms PDF Reports
 */
